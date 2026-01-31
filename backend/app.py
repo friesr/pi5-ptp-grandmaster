@@ -31,6 +31,7 @@ from backend.api.geometry_timeline import geometry_timeline_api
 from backend.api.ptp_events import ptp_events_api
 from backend.api.skyplot_density import skyplot_density_api
 from backend.api.signal_quality import signal_quality_api
+from backend.api.gnss_ptp_correlation import gnss_ptp_corr_api
 
 
 
@@ -74,6 +75,7 @@ app.register_blueprint(geometry_timeline_api, url_prefix="/api/geometry_timeline
 app.register_blueprint(ptp_events_api, url_prefix="/api/ptp_events")
 app.register_blueprint(skyplot_density_api, url_prefix="/api/skyplot_density")
 app.register_blueprint(signal_quality_api, url_prefix="/api/signal_quality")
+app.register_blueprint(gnss_ptp_corr_api, url_prefix="/api/gnss_ptp_corr")
 
 
 @app.route("/")
@@ -171,4 +173,8 @@ def skyplot_density_page():
 @app.route("/signal-quality")
 def signal_quality_page():
     return render_template("signal_quality.html")
+
+@app.route("/gnss-ptp-corr")
+def gnss_ptp_corr_page():
+    return render_template("gnss_ptp_corr.html")
 
