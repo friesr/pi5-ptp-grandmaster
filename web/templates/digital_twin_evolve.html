@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scenario Evolution</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/digital-twin">Digital Twin</a>
+    <a href="/digital-twin-evolve">Scenario Evolution</a>
+</div>
+
+<h1>Digital Twin Scenario Evolution</h1>
+
+<div class="card">
+    <h2>Select GA Config</h2>
+    <select id="ga-select"></select>
+    <button onclick="runGA()">Run Evolution</button>
+</div>
+
+<div class="card">
+    <h2>Top Evolved Scenarios</h2>
+    <pre id="ga-output" style="height:500px; overflow-y:auto;"></pre>
+</div>
+
+<script src="/static/js/digital_twin_evolve.js"></script>
+
+</body>
+</html>
