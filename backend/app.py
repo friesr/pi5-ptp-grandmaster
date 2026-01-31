@@ -79,6 +79,8 @@ from backend.api.sensitivity import sensitivity_api
 from backend.api.digital_twin_optimize import digital_twin_optimize_api
 from backend.api.digital_twin_evolve import digital_twin_evolve_api
 from backend.api.digital_twin_monte_carlo import digital_twin_mc_api
+from backend.api.digital_twin_risk_curves import digital_twin_risk_api
+
 
 
 
@@ -196,6 +198,7 @@ app.register_blueprint(sensitivity_api, url_prefix="/api/sensitivity")
 app.register_blueprint(digital_twin_optimize_api, url_prefix="/api/digital_twin_optimize")
 app.register_blueprint(digital_twin_evolve_api, url_prefix="/api/digital_twin_evolve")
 app.register_blueprint(digital_twin_mc_api, url_prefix="/api/digital_twin_monte_carlo")
+app.register_blueprint(digital_twin_risk_api, url_prefix="/api/digital_twin_risk")
 
 
 
@@ -469,6 +472,10 @@ def digital_twin_evolve_page():
 @app.route("/digital-twin-monte-carlo")
 def digital_twin_monte_carlo_page():
     return render_template("digital_twin_monte_carlo.html")
+
+@app.route("/digital-twin-risk-curves")
+def digital_twin_risk_curves_page():
+    return render_template("digital_twin_risk_curves.html")
 
 
 # -------------------------------------------------------------------
