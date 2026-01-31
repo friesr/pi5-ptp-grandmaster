@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/config.svg">
+        Desktop Preferences
+    </h2>
+    <p>Customize the appearance and behavior of the desktop observatory interface.</p>
+</div>
+
+<!-- Theme -->
+<div class="card">
+    <h2>Theme</h2>
+    <label class="pref-option">
+        <input type="radio" name="theme" value="dark"> Dark Mode
+    </label>
+    <label class="pref-option">
+        <input type="radio" name="theme" value="light"> Light Mode
+    </label>
+</div>
+
+<!-- Sparkline Style -->
+<div class="card">
+    <h2>Sparkline Style</h2>
+    <label class="pref-option">
+        <input type="radio" name="sparkline" value="minimal"> Minimal Line
+    </label>
+    <label class="pref-option">
+        <input type="radio" name="sparkline" value="bold"> Bold Line
+    </label>
+    <label class="pref-option">
+        <input type="radio" name="sparkline" value="filled"> Filled Area
+    </label>
+</div>
+
+<!-- Data Density -->
+<div class="card">
+    <h2>Data Density</h2>
+    <label class="pref-option">
+        <input type="radio" name="density" value="compact"> Compact
+    </label>
+    <label class="pref-option">
+        <input type="radio" name="density" value="comfortable"> Comfortable
+    </label>
+    <label class="pref-option">
+        <input type="radio" name="density" value="expanded"> Expanded
+    </label>
+</div>
+
+<!-- Auto Refresh -->
+<div class="card">
+    <h2>Auto‑Refresh Interval</h2>
+    <label class="pref-option">
+        <input type="radio" name="refresh" value="5"> 5 seconds
+    </label>
+    <label class="pref-option">
+        <input type="radio" name="refresh" value="10"> 10 seconds
+    </label>
+    <label class="pref-option">
+        <input type="radio" name="refresh" value="30"> 30 seconds
+    </label>
+    <label class="pref-option">
+        <input type="radio" name="refresh" value="60"> 60 seconds
+    </label>
+</div>
+
+<!-- Save -->
+<div class="card">
+    <button class="save-button" onclick="savePrefs()">Save Preferences</button>
+</div>
+
+<script>
+function loadPrefs() {
+    fetch('/api/mobile_prefs')
+        .then(r => r.json())
+        .then(p => {
+            document.querySelector(`input[name="sparkline"][value="${p.sparkline}"]`).checked = true;
+            if (p.theme) document.querySelector(`input[name="theme"][value="${p.theme}"]`).checked = true;
+            if (p.density) document.querySelector(`input[name="density"][value="${p.density}"]`).checked = true;
+            if (p.refresh) document.querySelector(`input[name="refresh"][value="${p.refresh}"]`).checked = true;
+        });
+}
+
+function savePrefs() {
+    const prefs = {
+        theme: document.querySelector('input[name="theme"]:checked')?.value,
+        sparkline: document.querySelector('input[name="sparkline"]:checked')?.value,
+        density: document.querySelector('input[name="density"]:checked')?.value,
+        refresh: document.querySelector('input[name="refresh"]:checked')?.value
+    };
+
+    fetch('/api/mobile_prefs', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(prefs)
+    }).then(() => alert("Preferences saved"));
+}
+
+loadPrefs();
+</script>
+
+{% endblock %}
