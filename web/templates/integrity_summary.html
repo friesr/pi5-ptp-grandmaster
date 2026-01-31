@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        GNSS Integrity Summary
+    </h2>
+    <p>
+        A unified view of GNSS integrity across ephemeris, signal quality, spoofing, interference,
+        measurement consistency, geometry, and timing confidence.
+    </p>
+</div>
+
+<!-- Overall Integrity Score -->
+<div class="card">
+    <h2>Overall Integrity Score</h2>
+
+    <div id="score" style="font-size:48px; font-weight:700;">--</div>
+    <div id="score-badge" class="badge badge-info">Calculating…</div>
+</div>
+
+<!-- Component Grid -->
+<div class="card">
+    <h2>Integrity Components</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <h3>Ephemeris</h3>
+            <div id="eph" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Signal Quality</h3>
+            <div id="sig" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Spoofing Risk</h3>
+            <div id="spoof" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Interference</h3>
+            <div id="int" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Measurement Consistency</h3>
+            <div id="cons" class="badge badge-info"></div>
+        </div>
+    </div>
+
+    <div class="flex-row" style="margin-top:20px;">
+        <div class="flex-1">
+            <h3>Residuals</h3>
+            <div id="res" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Geometry</h3>
+            <div id="geom" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Constellation Stability</h3>
+            <div id="const" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Timing Confidence</h3>
+            <div id="tc" class="badge badge-info"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Trend -->
+<div class="card">
+    <h2>Integrity Trend</h2>
+    <div id="trend-spark"></div>
+</div>
+
+<!-- Anomalies -->
+<div class="card">
+    <h2>Detected Integrity Anomalies</h2>
+    <div id="anomalies">No anomalies detected.</div>
+</div>
+
+<!-- Recommendations -->
+<div class="card">
+    <h2>Recommended Actions</h2>
+    <div id="recommendations">No recommendations.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadIntegrity() {
+    fetch('/api/gnss/integrity_summary')
+        .then(r => r.json())
+        .then(d => {
+            // Score
+            document.getElementById('score').innerText = d.score;
+
+            const badge = document.getElementById('score-badge');
+            badge.innerText = d.label;
+
+            badge.className =
+                d.score >= 90 ? "badge badge-ok" :
+                d.score >= 70 ? "badge badge-warn" :
+                                "badge badge-bad";
+
+            // Components
+            document.getElementById('eph').innerText = d.components.ephemeris;
+            document.getElementById('sig').innerText = d.components.signal;
+            document.getElementById('spoof').innerText = d.components.spoofing;
+            document.getElementById('int').innerText = d.components.interference;
+            document.getElementById('cons').innerText = d.components.consistency;
+            document.getElementById('res').innerText = d.components.residuals;
+            document.getElementById('geom').innerText = d.components.geometry;
+            document.getElementById('const').innerText = d.components.constellation;
+            document.getElementById('tc').innerText = d.components.timing_confidence;
+
+            // Trend
+            renderSparkline("trend-spark", d.trend || [], "minimal");
+
+            // Anomalies
+            const anomalies = d.anomalies || [];
+            const aDiv = document.getElementById('anomalies');
+
+            if (anomalies.length === 0) {
+                aDiv.innerHTML = "<p>No anomalies detected.</p>";
+            } else {
+                aDiv.innerHTML = anomalies.map(a => `
+                    <div class="alert-row ${severityClass(a.severity)}">
+                        <div style="font-weight:600;">${a.title}</div>
+                        <div>${a.description}</div>
+                        <div class="alert-meta">${a.time}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Recommendations
+            const recs = d.recommendations || [];
+            const rDiv = document.getElementById('recommendations');
+
+            if (recs.length === 0) {
+                rDiv.innerHTML = "<p>No recommendations.</p>";
+            } else {
+                rDiv.innerHTML = recs.map(r => `
+                    <div class="alert-row alert-major">
+                        <div style="font-weight:600;">${r.title}</div>
+                        <div>${r.action}</div>
+                    </div>
+                `).join('');
+            }
+        });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+setInterval(loadIntegrity, 5000);
+loadIntegrity();
+</script>
+
+{% endblock %}
