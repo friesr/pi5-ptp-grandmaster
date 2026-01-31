@@ -48,6 +48,9 @@ from flask import Blueprint, jsonify
 import os, json
 
 from backend.analysis.unified_timeline import build_unified_timeline
+from backend.api.report import report_api
+
+
 
 unified_api = Blueprint("unified_api", __name__)
 
@@ -124,6 +127,8 @@ app.register_blueprint(anomaly_explainer_api, url_prefix="/api/anomaly_explainer
 app.register_blueprint(env_change_api, url_prefix="/api/environment_change")
 app.register_blueprint(sla_api, url_prefix="/api/sla")
 app.register_blueprint(unified_api, url_prefix="/api/unified_timeline")
+
+app.register_blueprint(report_api, url_prefix="/api/report")
 
 
 @app.route("/")
@@ -282,3 +287,7 @@ def sla_page():
 @app.route("/unified-timeline")
 def unified_timeline_page():
     return render_template("unified_timeline.html")
+
+@app.route("/report")
+def report_page():
+    return render_template("report.html")
