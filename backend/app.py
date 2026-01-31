@@ -62,7 +62,7 @@ from backend.api.scenario_save import scenario_save_api
 from backend.api.digital_twin_batch import digital_twin_batch_api
 from backend.api.digital_twin_report import digital_twin_report_api
 from backend.api.sensitivity import sensitivity_api
-from backend.api.digital_twin_optimize import digital_twin_optimize_api
+from backend.api.digital_twin_optimizer import digital_twin_optimizer_api
 from backend.api.digital_twin_evolve import digital_twin_evolve_api
 from backend.api.digital_twin_monte_carlo import digital_twin_mc_api
 from backend.api.digital_twin_risk_curves import digital_twin_risk_api
