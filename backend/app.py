@@ -1,5 +1,6 @@
 from flask import Flask, render_template, Blueprint, jsonify
-import os, json
+import os
+import json
 
 # ------------------------------------------------------------
 # Core API Imports
@@ -55,7 +56,7 @@ from backend.api.mission_control import mission_api
 from backend.api.master_summary import master_api
 
 # ------------------------------------------------------------
-# Digital Twin / Simulation APIs (Steps 79–94)
+# Digital Twin / Simulation APIs
 # ------------------------------------------------------------
 from backend.api.scenario_save import scenario_save_api
 from backend.api.digital_twin_batch import digital_twin_batch_api
@@ -107,7 +108,7 @@ app = Flask(
 )
 
 # ------------------------------------------------------------
-# Register Blueprints
+# Blueprint Manifest (Pattern A)
 # ------------------------------------------------------------
 apis = [
     (status_api, "/api/status"),
@@ -163,4 +164,230 @@ apis = [
 
     # Digital Twin APIs
     (scenario_save_api, "/api/scenario"),
-    (digital_twin_batch_api, "/api/digital
+    (digital_twin_batch_api, "/api/digital_twin_batch"),
+    (digital_twin_report_api, "/api/digital_twin_report"),
+    (sensitivity_api, "/api/sensitivity"),
+    (digital_twin_optimize_api, "/api/digital_twin_optimize"),
+    (digital_twin_evolve_api, "/api/digital_twin_evolve"),
+    (digital_twin_mc_api, "/api/digital_twin_mc"),
+    (digital_twin_risk_api, "/api/digital_twin_risk"),
+    (scenario_library_api, "/api/scenario_library"),
+    (digital_twin_replay_api, "/api/digital_twin_replay"),
+    (digital_twin_multi_replay_api, "/api/digital_twin_multi_replay"),
+    (digital_twin_diff_api, "/api/digital_twin_diff"),
+    (digital_twin_events_api, "/api/digital_twin_events"),
+    (digital_twin_event_timeline_api, "/api/digital_twin_event_timeline"),
+]
+
+for bp, prefix in apis:
+    app.register_blueprint(bp, url_prefix=prefix)
+
+# ------------------------------------------------------------
+# UI Routes
+# ------------------------------------------------------------
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/alert-rules")
+def alert_rules_page():
+    return render_template("alert_rules.html")
+
+@app.route("/anomaly-clusters")
+def anomaly_clusters_page():
+    return render_template("anomaly_clusters.html")
+
+@app.route("/anomaly-explanations")
+def anomaly_explanations_page():
+    return render_template("anomaly_explanations.html")
+
+@app.route("/anomaly-ml")
+def anomaly_ml_page():
+    return render_template("anomaly_ml.html")
+
+@app.route("/backup")
+def backup_page():
+    return render_template("backup.html")
+
+@app.route("/config")
+def config_page():
+    return render_template("config.html")
+
+@app.route("/constellation-drift")
+def constellation_drift_page():
+    return render_template("constellation_drift.html")
+
+@app.route("/constellation-performance")
+def constellation_performance_page():
+    return render_template("constellation_performance.html")
+
+@app.route("/constellation-score")
+def constellation_score_page():
+    return render_template("constellation_score.html")
+
+@app.route("/constellation-timeline")
+def constellation_timeline_page():
+    return render_template("constellation_timeline.html")
+
+@app.route("/digital-twin")
+def digital_twin_page():
+    return render_template("digital_twin.html")
+
+@app.route("/digital-twin-diff")
+def digital_twin_diff_page():
+    return render_template("digital_twin_diff.html")
+
+@app.route("/digital-twin-events")
+def digital_twin_events_page():
+    return render_template("digital_twin_events.html")
+
+@app.route("/digital-twin-event-timeline")
+def digital_twin_event_timeline_page():
+    return render_template("digital_twin_event_timeline.html")
+
+@app.route("/digital-twin-multi-replay")
+def digital_twin_multi_replay_page():
+    return render_template("digital_twin_multi_replay.html")
+
+@app.route("/digital-twin-replay")
+def digital_twin_replay_page():
+    return render_template("digital_twin_replay.html")
+
+@app.route("/environment")
+def environment_page():
+    return render_template("environment_fingerprint.html")
+
+@app.route("/environment-change")
+def environment_change_page():
+    return render_template("environment_change.html")
+
+@app.route("/geometry-timeline")
+def geometry_timeline_page():
+    return render_template("geometry_timeline.html")
+
+@app.route("/gnss-fade-events")
+def gnss_fade_events_page():
+    return render_template("gnss_fade_events.html")
+
+@app.route("/gnss-history")
+def gnss_history_page():
+    return render_template("gnss_history.html")
+
+@app.route("/gnss-outages")
+def gnss_outages_page():
+    return render_template("gnss_outages.html")
+
+@app.route("/gnss-ptp-corr")
+def gnss_ptp_corr_page():
+    return render_template("gnss_ptp_corr.html")
+
+@app.route("/master-summary")
+def master_summary_page():
+    return render_template("master_summary.html")
+
+@app.route("/mission-control")
+def mission_control_page():
+    return render_template("mission_control.html")
+
+@app.route("/multi-receiver")
+def multi_receiver_page():
+    return render_template("multi_receiver.html")
+
+@app.route("/multipath-heatmap")
+def multipath_heatmap_page():
+    return render_template("multipath_heatmap.html")
+
+@app.route("/predictive-maintenance")
+def predictive_maintenance_page():
+    return render_template("predictive_maintenance.html")
+
+@app.route("/prn-health")
+def prn_health_page():
+    return render_template("prn_health.html")
+
+@app.route("/prn-lifetime")
+def prn_lifetime_page():
+    return render_template("prn_lifetime.html")
+
+@app.route("/ptp-events")
+def ptp_events_page():
+    return render_template("ptp_events.html")
+
+@app.route("/ptp-profile")
+def ptp_profile_page():
+    return render_template("ptp_profile.html")
+
+@app.route("/receiver-health")
+def receiver_health_page():
+    return render_template("receiver_health.html")
+
+@app.route("/report")
+def report_page():
+    return render_template("report.html")
+
+@app.route("/satellites")
+def satellites():
+    return render_template("satellites.html")
+
+@app.route("/scenario-library")
+def scenario_library_page():
+    return render_template("scenario_library.html")
+
+@app.route("/services")
+def services_page():
+    return render_template("services.html")
+
+@app.route("/servo-history")
+def servo_history_page():
+    return render_template("servo_history.html")
+
+@app.route("/signal-quality")
+def signal_quality_page():
+    return render_template("signal_quality.html")
+
+@app.route("/skyplot-density")
+def skyplot_density_page():
+    return render_template("skyplot_density.html")
+
+@app.route("/skyplot-playback")
+def skyplot_playback_page():
+    return render_template("skyplot_playback.html")
+
+@app.route("/sla")
+def sla_page():
+    return render_template("sla.html")
+
+@app.route("/snr-waterfall")
+def snr_waterfall_page():
+    return render_template("snr_waterfall.html")
+
+@app.route("/stability")
+def stability_page():
+    return render_template("stability.html")
+
+@app.route("/system-health")
+def system_health_page():
+    return render_template("system_health.html")
+
+@app.route("/timing-accuracy")
+def timing_accuracy_page():
+    return render_template("timing_accuracy.html")
+
+@app.route("/timing-confidence")
+def timing_confidence_page():
+    return render_template("timing_confidence.html")
+
+@app.route("/unified-timeline")
+def unified_timeline_page():
+    return render_template("unified_timeline.html")
+
+@app.route("/validation")
+def validation_page():
+    return render_template("validation.html")
+
+# ------------------------------------------------------------
+# App Runner
+# ------------------------------------------------------------
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=80)
