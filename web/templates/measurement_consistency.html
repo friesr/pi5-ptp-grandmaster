@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        GNSS Measurement Consistency Engine
+    </h2>
+    <p>
+        Cross‑checks satellites, constellations, and epochs to detect inconsistencies in pseudorange,
+        carrier‑phase, Doppler, and timing measurements.
+    </p>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Consistency Summary</h2>
+    <div id="summary">Loading…</div>
+</div>
+
+<!-- Cross‑Satellite Consistency -->
+<div class="card">
+    <h2>Cross‑Satellite Consistency</h2>
+    <div id="cross-sat-spark"></div>
+</div>
+
+<!-- Cross‑Constellation Consistency -->
+<div class="card">
+    <h2>Cross‑Constellation Consistency</h2>
+    <div id="cross-const-spark"></div>
+</div>
+
+<!-- Epoch Stability -->
+<div class="card">
+    <h2>Epoch‑to‑Epoch Stability</h2>
+    <div id="epoch-spark"></div>
+</div>
+
+<!-- Bias Table -->
+<div class="card">
+    <h2>Detected Biases</h2>
+    <table id="bias-table" style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="text-align:left; border-bottom:1px solid var(--border);">
+                <th>Type</th>
+                <th>Magnitude</th>
+                <th>Constellation</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody id="bias-body"></tbody>
+    </table>
+</div>
+
+<!-- Anomalies -->
+<div class="card">
+    <h2>Detected Inconsistencies</h2>
+    <div id="anomalies">No inconsistencies detected.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadConsistency() {
+    fetch('/api/gnss/measurement_consistency')
+        .then(r => r.json())
+        .then(d => {
+            // Summary
+            document.getElementById('summary').innerHTML = `
+                <p><strong>Overall Consistency:</strong> ${d.label}</p>
+                <p><strong>Cross‑Satellite:</strong> ${d.cross_sat_score}%</p>
+                <p><strong>Cross‑Constellation:</strong> ${d.cross_const_score}%</p>
+                <p><strong>Epoch Stability:</strong> ${d.epoch_stability}%</p>
+                <p><strong>Notes:</strong> ${d.notes}</p>
+            `;
+
+            // Trends
+            renderSparkline("cross-sat-spark", d.cross_sat_trend || [], "minimal");
+            renderSparkline("cross-const-spark", d.cross_const_trend || [], "minimal");
+            renderSparkline("epoch-spark", d.epoch_trend || [], "minimal");
+
+            // Bias table
+            const biases = d.biases || [];
+            const tbody = document.getElementById('bias-body');
+            tbody.innerHTML = "";
+
+            biases.forEach(b => {
+                tbody.innerHTML += `
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td>${b.type}</td>
+                        <td>${b.magnitude}</td>
+                        <td>${b.constellation}</td>
+                        <td>${b.notes}</td>
+                    </tr>
+                `;
+            });
+
+            // Anomalies
+            const anomalies = d.anomalies || [];
+            const aDiv = document.getElementById('anomalies');
+
+            if (anomalies.length === 0) {
+                aDiv.innerHTML = "<p>No inconsistencies detected.</p>";
+            } else {
+                aDiv.innerHTML = anomalies.map(a => `
+                    <div class="alert-row ${severityClass(a.severity)}">
+                        <div style="font-weight:600;">${a.title}</div>
+                        <div>${a.description}</div>
+                        <div class="alert-meta">${a.time}</div>
+                    </div>
+                `).join('');
+            }
+        });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+setInterval(loadConsistency, 5000);
+loadConsistency();
+</script>
+
+{% endblock %}
