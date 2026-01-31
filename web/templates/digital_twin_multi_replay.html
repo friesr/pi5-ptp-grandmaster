@@ -1,47 +1,178 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Multi-Scenario Replay</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
+{% extends "base.html" %}
+{% block content %}
 
-<body>
-
-<div class="nav">
-    <a href="/">Dashboard</a>
-    <a href="/digital-twin">Digital Twin</a>
-    <a href="/digital-twin-multi-replay">Multi Replay</a>
-</div>
-
-<h1>GNSS Timing Multi-Scenario Replay</h1>
-
+<!-- Multi-Replay Header -->
 <div class="card">
-    <h2>Select Scenarios</h2>
-    <select id="scenario-select" multiple size="8"></select>
-    <button onclick="loadMultiReplay()">Load Selected</button>
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        Digital Twin — Multi‑Replay Studio
+    </h2>
+    <p>
+        Compare two historical timing windows side‑by‑side. Ideal for analyzing GNSS outages,
+        interference spikes, servo anomalies, and timing drift under different conditions.
+    </p>
 </div>
 
+<!-- Replay Controls -->
 <div class="card">
-    <h2>Timeline Controls</h2>
-    <button onclick="play()">Play</button>
-    <button onclick="pause()">Pause</button>
-    <button onclick="stepBack()">◀</button>
-    <button onclick="stepForward()">▶</button>
-    <input id="timeline" type="range" min="0" max="100" value="0" oninput="scrub()">
+    <h2>Replay Windows</h2>
+
+    <div style="display:flex; gap:40px;">
+
+        <!-- Window A -->
+        <div style="flex:1;">
+            <h3>Window A</h3>
+            <label>Start</label><br>
+            <input id="a_start" type="datetime-local"><br><br>
+
+            <label>End</label><br>
+            <input id="a_end" type="datetime-local"><br><br>
+
+            <label>Speed</label><br>
+            <select id="a_speed">
+                <option value="1">1×</option>
+                <option value="2">2×</option>
+                <option value="5">5×</option>
+                <option value="10">10×</option>
+            </select>
+        </div>
+
+        <!-- Window B -->
+        <div style="flex:1;">
+            <h3>Window B</h3>
+            <label>Start</label><br>
+            <input id="b_start" type="datetime-local"><br><br>
+
+            <label>End</label><br>
+            <input id="b_end" type="datetime-local"><br><br>
+
+            <label>Speed</label><br>
+            <select id="b_speed">
+                <option value="1">1×</option>
+                <option value="2">2×</option>
+                <option value="5">5×</option>
+                <option value="10">10×</option>
+            </select>
+        </div>
+
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="startMultiReplay()">
+        Start Multi‑Replay
+    </button>
 </div>
 
+<!-- Replay Output -->
 <div class="card">
-    <h2>Timing Error Comparison</h2>
-    <div id="multi-chart" style="height:400px;"></div>
+    <h2>Comparison Output</h2>
+    <div id="status">Waiting for replay…</div>
+
+    <div style="display:flex; gap:20px; margin-top:20px;">
+
+        <!-- Window A -->
+        <div style="flex:1;">
+            <h3>Window A</h3>
+            <div id="a_gnss"></div>
+            <div id="a_gnss_spark"></div>
+
+            <div id="a_ptp"></div>
+            <div id="a_ptp_spark"></div>
+
+            <div id="a_interference"></div>
+            <div id="a_interference_heat"></div>
+
+            <div id="a_confidence"></div>
+            <div id="a_confidence_spark"></div>
+        </div>
+
+        <!-- Window B -->
+        <div style="flex:1;">
+            <h3>Window B</h3>
+            <div id="b_gnss"></div>
+            <div id="b_gnss_spark"></div>
+
+            <div id="b_ptp"></div>
+            <div id="b_ptp_spark"></div>
+
+            <div id="b_interference"></div>
+            <div id="b_interference_heat"></div>
+
+            <div id="b_confidence"></div>
+            <div id="b_confidence_spark"></div>
+        </div>
+
+    </div>
 </div>
 
-<div class="card">
-    <h2>Current Samples</h2>
-    <pre id="sample-output" style="height:300px; overflow-y:auto;"></pre>
-</div>
+<script src="/static/js/mobile_viz.js"></script>
 
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script src="/static/js/digital_twin_multi_replay.js"></script>
+<script>
+let multiReplayInterval = null;
 
-</body>
-</html>
+function startMultiReplay() {
+    const a_start = document.getElementById('a_start').value;
+    const a_end   = document.getElementById('a_end').value;
+    const a_speed = document.getElementById('a_speed').value;
+
+    const b_start = document.getElementById('b_start').value;
+    const b_end   = document.getElementById('b_end').value;
+    const b_speed = document.getElementById('b_speed').value;
+
+    if (!a_start || !a_end || !b_start || !b_end) {
+        alert("Please select start and end times for both windows");
+        return;
+    }
+
+    if (multiReplayInterval) clearInterval(multiReplayInterval);
+
+    document.getElementById('status').innerHTML =
+        `<span class="badge badge-info">
+            Comparing A (${a_start} → ${a_end}) and B (${b_start} → ${b_end})
+         </span>`;
+
+    multiReplayInterval = setInterval(() => {
+        fetch(`/api/digital_twin/multireplay?a_start=${a_start}&a_end=${a_end}&a_speed=${a_speed}&b_start=${b_start}&b_end=${b_end}&b_speed=${b_speed}`)
+            .then(r => r.json())
+            .then(d => {
+
+                // --- Window A ---
+                document.getElementById('a_gnss').innerHTML =
+                    `<span class="badge ${d.a.gnss.locked > 0 ? 'badge-ok' : 'badge-bad'}">
+                        ${d.a.gnss.locked} locked
+                     </span>`;
+                renderSparkline("a_gnss_spark", d.a.gnss.history || [], "minimal");
+
+                document.getElementById('a_ptp').innerHTML =
+                    `<span class="badge ${Math.abs(d.a.ptp.offset) > 500 ? 'badge-bad' : Math.abs(d.a.ptp.offset) > 200 ? 'badge-warn' : 'badge-ok'}">
+                        Offset: ${d.a.ptp.offset} ns
+                     </span>`;
+                renderSparkline("a_ptp_spark", d.a.ptp.offset_history || [], "minimal");
+
+                document.getElementById('a_interference').innerHTML =
+                    `<span class="badge ${d.a.interference.level === 'LOW' ? 'badge-ok' : 'badge-bad'}">
+                        Level: ${d.a.interference.level}
+                     </span>`;
+                renderMiniHeatmap("a_interference_heat", d.a.interference.samples || []);
+
+                document.getElementById('a_confidence').innerHTML =
+                    `<span class="badge badge-info">Score: ${d.a.confidence.score}</span>`;
+                renderSparkline("a_confidence_spark", d.a.confidence.history || [], "minimal");
+
+                // --- Window B ---
+                document.getElementById('b_gnss').innerHTML =
+                    `<span class="badge ${d.b.gnss.locked > 0 ? 'badge-ok' : 'badge-bad'}">
+                        ${d.b.gnss.locked} locked
+                     </span>`;
+                renderSparkline("b_gnss_spark", d.b.gnss.history || [], "minimal");
+
+                document.getElementById('b_ptp').innerHTML =
+                    `<span class="badge ${Math.abs(d.b.ptp.offset) > 500 ? 'badge-bad' : Math.abs(d.b.ptp.offset) > 200 ? 'badge-warn' : 'badge-ok'}">
+                        Offset: ${d.b.ptp.offset} ns
+                     </span>`;
+                renderSparkline("b_ptp_spark", d.b.ptp.offset_history || [], "minimal");
+
+                document.getElementById('b_interference').innerHTML =
+                    `<span class="badge ${d.b.interference.level === 'LOW' ? 'badge-ok' : 'badge-bad'}">
+                        Level: ${d.b.interference.level}
+                     </span>`;
+               
