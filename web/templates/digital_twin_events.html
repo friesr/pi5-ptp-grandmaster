@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Event Annotator</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/digital-twin">Digital Twin</a>
+    <a href="/digital-twin-events">Event Annotator</a>
+</div>
+
+<h1>GNSS Timing Event Annotator</h1>
+
+<div class="card">
+    <h2>Select Scenario</h2>
+    <select id="scenario-select"></select>
+    <button onclick="runEvents()">Analyze</button>
+</div>
+
+<div class="card">
+    <h2>Detected Events</h2>
+    <pre id="event-output" style="height:500px; overflow-y:auto;"></pre>
+</div>
+
+<script src="/static/js/digital_twin_events.js"></script>
+
+</body>
+</html>
