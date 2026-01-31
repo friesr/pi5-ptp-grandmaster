@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SNR Waterfall</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/snr-waterfall">SNR Waterfall</a>
+    </div>
+
+    <h1>GNSS SNR Waterfall Plot</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadWaterfall()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Waterfall</h2>
+        <div id="waterfall" style="height:600px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/snr_waterfall.js"></script>
+</body>
+</html>
