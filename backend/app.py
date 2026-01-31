@@ -388,6 +388,10 @@ def satellite_aging_page():
 def constellation_forecast_page():
     return render_template("constellation_forecast.html")
 
+@app.route("/outage-forecast")
+def outage_forecast_page():
+    return render_template("outage_forecast.html")
+
 
 # -------------------------------------------------------------------
 # Entry point
