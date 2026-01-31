@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Digital Twin Replay Studio</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/digital-twin">Digital Twin</a>
+    <a href="/digital-twin-replay">Replay Studio</a>
+</div>
+
+<h1>GNSS Timing Replay Studio</h1>
+
+<div class="card">
+    <h2>Select Scenario</h2>
+    <select id="scenario-select"></select>
+    <button onclick="loadReplay()">Load Replay</button>
+</div>
+
+<div class="card">
+    <h2>Timeline Controls</h2>
+    <button onclick="play()">Play</button>
+    <button onclick="pause()">Pause</button>
+    <button onclick="stepBack()">◀</button>
+    <button onclick="stepForward()">▶</button>
+    <input id="timeline" type="range" min="0" max="100" value="0" oninput="scrub()">
+</div>
+
+<div class="card">
+    <h2>Visualization</h2>
+    <div id="replay-chart" style="height:400px;"></div>
+</div>
+
+<div class="card">
+    <h2>Current Sample</h2>
+    <pre id="sample-output" style="height:300px; overflow-y:auto;"></pre>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="/static/js/digital_twin_replay.js"></script>
+
+</body>
+</html>
