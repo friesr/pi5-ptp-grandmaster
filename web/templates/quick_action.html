@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/config.svg">
+        Quick Actions
+    </h2>
+    <p>
+        Operator control panel for GNSS, PTP, services, diagnostics, and Digital Twin triggers.
+        Actions execute immediately and return status feedback.
+    </p>
+</div>
+
+<!-- GNSS / PTP -->
+<div class="card">
+    <h2>GNSS & PTP</h2>
+
+    <div class="flex-row">
+        <button class="save-button" onclick="runAction('/api/actions/restart_gnss')">
+            Restart GNSS
+        </button>
+
+        <button class="save-button" onclick="runAction('/api/actions/restart_ptp')">
+            Restart PTP
+        </button>
+
+        <button class="save-button" onclick="runAction('/api/actions/reload_ptp_config')">
+            Reload PTP Config
+        </button>
+    </div>
+</div>
+
+<!-- Services -->
+<div class="card">
+    <h2>Services</h2>
+
+    <div class="flex-row">
+        <button class="save-button" onclick="runAction('/api/actions/restart_services')">
+            Restart All Services
+        </button>
+
+        <button class="save-button" onclick="runAction('/api/actions/reload_services')">
+            Reload Services
+        </button>
+
+        <button class="save-button" onclick="runAction('/api/actions/clear_service_cache')">
+            Clear Service Cache
+        </button>
+    </div>
+</div>
+
+<!-- Constellation -->
+<div class="card">
+    <h2>GNSS Constellation</h2>
+
+    <div class="flex-row">
+        <button class="save-button" onclick="runAction('/api/actions/refresh_constellation')">
+            Refresh Constellation Data
+        </button>
+
+        <button class="save-button" onclick="runAction('/api/actions/force_ephemeris_update')">
+            Force Ephemeris Update
+        </button>
+    </div>
+</div>
+
+<!-- Logs -->
+<div class="card">
+    <h2>Logs & Diagnostics</h2>
+
+    <div class="flex-row">
+        <button class="save-button" onclick="runAction('/api/actions/clear_logs')">
+            Clear Logs
+        </button>
+
+        <button class="save-button" onclick="runAction('/api/actions/export_diagnostics')">
+            Export Diagnostics
+        </button>
+
+        <button class="save-button" onclick="runAction('/api/actions/run_health_check')">
+            Run Health Check
+        </button>
+    </div>
+</div>
+
+<!-- Digital Twin -->
+<div class="card">
+    <h2>Digital Twin</h2>
+
+    <div class="flex-row">
+        <button class="save-button" onclick="runAction('/api/actions/run_montecarlo_default')">
+            Run Monte Carlo (Default)
+        </button>
+
+        <button class="save-button" onclick="runAction('/api/actions/run_risk_model_default')">
+            Run Risk Model (Default)
+        </button>
+
+        <button class="save-button" onclick="runAction('/api/actions/load_last_scenario')">
+            Load Last Scenario
+        </button>
+    </div>
+</div>
+
+<!-- Status -->
+<div class="card">
+    <h2>Action Status</h2>
+    <div id="status">No actions executed yet.</div>
+</div>
+
+<script>
+function runAction(url) {
+    document.getElementById('status').innerHTML =
+        `<span class="badge badge-info">Running action…</span>`;
+
+    fetch(url, { method: 'POST' })
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('status').innerHTML =
+                `<span class="badge badge-ok">${d.status}</span>`;
+        })
+        .catch(() => {
+            document.getElementById('status').innerHTML =
+                `<span class="badge badge-bad">Action failed</span>`;
+        });
+}
+</script>
+
+{% endblock %}
