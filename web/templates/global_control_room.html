@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/controlroom.svg">
+        GNSS Timing Observatory — Global Control Room
+    </h2>
+    <p>
+        Unified, immersive command environment integrating global timing intelligence, federation,
+        risk forecasting, correlation, and autonomous operations.
+    </p>
+</div>
+
+<!-- Top Row: Global Confidence / Integrity / Risk -->
+<div class="flex-row">
+
+    <div class="card flex-1">
+        <h2>Global Confidence</h2>
+        <div id="global-conf" style="font-size:48px; font-weight:700;">--</div>
+        <div id="global-conf-spark"></div>
+    </div>
+
+    <div class="card flex-1">
+        <h2>Global Integrity</h2>
+        <div id="global-int" style="font-size:48px; font-weight:700;">--</div>
+        <div id="global-int-spark"></div>
+    </div>
+
+    <div class="card flex-1">
+        <h2>Global Risk Level</h2>
+        <div id="global-risk" style="font-size:48px; font-weight:700;">--</div>
+        <div id="global-risk-spark"></div>
+    </div>
+
+</div>
+
+<!-- Global Map -->
+<div class="card">
+    <h2>Global Map</h2>
+    <div id="map" style="height:500px; background:#111;">Loading…</div>
+</div>
+
+<!-- Federation Status -->
+<div class="card">
+    <h2>Federation Status</h2>
+    <div id="federation">Loading…</div>
+</div>
+
+<!-- Global Event Correlation -->
+<div class="card">
+    <h2>Global Event Correlation</h2>
+    <div id="correlation">Loading…</div>
+</div>
+
+<!-- Global Risk Forecast -->
+<div class="card">
+    <h2>Global Risk Forecast</h2>
+    <div id="forecast">Loading…</div>
+</div>
+
+<!-- Autonomous Ops -->
+<div class="card">
+    <h2>Autonomous Operations</h2>
+    <div id="autonomy">Loading…</div>
+</div>
+
+<!-- Alerts -->
+<div class="card">
+    <h2>Global Alerts</h2>
+    <div id="alerts">Loading…</div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+    <h2>Quick Actions</h2>
+    <div class="flex-row">
+        <a class="button" href="/mission_control">Mission Control</a>
+        <a class="button" href="/global_map">Global Map</a>
+        <a class="button" href="/global_event_correlator">Event Correlator</a>
+        <a class="button" href="/global_risk_forecast">Risk Forecast</a>
+        <a class="button" href="/autonomous_ops">Autonomous Ops</a>
+        <a class="button" href="/federation">Federation</a>
+    </div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+let map = null;
+let markers = [];
+
+function initMap() {
+    map = L.map('map').setView([20, 0], 2);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 6,
+        minZoom: 2
+    }).addTo(map);
+}
+
+function loadControlRoom() {
+    fetch('/api/global_control_room')
+        .then(r => r.json())
+        .then(d => {
+
+            // Global Confidence
+            document.getElementById('global-conf').innerText = d.global_confidence.score;
+            renderSparkline("global-conf-spark", d.global_confidence.trend, "minimal");
+
+            // Global Integrity
+            document.getElementById('global-int').innerText = d.global_integrity.score;
+            renderSparkline("global-int-spark", d.global_integrity.trend, "minimal");
+
+            // Global Risk
+            document.getElementById('global-risk').innerText = d.global_risk.score;
+            renderSparkline("global-risk-spark", d.global_risk.trend, "minimal");
+
+            // Federation
+            document.getElementById('federation').innerHTML = `
+                <pre>${JSON.stringify(d.federation, null, 2)}</pre>
+            `;
+
+            // Correlation
+            document.getElementById('correlation').innerHTML = `
+                <pre>${JSON.stringify(d.correlation, null, 2)}</pre>
+            `;
+
+            // Forecast
+            document.getElementById('forecast').innerHTML = `
+                <pre>${JSON.stringify(d.forecast, null, 2)}</pre>
+            `;
+
+            // Autonomy
+            document.getElementById('autonomy').innerHTML = `
+                <pre>${JSON.stringify(d.autonomy, null, 2)}</pre>
+            `;
+
+            // Alerts
+            document.getElementById('alerts').innerHTML =
+                d.alerts.length === 0
+                    ? "<p>No global alerts.</p>"
+                    : d.alerts.map(a => `
+                        <div class="alert-row alert-major">
+                            <div style="font-weight:600;">${a.title}</div>
+                            <div>${a.description}</div>
+                            <div class="alert-meta">${a.time}</div>
+                        </div>
+                    `).join('');
+
+            // Map
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            d.nodes.forEach(n => {
+                const marker = L.circleMarker([n.lat, n.lon], {
+                    radius: 10,
+                    color: n.color,
+                    fillColor: n.color,
+                    fillOpacity: 0.8
+                }).addTo(map);
+
+                markers.push(marker);
+            });
+        });
+}
+
+setTimeout(initMap, 100);
+setInterval(loadControlRoom, 5000);
+loadControlRoom();
+</script>
+
+{% endblock %}
