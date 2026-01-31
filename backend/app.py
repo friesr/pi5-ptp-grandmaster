@@ -78,3 +78,7 @@ def system_health_page():
 def ptp_profile_page():
     return render_template("ptp_profile.html")
 
+@app.route("/prn-lifetime")
+def prn_lifetime_page():
+    return render_template("prn_lifetime.html")
+
