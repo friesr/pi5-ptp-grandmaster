@@ -26,6 +26,7 @@ from backend.api.gnss_outages import gnss_outages_api
 from backend.api.multipath_heatmap import multipath_heatmap_api
 from backend.api.constellation_timeline import constellation_timeline_api
 from backend.api.fade_events import fade_events_api
+from backend.api.snr_waterfall import snr_waterfall_api
 
 
 
@@ -64,7 +65,7 @@ app.register_blueprint(gnss_outages_api, url_prefix="/api/gnss_outages")
 app.register_blueprint(multipath_heatmap_api, url_prefix="/api/multipath_heatmap")
 app.register_blueprint(constellation_timeline_api, url_prefix="/api/constellation_timeline")
 app.register_blueprint(fade_events_api, url_prefix="/api/fade_events")
-
+app.register_blueprint(snr_waterfall_api, url_prefix="/api/snr_waterfall")
 
 
 @app.route("/")
@@ -142,4 +143,8 @@ def constellation_timeline_page():
 @app.route("/gnss-fade-events")
 def gnss_fade_events_page():
     return render_template("gnss_fade_events.html")
+
+@app.route("/snr-waterfall")
+def snr_waterfall_page():
+    return render_template("snr_waterfall.html")
 
