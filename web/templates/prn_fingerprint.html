@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PRN Fingerprints</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/prn-fingerprint">PRN Fingerprints</a>
+    </div>
+
+    <h1>GNSS PRN Fingerprint Atlas</h1>
+
+    <div class="card">
+        <h2>Fingerprint Table</h2>
+        <div id="prn-table"></div>
+    </div>
+
+    <div class="card">
+        <h2>Fingerprint Scores</h2>
+        <div id="prn-chart" style="height:400px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/prn_fingerprint.js"></script>
+</body>
+</html>
