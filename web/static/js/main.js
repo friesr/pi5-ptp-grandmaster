@@ -105,6 +105,28 @@ function updateDrift() {
         });
 }
 
+function updateTempDrift() {
+    fetch("/api/temp_drift/model")
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) return;
+
+            Plotly.newPlot("temp-drift-chart", [{
+                x: data.temps_c,
+                y: data.predicted_offsets_ns,
+                mode: "lines+markers",
+                line: { color: "#e6b422" }
+            }], {
+                xaxis: { title: "Temperature (°C)" },
+                yaxis: { title: "Predicted Offset (ns)" },
+                margin: { t: 20 }
+            });
+        });
+}
+
+setInterval(updateTempDrift, 30000);
+updateTempDrift();
+
 setInterval(updateDrift, 30000);
 updateDrift();
 
