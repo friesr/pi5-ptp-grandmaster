@@ -1,0 +1,16 @@
+{
+  "scenario_name": "urban_canyon",
+  "base_day": "2025-08-14",
+  "perturbations": {
+    "gnss_outage": { "start": 0, "duration": 0 },
+    "interference": { "severity": 0.0, "start": 0, "duration": 0 },
+    "spoofing": { "start": 0, "duration": 0 },
+    "multipath_boost": { "factor": 2.5 },
+    "constellation_failure": { "constellation": "NONE", "start": 0, "duration": 0 },
+    "receiver_health_drop": { "score": 100 }
+  },
+  "servo_adjustments": {
+    "kp": 1.0,
+    "ki": 0.01
+  }
+}
