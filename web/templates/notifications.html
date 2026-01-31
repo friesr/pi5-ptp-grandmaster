@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/alerts.svg">
+        Notifications Center
+    </h2>
+    <p>
+        Centralized view of system messages, alerts, warnings, and operator notifications.
+        Includes toast history and persistent messages.
+    </p>
+</div>
+
+<!-- Persistent Notifications -->
+<div class="card">
+    <h2>Persistent Notifications</h2>
+    <div id="persistent-list">Loading…</div>
+</div>
+
+<!-- Toast History -->
+<div class="card">
+    <h2>Toast History</h2>
+    <div id="toast-list">Loading…</div>
+</div>
+
+<script>
+function loadNotifications() {
+    fetch('/api/notifications')
+        .then(r => r.json())
+        .then(d => {
+            // Persistent
+            const persistent = d.persistent || [];
+            const pDiv = document.getElementById('persistent-list');
+
+            if (persistent.length === 0) {
+                pDiv.innerHTML = "<p>No persistent notifications.</p>";
+            } else {
+                pDiv.innerHTML = persistent.map(n => `
+                    <div class="alert-row ${severityClass(n.severity)}">
+                        <div style="font-weight:600;">${n.title}</div>
+                        <div>${n.message}</div>
+                        <div class="alert-meta">${n.time}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Toasts
+            const toasts = d.toasts || [];
+            const tDiv = document.getElementById('toast-list');
+
+            if (toasts.length === 0) {
+                tDiv.innerHTML = "<p>No toast notifications.</p>";
+            } else {
+                tDiv.innerHTML = toasts.map(n => `
+                    <div class="alert-row ${severityClass(n.severity)}">
+                        <div style="font-weight:600;">${n.title}</div>
+                        <div>${n.message}</div>
+                        <div class="alert-meta">${n.time}</div>
+                    </div>
+                `).join('');
+            }
+        });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+setInterval(loadNotifications, 5000);
+loadNotifications();
+</script>
+
+{% endblock %}
