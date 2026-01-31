@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Constellation Performance</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/satellites">Satellites</a>
+        <a href="/gnss-history">GNSS SNR History</a>
+        <a href="/prn-lifetime">PRN Lifetime</a>
+        <a href="/constellation-score">Constellation Score</a>
+    </div>
+
+    <h1>Constellation Performance</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadScores()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Performance Score</h2>
+        <div id="score-chart" style="height:400px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/constellation_score.js"></script>
+</body>
+</html>
