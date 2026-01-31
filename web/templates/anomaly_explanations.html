@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Anomaly Explanations</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/anomaly-explanations">Anomaly Explanations</a>
+    </div>
+
+    <h1>GNSS Anomaly Explanation Engine</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadExplanations()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Explanations</h2>
+        <pre id="explanation-list" style="height:500px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="/static/js/anomaly_explanations.js"></script>
+</body>
+</html>
