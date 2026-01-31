@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Environment Change Detector</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/environment-change">Environment Change</a>
+    </div>
+
+    <h1>GNSS Environment Change Detector</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadChange()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Status</h2>
+        <div id="status" style="font-size:32px; font-weight:bold;"></div>
+    </div>
+
+    <div class="card">
+        <h2>Deviation Factors</h2>
+        <pre id="factors" style="height:300px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="/static/js/environment_change.js"></script>
+</body>
+</html>
