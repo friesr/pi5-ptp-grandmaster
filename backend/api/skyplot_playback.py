@@ -1,7 +1,11 @@
 from flask import Blueprint, jsonify
-import os, csv
+import os
+import csv
+
+from backend.analysis.multipath import multipath_score
 
 skyplot_playback_api = Blueprint("skyplot_playback_api", __name__)
+
 
 @skyplot_playback_api.route("/load/<day>")
 def load_skyplot_day(day):
@@ -20,6 +24,7 @@ def load_skyplot_day(day):
             prn = int(row["prn"])
             az = float(row["azimuth"])
             el = float(row["elevation"])
+            snr = float(row["snr"])
 
             if ts not in frames:
                 frames[ts] = []
@@ -27,10 +32,11 @@ def load_skyplot_day(day):
             frames[ts].append({
                 "prn": prn,
                 "azimuth": az,
-                "elevation": el
+                "elevation": el,
+                "snr": snr,
+                "multipath": multipath_score(el, snr)
             })
 
-    # Convert dict → sorted list of frames
     out = []
     for ts in sorted(frames.keys()):
         out.append({
