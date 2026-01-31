@@ -75,6 +75,7 @@ from backend.api.scenario_list import scenario_list_api
 from backend.api.scenario_save import scenario_save_api
 from backend.api.digital_twin_batch import digital_twin_batch_api
 from backend.api.digital_twin_report import digital_twin_report_api
+from backend.api.sensitivity import sensitivity_api
 
 
 
@@ -186,6 +187,8 @@ app.register_blueprint(scenario_list_api, url_prefix="/api/gnss_history")
 app.register_blueprint(scenario_save_api, url_prefix="/api/scenario")
 app.register_blueprint(digital_twin_batch_api, url_prefix="/api/digital_twin_batch")
 app.register_blueprint(digital_twin_report_api, url_prefix="/api/digital_twin_report")
+app.register_blueprint(sensitivity_api, url_prefix="/api/sensitivity")
+
 
 
 
@@ -442,6 +445,10 @@ def digital_twin_batch_page():
 @app.route("/digital-twin-report")
 def digital_twin_report_page():
     return render_template("digital_twin_report.html")
+    
+@app.route("/sensitivity")
+def sensitivity_page():
+    return render_template("sensitivity.html")
 
 
 # -------------------------------------------------------------------
