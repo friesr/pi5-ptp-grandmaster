@@ -1,0 +1,10 @@
+[Unit]
+Description=PHC2SYS Synchronization Service
+After=network.target
+
+[Service]
+ExecStart=/usr/sbin/phc2sys -a -r -n 24
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
