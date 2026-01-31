@@ -16,8 +16,25 @@
     <h1>PTP Grandmaster Dashboard</h1>
 
     <div class="card">
-        <h2>Status</h2>
+        <h2>System Status</h2>
         <pre id="status-block">Loading...</pre>
     </div>
+
+    <div class="card">
+        <h2>PTP Offset (ns)</h2>
+        <div id="ptp-chart" style="height:300px;"></div>
+    </div>
+
+    <div class="card">
+        <h2>NTP Offset (ms)</h2>
+        <div id="ntp-chart" style="height:300px;"></div>
+    </div>
+
+    <div class="card">
+        <h2>GNSS Satellites</h2>
+        <div id="gnss-chart" style="height:300px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </body>
 </html>
