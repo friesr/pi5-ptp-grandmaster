@@ -348,6 +348,10 @@ def multipath_3d_page():
 def antenna_siting_page():
     return render_template("antenna_siting.html")
 
+@app.route("/spoofing")
+def spoofing_page():
+    return render_template("spoofing.html")
+
 
 # -------------------------------------------------------------------
 # Entry point
