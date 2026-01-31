@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/alerts.svg">
+        GNSS Spoofing Detection Engine
+    </h2>
+    <p>
+        Detect anomalous pseudorange, Doppler, geometry, and signal‑domain behavior indicative of
+        spoofing attempts. Integrates measurement, signal, and timing intelligence.
+    </p>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Spoofing Status</h2>
+    <div id="summary">Loading…</div>
+</div>
+
+<!-- Detection Indicators -->
+<div class="card">
+    <h2>Detection Indicators</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <h3>Pseudorange Consistency</h3>
+            <div id="pr" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Doppler Consistency</h3>
+            <div id="dop" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Geometry Validity</h3>
+            <div id="geom" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Signal Integrity</h3>
+            <div id="sig" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Clock Continuity</h3>
+            <div id="clk" class="badge badge-info"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Spoofing Score -->
+<div class="card">
+    <h2>Spoofing Risk Score</h2>
+    <div id="score" style="font-size:48px; font-weight:700;">--</div>
+    <div id="score-badge" class="badge badge-info">Calculating…</div>
+</div>
+
+<!-- Trend -->
+<div class="card">
+    <h2>Risk Trend</h2>
+    <div id="trend-spark"></div>
+</div>
+
+<!-- Evidence -->
+<div class="card">
+    <h2>Evidence</h2>
+    <div id="evidence">No evidence yet.</div>
+</div>
+
+<!-- Events -->
+<div class="card">
+    <h2>Spoofing Events</h2>
+    <div id="events">No events detected.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadSpoofing() {
+    fetch('/api/gnss/spoofing')
+        .then(r => r.json())
+        .then(d => {
+            // Summary
+            document.getElementById('summary').innerHTML = `
+                <p><strong>Status:</strong> ${d.status}</p>
+                <p><strong>Confidence:</strong> ${d.confidence}%</p>
+                <p><strong>Notes:</strong> ${d.notes}</p>
+            `;
+
+            // Indicators
+            document.getElementById('pr').innerText = d.indicators.pr;
+            document.getElementById('dop').innerText = d.indicators.doppler;
+            document.getElementById('geom').innerText = d.indicators.geometry;
+            document.getElementById('sig').innerText = d.indicators.signal;
+            document.getElementById('clk').innerText = d.indicators.clock;
+
+            // Score
+            document.getElementById('score').innerText = d.score;
+
+            const badge = document.getElementById('score-badge');
+            badge.innerText = d.label;
+
+            badge.className =
+                d.score >= 80 ? "badge badge-bad" :
+                d.score >= 50 ? "badge badge-warn" :
+                                "badge badge-ok";
+
+            // Trend
+            renderSparkline("trend-spark", d.trend || [], "minimal");
+
+            // Evidence
+            const evidence = d.evidence || [];
+            const eDiv = document.getElementById('evidence');
+
+            if (evidence.length === 0) {
+                eDiv.innerHTML = "<p>No evidence available.</p>";
+            } else {
+                eDiv.innerHTML = evidence.map(ev => `
+                    <div class="alert-row alert-major">
+                        <div style="font-weight:600;">${ev.title}</div>
+                        <div>${ev.detail}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Events
+            const events = d.events || [];
+            const evDiv = document.getElementById('events');
+
+            if (events.length === 0) {
+                evDiv.innerHTML = "<p>No spoofing events detected.</p>";
+            } else {
+                evDiv.innerHTML = events.map(ev => `
+                    <div class="alert-row ${severityClass(ev.severity)}">
+                        <div style="font-weight:600;">${ev.title}</div>
+                        <div>${ev.description}</div>
+                        <div class="alert-meta">${ev.time}</div>
+                    </div>
+                `).join('');
+            }
+        });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+setInterval(loadSpoofing, 5000);
+loadSpoofing();
+</script>
+
+{% endblock %}
