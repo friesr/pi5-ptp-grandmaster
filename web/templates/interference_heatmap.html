@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/alerts.svg">
+        GNSS Interference Heatmap
+    </h2>
+    <p>
+        Visualize interference intensity across time and frequency. Detect jamming, spoofing,
+        wideband noise, and narrowband interferers. Updated in real time.
+    </p>
+</div>
+
+<!-- Controls -->
+<div class="card">
+    <h2>Controls</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Time Window (minutes)</label>
+            <input id="window" type="number" min="1" max="120" value="30">
+        </div>
+
+        <div class="flex-1">
+            <label>Frequency Band</label>
+            <select id="band">
+                <option value="L1">L1</option>
+                <option value="L2">L2</option>
+                <option value="L5">L5</option>
+                <option value="ALL">All Bands</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="loadHeatmap()">
+        Update Heatmap
+    </button>
+</div>
+
+<!-- Heatmap -->
+<div class="card">
+    <h2>Interference Heatmap</h2>
+    <div id="heatmap-container" style="width:100%; height:500px; position:relative;">
+        <canvas id="heatmap" style="width:100%; height:100%;"></canvas>
+    </div>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Summary</h2>
+    <div id="summary">No data yet.</div>
+</div>
+
+<!-- Events -->
+<div class="card">
+    <h2>Detected Interference Events</h2>
+    <div id="events">No events detected.</div>
+</div>
+
+<script>
+let heatmapCanvas, ctx;
+
+function initCanvas() {
+    heatmapCanvas = document.getElementById("heatmap");
+    ctx = heatmapCanvas.getContext("2d");
+    resizeCanvas();
+}
+
+function resizeCanvas() {
+    heatmapCanvas.width = heatmapCanvas.clientWidth;
+    heatmapCanvas.height = heatmapCanvas.clientHeight;
+}
+
+window.addEventListener('resize', resizeCanvas);
+
+function drawHeatmap(matrix) {
+    const rows = matrix.length;
+    const cols = matrix[0].length;
+
+    const cellW = heatmapCanvas.width / cols;
+    const cellH = heatmapCanvas.height / rows;
+
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const v = matrix[r][c]; // 0 to 1 intensity
+            ctx.fillStyle = `rgba(${Math.floor(255*v)}, ${Math.floor(80*(1-v))}, 0, 1)`;
+            ctx.fillRect(c * cellW, r * cellH, cellW, cellH);
+        }
+    }
+}
+
+function loadHeatmap() {
+    const params = {
+        window: parseInt(document.getElementById('window').value),
+        band: document.getElementById('band').value
+    };
+
+    fetch('/api/gnss/interference_heatmap', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        drawHeatmap(d.matrix || [[]]);
+
+        // Summary
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Peak Intensity:</strong> ${d.peak}</p>
+            <p><strong>Average Intensity:</strong> ${d.average}</p>
+            <p><strong>Dominant Frequency:</strong> ${d.dominant_freq}</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        // Events
+        const events = d.events || [];
+        const eDiv = document.getElementById('events');
+
+        if (events.length === 0) {
+            eDiv.innerHTML = "<p>No interference events detected.</p>";
+        } else {
+            eDiv.innerHTML = events.map(ev => `
+                <div class="alert-row ${severityClass(ev.severity)}">
+                    <div style="font-weight:600;">${ev.title}</div>
+                    <div>${ev.description}</div>
+                    <div class="alert-meta">${ev.time}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+initCanvas();
+loadHeatmap();
+setInterval(loadHeatmap, 5000);
+</script>
+
+{% endblock %}
