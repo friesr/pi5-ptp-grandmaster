@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Timing Resilience Advisor</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/resilience-advisor">Resilience Advisor</a>
+    </div>
+
+    <h1>GNSS Timing Resilience Advisor</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadAdvice()">Analyze</button>
+    </div>
+
+    <div class="card">
+        <h2>Recommendations</h2>
+        <pre id="advice-output" style="height:400px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="/static/js/resilience_advisor.js"></script>
+</body>
+</html>
