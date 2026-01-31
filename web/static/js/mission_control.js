@@ -74,3 +74,6 @@ function renderEvents(data) {
 }
 
 loadMission();
+
+setInterval(loadMission, 10000);
+
