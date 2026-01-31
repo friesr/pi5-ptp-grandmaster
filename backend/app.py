@@ -5,6 +5,7 @@ from backend.api.storage import storage_api
 from backend.api.config import config_api
 from backend.api.export import export_api
 from backend.api.allan import allan_api
+from backend.api.drift import drift_api
 
 app = Flask(
     __name__,
@@ -19,6 +20,8 @@ app.register_blueprint(storage_api, url_prefix="/api/storage")
 app.register_blueprint(config_api, url_prefix="/api/config")
 app.register_blueprint(export_api, url_prefix="/api/export")
 app.register_blueprint(allan_api, url_prefix="/api/allan")
+app.register_blueprint(drift_api, url_prefix="/api/drift")
+
 
 @app.route("/")
 def index():
