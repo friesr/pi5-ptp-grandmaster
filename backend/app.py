@@ -8,6 +8,7 @@ from backend.api.allan import allan_api
 from backend.api.drift import drift_api
 from backend.api.history import history_api
 from backend.api.temp_drift import temp_drift_api
+from backend.api.ptp_servo import ptp_servo_api
 
 app = Flask(
     __name__,
@@ -25,7 +26,7 @@ app.register_blueprint(allan_api, url_prefix="/api/allan")
 app.register_blueprint(drift_api, url_prefix="/api/drift")
 app.register_blueprint(history_api, url_prefix="/api/history")
 app.register_blueprint(temp_drift_api, url_prefix="/api/temp_drift")
-
+app.register_blueprint(ptp_servo_api, url_prefix="/api/ptp_servo")
 
 @app.route("/")
 def index():
