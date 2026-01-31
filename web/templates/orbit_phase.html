@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Orbit Phase Analyzer</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/orbit-phase">Orbit Phase Analyzer</a>
+    </div>
+
+    <h1>GNSS Orbit Phase Analyzer</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadPhase()">Analyze</button>
+    </div>
+
+    <div class="card">
+        <h2>Results</h2>
+        <pre id="phase-output" style="height:400px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="/static/js/orbit_phase.js"></script>
+</body>
+</html>
