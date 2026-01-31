@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/graph.svg">
+        GNSS Timing Observatory — Knowledge Graph
+    </h2>
+    <p>
+        Explore the relationships between satellites, signals, events, anomalies, drift sources,
+        subsystem outputs, and Digital Twin predictions using an interactive graph.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Graph Controls</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Graph Mode</label>
+            <select id="mode">
+                <option value="SYSTEM">System View</option>
+                <option value="SATELLITES">Satellite View</option>
+                <option value="EVENTS">Event View</option>
+                <option value="DRIFT">Drift Attribution View</option>
+                <option value="THREATS">Threat View</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Highlight</label>
+            <select id="highlight">
+                <option value="NONE">None</option>
+                <option value="ANOMALIES">Anomalies</option>
+                <option value="RISKS">Risk Windows</option>
+                <option value="LOW_CONFIDENCE">Low Confidence</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="loadGraph()">
+        Load Graph
+    </button>
+</div>
+
+<div class="card">
+    <h2>Knowledge Graph</h2>
+    <div id="graph" style="min-height:500px;">Graph loading…</div>
+</div>
+
+<div class="card">
+    <h2>Node Details</h2>
+    <div id="details">Click a node to view details.</div>
+</div>
+
+<div class="card">
+    <h2>Related Entities</h2>
+    <div id="related">No node selected.</div>
+</div>
+
+<script>
+let graphData = null;
+
+function loadGraph() {
+    const params = {
+        mode: document.getElementById('mode').value,
+        highlight: document.getElementById('highlight').value
+    };
+
+    fetch('/api/knowledge_graph', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        graphData = d;
+        renderGraph(d);
+    });
+}
+
+function renderGraph(data) {
+    const container = document.getElementById('graph');
+    container.innerHTML = "";
+
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.style.width = "100%";
+    svg.style.height = "500px";
+
+    data.links.forEach(link => {
+        const line = document.createElementNS(svg.namespaceURI, "line");
+        line.setAttribute("x1", link.x1);
+        line.setAttribute("y1", link.y1);
+        line.setAttribute("x2", link.x2);
+        line.setAttribute("y2", link.y2);
+        line.setAttribute("stroke", "var(--border)");
+        svg.appendChild(line);
+    });
+
+    data.nodes.forEach(node => {
+        const circle = document.createElementNS(svg.namespaceURI, "circle");
+        circle.setAttribute("cx", node.x);
+        circle.setAttribute("cy", node.y);
+        circle.setAttribute("r", 10);
+        circle.setAttribute("fill", node.color);
+        circle.style.cursor = "pointer";
+
+        circle.onclick = () => showNode(node);
+
+        svg.appendChild(circle);
+    });
+
+    container.appendChild(svg);
+}
+
+function showNode(node) {
+    document.getElementById('details').innerHTML = `
+        <p><strong>Name:</strong> ${node.label}</p>
+        <p><strong>Type:</strong> ${node.type}</p>
+        <p><strong>Notes:</strong> ${node.notes}</p>
+    `;
+
+    const rel = graphData.links
+        .filter(l => l.source === node.id || l.target === node.id)
+        .map(l => l.source === node.id ? l.target : l.source)
+        .map(id => graphData.nodes.find(n => n.id === id));
+
+    document.getElementById('related').innerHTML = rel.length === 0
+        ? "<p>No related entities.</p>"
+        : rel.map(r => `
+            <div class="alert-row alert-minor">
+                <div style="font-weight:600;">${r.label}</div>
+                <div>${r.type}</div>
+            </div>
+        `).join('');
+}
+
+loadGraph();
+</script>
+
+{% endblock %}
