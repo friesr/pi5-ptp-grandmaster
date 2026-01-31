@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/alerts.svg">
+        GNSS Event Correlation Engine
+    </h2>
+    <p>
+        Automatically correlates GNSS outages, interference, geometry changes, multipath bursts,
+        clock drift anomalies, and PTP events to identify root causes of timing degradation.
+    </p>
+</div>
+
+<!-- Time Range -->
+<div class="card">
+    <h2>Analysis Window</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Start</label>
+            <input id="start" type="datetime-local">
+        </div>
+
+        <div class="flex-1">
+            <label>End</label>
+            <input id="end" type="datetime-local">
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="runCorrelation()">
+        Run Correlation Analysis
+    </button>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Summary</h2>
+    <div id="summary">Run analysis to see correlation summary.</div>
+</div>
+
+<!-- Correlation Graph -->
+<div class="card">
+    <h2>Correlation Graph</h2>
+    <p>
+        Shows relationships between timing degradation and contributing GNSS/PTP events.
+    </p>
+    <div id="graph-container" style="width:100%; height:500px; position:relative;">
+        <svg id="corr-graph" width="100%" height="100%" viewBox="0 0 800 500"></svg>
+    </div>
+</div>
+
+<!-- Event List -->
+<div class="card">
+    <h2>Correlated Events</h2>
+    <div id="event-list">No events yet.</div>
+</div>
+
+<script>
+function runCorrelation() {
+    const params = {
+        start: document.getElementById('start').value,
+        end: document.getElementById('end').value
+    };
+
+    fetch('/api/gnss/correlate', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        // Summary
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Primary Cause:</strong> ${d.primary_cause}</p>
+            <p><strong>Confidence:</strong> ${d.confidence}%</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        // Graph
+        renderGraph(d.graph || []);
+
+        // Event list
+        const events = d.events || [];
+        const div = document.getElementById('event-list');
+
+        if (events.length === 0) {
+            div.innerHTML = "<p>No correlated events found.</p>";
+        } else {
+            div.innerHTML = events.map(e => `
+                <div class="alert-row ${severityClass(e.severity)}">
+                    <div style="font-weight:600;">${e.title}</div>
+                    <div>${e.description}</div>
+                    <div class="alert-meta">${e.time}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+
+function renderGraph(nodes) {
+    const svg = document.getElementById("corr-graph");
+    svg.innerHTML = "";
+
+    const cx = 400;
+    const cy = 250;
+
+    nodes.forEach((n, i) => {
+        const angle = (i / nodes.length) * 2 * Math.PI;
+        const x = cx + 180 * Math.cos(angle);
+        const y = cy + 180 * Math.sin(angle);
+
+        svg.innerHTML += `
+            <circle cx="${x}" cy="${y}" r="30"
+                fill="var(--bg-card)" stroke="var(--accent)" stroke-width="2"></circle>
+            <text x="${x}" y="${y+4}" text-anchor="middle"
+                font-size="12" fill="var(--text)">
+                ${n.label}
+            </text>
+        `;
+
+        if (n.linked_to_center) {
+            svg.innerHTML += `
+                <line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}"
+                    stroke="var(--accent)" stroke-width="2"></line>
+            `;
+        }
+    });
+
+    svg.innerHTML += `
+        <circle cx="${cx}" cy="${cy}" r="40"
+            fill="var(--accent)" opacity="0.2"></circle>
+        <text x="${cx}" y="${cy+4}" text-anchor="middle"
+            font-size="14" fill="var(--text)">
+            Timing Issue
+        </text>
+    `;
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+</script>
+
+{% endblock %}
