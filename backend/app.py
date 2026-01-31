@@ -23,6 +23,7 @@ from backend.api.constellation_score import constellation_score_api
 from backend.api.backup import backup_api
 from backend.api.servo_history import servo_history_api
 from backend.api.gnss_outages import gnss_outages_api
+from backend.api.multipath_heatmap import multipath_heatmap_api
 
 
 
@@ -58,6 +59,7 @@ app.register_blueprint(constellation_score_api, url_prefix="/api/constellation_s
 app.register_blueprint(backup_api, url_prefix="/api/backup")
 app.register_blueprint(servo_history_api, url_prefix="/api/servo_history")
 app.register_blueprint(gnss_outages_api, url_prefix="/api/gnss_outages")
+app.register_blueprint(multipath_heatmap_api, url_prefix="/api/multipath_heatmap")
 
 
 
@@ -125,5 +127,9 @@ def servo_history_page():
 @app.route("/gnss-outages")
 def gnss_outages_page():
     return render_template("gnss_outages.html")
+
+@app.route("/multipath-heatmap")
+def multipath_heatmap_page():
+    return render_template("multipath_heatmap.html")
 
 
