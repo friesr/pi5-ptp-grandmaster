@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GNSS Timing Digital Twin</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/digital-twin">Digital Twin</a>
+</div>
+
+<h1>GNSS Timing Digital Twin</h1>
+
+<div class="card">
+    <h2>Select Scenario</h2>
+    <select id="scenario-select"></select>
+    <button onclick="runSimulation()">Run Simulation</button>
+</div>
+
+<div class="card">
+    <h2>Timing Output</h2>
+    <div id="timing-chart" style="height:400px;"></div>
+</div>
+
+<div class="card">
+    <h2>Raw Simulation Output</h2>
+    <pre id="sim-output" style="height:400px; overflow-y:auto;"></pre>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="/static/js/digital_twin.js"></script>
+
+</body>
+</html>
