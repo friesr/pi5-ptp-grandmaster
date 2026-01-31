@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Digital Twin Optimization</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/digital-twin">Digital Twin</a>
+    <a href="/digital-twin-optimize">Optimization</a>
+</div>
+
+<h1>Digital Twin Optimization Engine</h1>
+
+<div class="card">
+    <h2>Select Optimization File</h2>
+    <select id="opt-select"></select>
+    <button onclick="runOptimization()">Run Optimization</button>
+</div>
+
+<div class="card">
+    <h2>Top Results</h2>
+    <div id="opt-table"></div>
+</div>
+
+<script src="/static/js/digital_twin_optimize.js"></script>
+
+</body>
+</html>
