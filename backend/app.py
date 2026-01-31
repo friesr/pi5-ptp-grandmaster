@@ -1,18 +1,8 @@
-from flask import Flask, render_template, Blueprint, jsonify
+from flask import Flask, render_template, Blueprint, jsonify, request, redirect
 import os
 import json
 
-from flask import request, redirect
 
-@app.before_request
-def mobile_redirect():
-    ua = request.headers.get('User-Agent', '').lower()
-    mobile_signatures = ["iphone", "android", "ipad", "mobile"]
-
-    # Only redirect the root page, not API calls or subpages
-    if request.path == "/":
-        if any(sig in ua for sig in mobile_signatures):
-            return redirect("/mobile")
 
 # ------------------------------------------------------------
 # Core API Imports
@@ -118,6 +108,19 @@ app = Flask(
     template_folder="../web/templates",
     static_folder="../web/static"
 )
+
+# ------------------------------------------------------------
+# Mobile Redirect
+# ------------------------------------------------------------
+@app.before_request
+def mobile_redirect():
+    ua = request.headers.get('User-Agent', '').lower()
+    mobile_signatures = ["iphone", "android", "ipad", "mobile"]
+
+    # Only redirect the root page, not API calls or subpages
+    if request.path == "/":
+        if any(sig in ua for sig in mobile_signatures):
+            return redirect("/mobile")
 
 # ------------------------------------------------------------
 # Blueprint Manifest (Pattern A)
@@ -509,6 +512,10 @@ def unified_timeline_page():
 @app.route("/validation")
 def validation_page():
     return render_template("validation.html")
+
+@app.route("/mobile")
+def mobile_page():
+    return render_template("mobile.html")
 
 # ------------------------------------------------------------
 # App Runner
