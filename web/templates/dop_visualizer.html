@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        GNSS Dilution‑of‑Precision (DOP) Visualizer
+    </h2>
+    <p>
+        Real‑time visualization of HDOP, VDOP, PDOP, TDOP, and GDOP. Shows how constellation geometry
+        affects timing and positional accuracy.
+    </p>
+</div>
+
+<!-- DOP Summary -->
+<div class="card">
+    <h2>Current DOP Values</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <h3>HDOP</h3>
+            <div id="hdop" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>VDOP</h3>
+            <div id="vdop" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>PDOP</h3>
+            <div id="pdop" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>TDOP</h3>
+            <div id="tdop" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>GDOP</h3>
+            <div id="gdop" class="badge badge-info"></div>
+        </div>
+    </div>
+</div>
+
+<!-- DOP Trends -->
+<div class="card">
+    <h2>DOP Trends</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <h3>HDOP Trend</h3>
+            <div id="hdop-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>VDOP Trend</h3>
+            <div id="vdop-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>PDOP Trend</h3>
+            <div id="pdop-spark"></div>
+        </div>
+    </div>
+
+    <div class="flex-row" style="margin-top:20px;">
+        <div class="flex-1">
+            <h3>TDOP Trend</h3>
+            <div id="tdop-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>GDOP Trend</h3>
+            <div id="gdop-spark"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Geometry Plot -->
+<div class="card">
+    <h2>Geometry Plot</h2>
+    <p>
+        Shows the current satellite geometry projected onto a 2D plane. Poor geometry (clustered
+        satellites, low elevation) increases DOP values.
+    </p>
+    <div id="geom-container" style="width:100%; height:400px; position:relative;">
+        <svg id="geom-plot" width="100%" height="100%" viewBox="0 0 500 500"></svg>
+    </div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function renderGeometry(sats) {
+    const svg = document.getElementById("geom-plot");
+    svg.innerHTML = "";
+
+    const cx = 250;
+    const cy = 250;
+    const r = 200;
+
+    // Draw outer circle
+    svg.innerHTML += `
+        <circle cx="${cx}" cy="${cy}" r="${r}"
+            stroke="var(--border)" stroke-width="2" fill="none" />
+    `;
+
+    // Draw satellites
+    sats.forEach(s => {
+        const az = s.azimuth * Math.PI / 180;
+        const rr = r * (1 - s.elevation / 90);
+
+        const x = cx + rr * Math.sin(az);
+        const y = cy - rr * Math.cos(az);
+
+        svg.innerHTML += `
+            <circle cx="${x}" cy="${y}" r="8"
+                fill="var(--accent)" opacity="${s.snr ? Math.min(1, s.snr / 50) : 0.6}">
+            </circle>
+            <text x="${x}" y="${y + 4}" text-anchor="middle"
+                font-size="10" fill="var(--text)">
+                ${s.prn}
+            </text>
+        `;
+    });
+}
+
+function loadDOP() {
+    fetch('/api/gnss/dop')
+        .then(r => r.json())
+        .then(d => {
+            // Summary
+            document.getElementById('hdop').innerText = d.hdop;
+            document.getElementById('vdop').innerText = d.vdop;
+            document.getElementById('pdop').innerText = d.pdop;
+            document.getElementById('tdop').innerText = d.tdop;
+            document.getElementById('gdop').innerText = d.gdop;
+
+            // Trends
+            renderSparkline("hdop-spark", d.trends.hdop || [], "minimal");
+            renderSparkline("vdop-spark", d.trends.vdop || [], "minimal");
+            renderSparkline("pdop-spark", d.trends.pdop || [], "minimal");
+            renderSparkline("tdop-spark", d.trends.tdop || [], "minimal");
+            renderSparkline("gdop-spark", d.trends.gdop || [], "minimal");
+
+            // Geometry
+            renderGeometry(d.satellites || []);
+        });
+}
+
+setInterval(loadDOP, 5000);
+loadDOP();
+</script>
+
+{% endblock %}
