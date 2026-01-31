@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        Satellite Health Dashboard
+    </h2>
+    <p>
+        Per‑satellite diagnostics including clock drift, ephemeris age, SNR trends, elevation history,
+        and health flags. Updated in real time from the GNSS receiver.
+    </p>
+</div>
+
+<!-- Satellite Table -->
+<div class="card">
+    <h2>Satellite Status</h2>
+    <table id="sat-table" style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="text-align:left; border-bottom:1px solid var(--border);">
+                <th>PRN</th>
+                <th>Constellation</th>
+                <th>SNR</th>
+                <th>Elevation</th>
+                <th>Azimuth</th>
+                <th>Clock Drift (ns/s)</th>
+                <th>Ephemeris Age (min)</th>
+                <th>Health</th>
+            </tr>
+        </thead>
+        <tbody id="sat-body"></tbody>
+    </table>
+</div>
+
+<!-- Trends -->
+<div class="card">
+    <h2>Satellite Trends</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <h3>SNR Trend</h3>
+            <div id="snr-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Elevation Trend</h3>
+            <div id="elev-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Clock Drift Trend</h3>
+            <div id="drift-spark"></div>
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadSatelliteHealth() {
+    fetch('/api/gnss/satellite_health')
+        .then(r => r.json())
+        .then(d => {
+            const sats = d.satellites || [];
+            const tbody = document.getElementById('sat-body');
+            tbody.innerHTML = "";
+
+            sats.forEach(s => {
+                const healthBadge =
+                    s.health === "OK" ? `<span class="badge badge-ok">OK</span>` :
+                    s.health === "WARN" ? `<span class="badge badge-warn">WARN</span>` :
+                    `<span class="badge badge-bad">BAD</span>`;
+
+                tbody.innerHTML += `
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td>${s.prn}</td>
+                        <td>${s.constellation}</td>
+                        <td>${s.snr}</td>
+                        <td>${s.elevation}°</td>
+                        <td>${s.azimuth}°</td>
+                        <td>${s.clock_drift}</td>
+                        <td>${s.ephemeris_age}</td>
+                        <td>${healthBadge}</td>
+                    </tr>
+                `;
+            });
+
+            // Trends
+            renderSparkline("snr-spark", d.trends.snr || [], "minimal");
+            renderSparkline("elev-spark", d.trends.elevation || [], "minimal");
+            renderSparkline("drift-spark", d.trends.clock_drift || [], "minimal");
+        });
+}
+
+setInterval(loadSatelliteHealth, 5000);
+loadSatelliteHealth();
+</script>
+
+{% endblock %}
