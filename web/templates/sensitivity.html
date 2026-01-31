@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sensitivity Analyzer</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/digital-twin">Digital Twin</a>
+    <a href="/sensitivity">Sensitivity Analyzer</a>
+</div>
+
+<h1>GNSS Timing Sensitivity Analyzer</h1>
+
+<div class="card">
+    <h2>Select Sweep File</h2>
+    <select id="sweep-select"></select>
+    <button onclick="runSweep()">Run Sweep</button>
+</div>
+
+<div class="card">
+    <h2>Results</h2>
+    <div id="sweep-table"></div>
+</div>
+
+<script src="/static/js/sensitivity.js"></script>
+
+</body>
+</html>
