@@ -540,6 +540,18 @@ def mobile_prefs():
     save_prefs(prefs)
     return jsonify({"status": "ok"})
 
+@app.route("/api/mobile_snapshot")
+def mobile_snapshot():
+    return jsonify({
+        "system": system_health_api.get_snapshot(),
+        "gnss": gnss_history_api.get_snapshot(),
+        "ptp": ptp_profile_api.get_snapshot(),
+        "confidence": timing_conf_api.get_snapshot(),
+        "interference": interference_api.get_snapshot(),
+        "sla": sla_api.get_snapshot(),
+        "prefs": load_prefs()
+    })
+
 # ------------------------------------------------------------
 # App Runner
 # ------------------------------------------------------------
