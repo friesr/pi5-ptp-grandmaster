@@ -21,6 +21,7 @@ from backend.api.service_control import service_control_api
 from backend.api.alert_rules import alert_rules_api
 from backend.api.constellation_score import constellation_score_api
 from backend.api.backup import backup_api
+from backend.api.servo_history import servo_history_api
 
 
 
@@ -54,6 +55,7 @@ app.register_blueprint(service_control_api, url_prefix="/api/services")
 app.register_blueprint(alert_rules_api, url_prefix="/api/alert_rules")
 app.register_blueprint(constellation_score_api, url_prefix="/api/constellation_score")
 app.register_blueprint(backup_api, url_prefix="/api/backup")
+app.register_blueprint(servo_history_api, url_prefix="/api/servo_history")
 
 
 
@@ -114,4 +116,8 @@ def constellation_score_page():
 @app.route("/backup")
 def backup_page():
     return render_template("backup.html")
+
+@app.route("/servo-history")
+def servo_history_page():
+    return render_template("servo_history.html")
 
