@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        Timing Health Storyboard
+    </h2>
+    <p>
+        A narrative timeline that explains timing degradation events, correlating GNSS, PTP,
+        geometry, multipath, interference, stability, and operator actions into a coherent story.
+    </p>
+</div>
+
+<!-- Time Range -->
+<div class="card">
+    <h2>Analysis Window</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Start</label>
+            <input id="start" type="datetime-local">
+        </div>
+
+        <div class="flex-1">
+            <label>End</label>
+            <input id="end" type="datetime-local">
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="runStoryboard()">
+        Generate Storyboard
+    </button>
+</div>
+
+<!-- Narrative -->
+<div class="card">
+    <h2>Narrative Summary</h2>
+    <div id="narrative">Run analysis to generate a timing health narrative.</div>
+</div>
+
+<!-- Timeline -->
+<div class="card">
+    <h2>Event Timeline</h2>
+    <div id="timeline">No events yet.</div>
+</div>
+
+<!-- Key Factors -->
+<div class="card">
+    <h2>Key Contributing Factors</h2>
+    <div id="factors">No factors yet.</div>
+</div>
+
+<!-- Recommendations -->
+<div class="card">
+    <h2>Recommended Actions</h2>
+    <div id="recommendations">No recommendations yet.</div>
+</div>
+
+<script>
+function runStoryboard() {
+    const params = {
+        start: document.getElementById('start').value,
+        end: document.getElementById('end').value
+    };
+
+    fetch('/api/timing/storyboard', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        // Narrative
+        document.getElementById('narrative').innerHTML = `
+            <p>${d.narrative}</p>
+        `;
+
+        // Timeline
+        const events = d.timeline || [];
+        const tDiv = document.getElementById('timeline');
+
+        if (events.length === 0) {
+            tDiv.innerHTML = "<p>No events in this window.</p>";
+        } else {
+            tDiv.innerHTML = events.map(e => `
+                <div class="alert-row ${severityClass(e.severity)}">
+                    <div style="font-weight:600;">${e.title}</div>
+                    <div>${e.description}</div>
+                    <div class="alert-meta">${e.time}</div>
+                </div>
+            `).join('');
+        }
+
+        // Factors
+        const factors = d.factors || [];
+        const fDiv = document.getElementById('factors');
+
+        if (factors.length === 0) {
+            fDiv.innerHTML = "<p>No contributing factors detected.</p>";
+        } else {
+            fDiv.innerHTML = factors.map(f => `
+                <div class="alert-row alert-minor">
+                    <div style="font-weight:600;">${f.label}</div>
+                    <div>${f.detail}</div>
+                </div>
+            `).join('');
+        }
+
+        // Recommendations
+        const recs = d.recommendations || [];
+        const rDiv = document.getElementById('recommendations');
+
+        if (recs.length === 0) {
+            rDiv.innerHTML = "<p>No recommendations.</p>";
+        } else {
+            rDiv.innerHTML = recs.map(r => `
+                <div class="alert-row alert-major">
+                    <div style="font-weight:600;">${r.title}</div>
+                    <div>${r.action}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+</script>
+
+{% endblock %}
