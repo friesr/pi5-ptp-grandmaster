@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Timeline Overview -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/alerts.svg">
+        Unified Event Timeline
+    </h2>
+    <p>
+        A chronological view of GNSS, PTP, SLA, interference, and system health events.
+        This timeline helps operators understand the sequence and correlation of timing anomalies.
+    </p>
+</div>
+
+<!-- Timeline Stream -->
+<div class="card">
+    <h2>Event Stream</h2>
+    <div id="timeline">Loading...</div>
+</div>
+
+<script>
+function loadTimeline() {
+    fetch('/api/timeline')
+        .then(r => r.json())
+        .then(events => {
+
+            if (!events || events.length === 0) {
+                document.getElementById('timeline').innerHTML =
+                    '<p>No recent events.</p>';
+                return;
+            }
+
+            const html = events.map(e => {
+                const cls =
+                    e.severity === 'CRITICAL' ? 'alert-critical' :
+                    e.severity === 'MAJOR'    ? 'alert-major' :
+                                                'alert-minor';
+
+                const icon =
+                    e.type === 'GNSS'        ? '/static/icons/desktop/gnss.svg' :
+                    e.type === 'PTP'         ? '/static/icons/desktop/ptp.svg' :
+                    e.type === 'SLA'         ? '/static/icons/desktop/alerts.svg' :
+                    e.type === 'INTERFERENCE'? '/static/icons/desktop/alerts.svg' :
+                    e.type === 'HEALTH'      ? '/static/icons/desktop/health.svg' :
+                                                '/static/icons/desktop/dashboard.svg';
+
+                return `
+                    <div class="alert-row ${cls}" style="display:flex; gap:12px; align-items:center;">
+                        <img src="${icon}" class="card-icon">
+                        <div style="flex:1;">
+                            <div style="font-weight:600;">${e.type}</div>
+                            <div>${e.message}</div>
+                            <div class="alert-meta">${e.severity} • ${e.time}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('timeline').innerHTML = html;
+        });
+}
+
+setInterval(loadTimeline, 15000);
+loadTimeline();
+</script>
+
+{% endblock %}
