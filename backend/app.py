@@ -194,6 +194,10 @@ def index():
 def alert_rules_page():
     return render_template("alert_rules.html")
 
+@app.route("/allan")
+def allan_page():
+    return render_template("allan.html")
+
 @app.route("/anomaly-clusters")
 def anomaly_clusters_page():
     return render_template("anomaly_clusters.html")
@@ -234,6 +238,10 @@ def constellation_timeline_page():
 def digital_twin_page():
     return render_template("digital_twin.html")
 
+@app.route("/digital-twin-batch")
+def digital_twin_batch_page():
+    return render_template("digital_twin_batch.html")
+
 @app.route("/digital-twin-diff")
 def digital_twin_diff_page():
     return render_template("digital_twin_diff.html")
@@ -246,13 +254,37 @@ def digital_twin_events_page():
 def digital_twin_event_timeline_page():
     return render_template("digital_twin_event_timeline.html")
 
+@app.route("/digital-twin-evolve")
+def digital_twin_evolve_page():
+    return render_template("digital_twin_evolve.html")
+
+@app.route("/digital-twin-monte-carlo")
+def digital_twin_monte_carlo_page():
+    return render_template("digital_twin_monte_carlo.html")
+
 @app.route("/digital-twin-multi-replay")
 def digital_twin_multi_replay_page():
     return render_template("digital_twin_multi_replay.html")
 
+@app.route("/digital-twin-optimize")
+def digital_twin_optimize_page():
+    return render_template("digital_twin_optimize.html")
+
 @app.route("/digital-twin-replay")
 def digital_twin_replay_page():
     return render_template("digital_twin_replay.html")
+
+@app.route("/digital-twin-report")
+def digital_twin_report_page():
+    return render_template("digital_twin_report.html")
+
+@app.route("/digital-twin-risk-curves")
+def digital_twin_risk_curves_page():
+    return render_template("digital_twin_risk_curves.html")
+
+@app.route("/dop")
+def dop_page():
+    return render_template("dop.html")
 
 @app.route("/environment")
 def environment_page():
@@ -282,9 +314,9 @@ def gnss_outages_page():
 def gnss_ptp_corr_page():
     return render_template("gnss_ptp_corr.html")
 
-@app.route("/master-summary")
-def master_summary_page():
-    return render_template("master_summary.html")
+@app.route("/interference")
+def interference_page():
+    return render_template("interference.html")
 
 @app.route("/mission-control")
 def mission_control_page():
@@ -330,6 +362,10 @@ def report_page():
 def satellites():
     return render_template("satellites.html")
 
+@app.route("/scenario-designer")
+def scenario_designer_page():
+    return render_template("scenario_designer.html")
+
 @app.route("/scenario-library")
 def scenario_library_page():
     return render_template("scenario_library.html")
@@ -370,6 +406,10 @@ def stability_page():
 def system_health_page():
     return render_template("system_health.html")
 
+@app.route("/sensitivity")
+def sensitivity_page():
+    return render_template("sensitivity.html")
+
 @app.route("/timing-accuracy")
 def timing_accuracy_page():
     return render_template("timing_accuracy.html")
@@ -386,9 +426,9 @@ def unified_timeline_page():
 def validation_page():
     return render_template("validation.html")
 
-@app.route("/interference")
-def interference_page():
-    return render_template("interference.html")
+@app.route("/drift")
+def drift_page():
+    return render_template("drift.html")
 
 # ------------------------------------------------------------
 # App Runner
