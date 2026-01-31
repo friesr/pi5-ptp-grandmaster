@@ -136,6 +136,10 @@ app.register_blueprint(master_api, url_prefix="/api/master")
 
 app.register_blueprint(mission_api, url_prefix="/api/mission")
 
+@app.route("/constellation-performance")
+def constellation_performance_page():
+    return render_template("constellation_performance.html")
+
 @app.route("/multi-receiver")
 def multi_receiver_page():
     return render_template("multi_receiver.html")
