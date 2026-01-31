@@ -64,3 +64,8 @@ if __name__ == "__main__":
 @app.route("/gnss-history")
 def gnss_history_page():
     return render_template("gnss_history.html")
+
+@app.route("/system-health")
+def system_health_page():
+    return render_template("system_health.html")
+
