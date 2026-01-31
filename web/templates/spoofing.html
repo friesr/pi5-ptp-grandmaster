@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spoofing Detector</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/spoofing">Spoofing Detector</a>
+    </div>
+
+    <h1>GNSS Spoofing & Meaconing Detector</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadSpoofing()">Analyze</button>
+    </div>
+
+    <div class="card">
+        <h2>Result</h2>
+        <pre id="spoofing-output" style="height:400px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="/static/js/spoofing.js"></script>
+</body>
+</html>
