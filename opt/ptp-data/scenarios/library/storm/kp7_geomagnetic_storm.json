@@ -1,0 +1,16 @@
+{
+  "scenario_name": "kp7_geomagnetic_storm",
+  "base_day": "2025-11-03",
+  "perturbations": {
+    "gnss_outage": { "start": 4200, "duration": 900 },
+    "interference": { "severity": 0.5, "start": 0, "duration": 0 },
+    "spoofing": { "start": 0, "duration": 0 },
+    "multipath_boost": { "factor": 1.2 },
+    "constellation_failure": { "constellation": "GPS", "start": 5000, "duration": 600 },
+    "receiver_health_drop": { "score": 90 }
+  },
+  "servo_adjustments": {
+    "kp": 1.0,
+    "ki": 0.02
+  }
+}
