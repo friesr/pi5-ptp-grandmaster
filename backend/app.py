@@ -386,6 +386,10 @@ def unified_timeline_page():
 def validation_page():
     return render_template("validation.html")
 
+@app.route("/interference")
+def interference_page():
+    return render_template("interference.html")
+
 # ------------------------------------------------------------
 # App Runner
 # ------------------------------------------------------------
