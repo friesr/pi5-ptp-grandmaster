@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multi-Receiver Correlation</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/multi-receiver">Multi-Receiver Correlation</a>
+    </div>
+
+    <h1>Multi-Receiver Correlation Engine</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadCorrelation()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Correlation Result</h2>
+        <pre id="correlation-output" style="height:300px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="/static/js/multi_receiver.js"></script>
+</body>
+</html>
