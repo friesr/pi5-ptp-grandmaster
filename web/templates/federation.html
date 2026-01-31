@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/network.svg">
+        GNSS Timing Observatory — Multi‑Node Federation
+    </h2>
+    <p>
+        Connect multiple observatories into a distributed timing network. Share intelligence,
+        synchronize predictions, and coordinate autonomous actions across nodes.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Federation Status</h2>
+    <div id="status">Loading…</div>
+</div>
+
+<div class="card">
+    <h2>Connected Nodes</h2>
+    <div id="nodes">Loading…</div>
+</div>
+
+<div class="card">
+    <h2>Add Node</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Node Address</label>
+            <input id="addr" type="text" placeholder="https://node.example.com">
+        </div>
+
+        <div class="flex-1">
+            <label>Shared Key</label>
+            <input id="key" type="text" placeholder="Federation shared secret">
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="addNode()">
+        Add Node
+    </button>
+
+    <div id="add-status" style="margin-top:10px;"></div>
+</div>
+
+<div class="card">
+    <h2>Shared Intelligence</h2>
+    <div id="intel">Loading…</div>
+</div>
+
+<div class="card">
+    <h2>Consensus Timing Confidence</h2>
+    <div id="consensus" style="font-size:48px; font-weight:700;">--</div>
+    <div id="consensus-spark"></div>
+</div>
+
+<div class="card">
+    <h2>Federated Actions</h2>
+    <div id="actions">Loading…</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadFederation() {
+    fetch('/api/federation/status')
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('status').innerHTML = `
+                <p><strong>Mode:</strong> ${d.mode}</p>
+                <p><strong>Uptime:</strong> ${d.uptime}</p>
+                <p><strong>Notes:</strong> ${d.notes}</p>
+            `;
+
+            document.getElementById('nodes').innerHTML =
+                d.nodes.length === 0
+                    ? "<p>No connected nodes.</p>"
+                    : d.nodes.map(n => `
+                        <div class="alert-row alert-minor">
+                            <div style="font-weight:600;">${n.name}</div>
+                            <div>${n.address}</div>
+                            <div class="alert-meta">${n.latency} ms</div>
+                        </div>
+                    `).join('');
+
+            document.getElementById('intel').innerHTML = `
+                <pre>${JSON.stringify(d.shared_intel, null, 2)}</pre>
+            `;
+
+            document.getElementById('consensus').innerText = d.consensus.score;
+            renderSparkline("consensus-spark", d.consensus.trend, "minimal");
+
+            document.getElementById('actions').innerHTML =
+                d.actions.length === 0
+                    ? "<p>No federated actions.</p>"
+                    : d.actions.map(a => `
+                        <div class="alert-row alert-major">
+                            <div style="font-weight:600;">${a.title}</div>
+                            <div>${a.description}</div>
+                            <div class="alert-meta">${a.time}</div>
+                        </div>
+                    `).join('');
+        });
+}
+
+function addNode() {
+    const params = {
+        address: document.getElementById('addr').value,
+        key: document.getElementById('key').value
+    };
+
+    fetch('/api/federation/add', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('add-status').innerHTML = `
+            <p><strong>${d.status}</strong>: ${d.notes}</p>
+        `;
+        loadFederation();
+    });
+}
+
+setInterval(loadFederation, 5000);
+loadFederation();
+</script>
+
+{% endblock %}
