@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/settings.svg">
+        GNSS Timing Observatory — Configuration Manager
+    </h2>
+    <p>
+        View, edit, validate, version, and compare all observatory configuration parameters.
+        Includes subsystem‑specific panels and safety checks.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Configuration Sets</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Select Config Version</label>
+            <select id="config-select" onchange="loadConfig()">
+                <option value="">Loading…</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Create New Version</label>
+            <input id="new-name" type="text" placeholder="e.g., Post‑upgrade tuning">
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="createVersion()">
+        Create Version
+    </button>
+</div>
+
+<div class="card">
+    <h2>Configuration Parameters</h2>
+    <div id="params">Select a configuration version to view parameters.</div>
+</div>
+
+<div class="card">
+    <h2>Save Changes</h2>
+    <button class="save-button" onclick="saveConfig()">Save Configuration</button>
+    <div id="save-status" style="margin-top:10px;"></div>
+</div>
+
+<div class="card">
+    <h2>Compare Versions</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Version A</label>
+            <select id="cmpA"></select>
+        </div>
+
+        <div class="flex-1">
+            <label>Version B</label>
+            <select id="cmpB"></select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="compareVersions()">
+        Compare
+    </button>
+
+    <div id="comparison" style="margin-top:20px;">No comparison yet.</div>
+</div>
+
+<script>
+let currentConfig = null;
+
+function loadConfigList() {
+    fetch('/api/config/list')
+        .then(r => r.json())
+        .then(d => {
+            const sel = document.getElementById('config-select');
+            const A = document.getElementById('cmpA');
+            const B = document.getElementById('cmpB');
+
+            sel.innerHTML = "";
+            A.innerHTML = "";
+            B.innerHTML = "";
+
+            d.versions.forEach(v => {
+                sel.innerHTML += `<option value="${v.id}">${v.label}</option>`;
+                A.innerHTML += `<option value="${v.id}">${v.label}</option>`;
+                B.innerHTML += `<option value="${v.id}">${v.label}</option>`;
+            });
+
+            loadConfig();
+        });
+}
+
+function loadConfig() {
+    const id = document.getElementById('config-select').value;
+    if (!id) return;
+
+    fetch('/api/config/get?id=' + id)
+        .then(r => r.json())
+        .then(d => {
+            currentConfig = d;
+
+            const pDiv = document.getElementById('params');
+            pDiv.innerHTML = d.params.map(p => `
+                <div style="margin-bottom:12px;">
+                    <div style="font-weight:600;">${p.key}</div>
+                    <div class="alert-meta">${p.description}</div>
+                    <input id="cfg-${p.key}" type="text" value="${p.value}">
+                </div>
+            `).join('');
+        });
+}
+
+function createVersion() {
+    const name = document.getElementById('new-name').value;
+
+    fetch('/api/config/create', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({name})
+    })
+    .then(r => r.json())
+    .then(() => loadConfigList());
+}
+
+function saveConfig() {
+    if (!currentConfig) return;
+
+    const updated = {};
+    currentConfig.params.forEach(p => {
+        updated[p.key] = document.getElementById(`cfg-${p.key}`).value;
+    });
+
+    fetch('/api/config/save', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            id: currentConfig.id,
+            params: updated
+        })
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('save-status').innerHTML = `
+            <p><strong>${d.status}</strong>: ${d.notes}</p>
+        `;
+    });
+}
+
+function compareVersions() {
+    const params = {
+        A: document.getElementById('cmpA').value,
+        B: document.getElementById('cmpB').value
+    };
+
+    fetch('/api/config/compare', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('comparison').innerHTML = `
+            <pre>${JSON.stringify(d.diff, null, 2)}</pre>
+        `;
+    });
+}
+
+loadConfigList();
+</script>
+
+{% endblock %}
