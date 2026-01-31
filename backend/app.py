@@ -80,6 +80,7 @@ from backend.api.digital_twin_optimize import digital_twin_optimize_api
 from backend.api.digital_twin_evolve import digital_twin_evolve_api
 from backend.api.digital_twin_monte_carlo import digital_twin_mc_api
 from backend.api.digital_twin_risk_curves import digital_twin_risk_api
+from backend.api.scenario_library import scenario_library_api
 
 
 
@@ -199,6 +200,7 @@ app.register_blueprint(digital_twin_optimize_api, url_prefix="/api/digital_twin_
 app.register_blueprint(digital_twin_evolve_api, url_prefix="/api/digital_twin_evolve")
 app.register_blueprint(digital_twin_mc_api, url_prefix="/api/digital_twin_monte_carlo")
 app.register_blueprint(digital_twin_risk_api, url_prefix="/api/digital_twin_risk")
+app.register_blueprint(scenario_library_api, url_prefix="/api/scenario_library")
 
 
 
@@ -476,6 +478,10 @@ def digital_twin_monte_carlo_page():
 @app.route("/digital-twin-risk-curves")
 def digital_twin_risk_curves_page():
     return render_template("digital_twin_risk_curves.html")
+
+@app.route("/scenario-library")
+def scenario_library_page():
+    return render_template("scenario_library.html")
 
 
 # -------------------------------------------------------------------
