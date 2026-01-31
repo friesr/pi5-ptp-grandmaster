@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/check.svg">
+        GNSS Timing SLA Compliance Analyzer
+    </h2>
+    <p>
+        Evaluate timing performance against SLA thresholds for accuracy, stability, availability,
+        integrity, and environmental resilience.
+    </p>
+</div>
+
+<div class="card">
+    <h2>SLA Parameters</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Max Allowed Drift (ns)</label>
+            <input id="max_drift" type="number" value="50">
+        </div>
+
+        <div class="flex-1">
+            <label>Max Allowed Jitter (ns)</label>
+            <input id="max_jitter" type="number" value="10">
+        </div>
+
+        <div class="flex-1">
+            <label>Min Availability (%)</label>
+            <input id="min_avail" type="number" value="99.9">
+        </div>
+
+        <div class="flex-1">
+            <label>Min Integrity Score</label>
+            <input id="min_integrity" type="number" value="85">
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="runSLA()">
+        Evaluate SLA Compliance
+    </button>
+</div>
+
+<div class="card">
+    <h2>Compliance Summary</h2>
+    <div id="summary">Run SLA evaluation to see results.</div>
+</div>
+
+<div class="card">
+    <h2>Compliance Score</h2>
+    <div id="score" style="font-size:48px; font-weight:700;">--</div>
+    <div id="score-badge" class="badge badge-info">Waiting…</div>
+</div>
+
+<div class="card">
+    <h2>Violation Timeline</h2>
+    <div id="timeline">No violations yet.</div>
+</div>
+
+<div class="card">
+    <h2>Violation Breakdown</h2>
+    <div id="violations">No violations yet.</div>
+</div>
+
+<div class="card">
+    <h2>Recommended Actions</h2>
+    <div id="recommendations">No recommendations yet.</div>
+</div>
+
+<script>
+function runSLA() {
+    const params = {
+        max_drift: parseFloat(document.getElementById('max_drift').value),
+        max_jitter: parseFloat(document.getElementById('max_jitter').value),
+        min_avail: parseFloat(document.getElementById('min_avail').value),
+        min_integrity: parseFloat(document.getElementById('min_integrity').value)
+    };
+
+    fetch('/api/timing/sla_compliance', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Status:</strong> ${d.status}</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        document.getElementById('score').innerText = d.score;
+
+        const badge = document.getElementById('score-badge');
+        badge.innerText = d.label;
+        badge.className =
+            d.score >= 90 ? "badge badge-ok" :
+            d.score >= 70 ? "badge badge-warn" :
+                            "badge badge-bad";
+
+        const tDiv = document.getElementById('timeline');
+        if (d.timeline.length === 0) {
+            tDiv.innerHTML = "<p>No SLA violations detected.</p>";
+        } else {
+            tDiv.innerHTML = d.timeline.map(v => `
+                <div class="alert-row ${severityClass(v.severity)}">
+                    <div style="font-weight:600;">${v.metric}</div>
+                    <div>${v.start} → ${v.end}</div>
+                    <div class="alert-meta">${v.detail}</div>
+                </div>
+            `).join('');
+        }
+
+        const vDiv = document.getElementById('violations');
+        if (d.violations.length === 0) {
+            vDiv.innerHTML = "<p>No violations.</p>";
+        } else {
+            vDiv.innerHTML = d.violations.map(v => `
+                <div class="alert-row alert-major">
+                    <div style="font-weight:600;">${v.metric}</div>
+                    <div>${v.amount}</div>
+                </div>
+            `).join('');
+        }
+
+        const rDiv = document.getElementById('recommendations');
+        if (d.recommendations.length === 0) {
+            rDiv.innerHTML = "<p>No recommendations.</p>";
+        } else {
+            rDiv.innerHTML = d.recommendations.map(r => `
+                <div class="alert-row alert-major">
+                    <div style="font-weight:600;">${r.title}</div>
+                    <div>${r.action}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+</script>
+
+{% endblock %}
