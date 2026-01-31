@@ -19,5 +19,7 @@ pip3 install flask numpy pandas plotly openpyxl psutil python-dateutil
 echo "Creating data directories..."
 mkdir -p /opt/ptp-data/live
 mkdir -p /opt/ptp-data/archive
+mkdir -p /opt/ptp-data/live
+mkdir -p /opt/ptp-data/archive
 
 echo "Install complete."
