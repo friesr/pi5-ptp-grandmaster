@@ -1,0 +1,18 @@
+[Unit]
+Description=PTP4L Precision Time Protocol Service
+After=network.target
+Requires=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/ptp4l -f /opt/pi5-ptp-grandmaster/system/ptp4l.conf -i eth0
+Restart=always
+RestartSec=3
+KillMode=process
+TimeoutStopSec=10
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
