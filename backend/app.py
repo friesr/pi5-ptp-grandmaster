@@ -122,6 +122,18 @@ def mobile_redirect():
         if any(sig in ua for sig in mobile_signatures):
             return redirect("/mobile")
 
+PREF_FILE = "/opt/ptp-data/mobile_prefs.json"
+
+def load_prefs():
+    if os.path.exists(PREF_FILE):
+        return json.load(open(PREF_FILE))
+    return {"sparkline": "minimal"}
+
+def save_prefs(prefs):
+    json.dump(prefs, open(PREF_FILE, "w"))
+
+
+
 # ------------------------------------------------------------
 # Blueprint Manifest (Pattern A)
 # ------------------------------------------------------------
@@ -516,6 +528,17 @@ def validation_page():
 @app.route("/mobile")
 def mobile_page():
     return render_template("mobile.html")
+
+@app.route("/api/mobile_prefs", methods=["GET", "POST"])
+def mobile_prefs():
+    if request.method == "GET":
+        return jsonify(load_prefs())
+
+    data = request.json
+    prefs = load_prefs()
+    prefs["sparkline"] = data.get("sparkline", prefs["sparkline"])
+    save_prefs(prefs)
+    return jsonify({"status": "ok"})
 
 # ------------------------------------------------------------
 # App Runner
