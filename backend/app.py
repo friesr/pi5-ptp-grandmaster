@@ -68,6 +68,7 @@ from backend.analysis.unified_timeline import build_unified_timeline
 #Eclipse Prediction
 from backend.api.eclipse import eclipse_api
 
+from backend.api.clock_stability import clock_api
 
 
 # -------------------------------------------------------------------
@@ -167,6 +168,8 @@ app.register_blueprint(anomaly_ml_api,          url_prefix="/api/anomaly_ml")
 app.register_blueprint(multi_api,               url_prefix="/api/multi_receiver")
 app.register_blueprint(constellation_perf_api,  url_prefix="/api/constellation_performance")
 app.register_blueprint(eclipse_api, url_prefix="/api/eclipse")
+app.register_blueprint(clock_api, url_prefix="/api/clock_stability")
+
 
 
 
@@ -369,6 +372,10 @@ def orbit_phase_page():
 @app.route("/eclipse")
 def eclipse_page():
     return render_template("eclipse.html")
+
+@app.route("/clock-stability")
+def clock_stability_page():
+    return render_template("clock_stability.html")
 
 
 # -------------------------------------------------------------------
