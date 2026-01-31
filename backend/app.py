@@ -43,6 +43,7 @@ from backend.api.timing_confidence import timing_conf_api
 from backend.api.anomaly_explainer import anomaly_explainer_api
 from backend.api.predictive_maintenance import predictive_api
 from backend.api.environment_change import env_change_api
+from backend.api.sla import sla_api
 
 
 
@@ -98,6 +99,7 @@ app.register_blueprint(timing_conf_api, url_prefix="/api/timing_confidence")
 app.register_blueprint(predictive_api, url_prefix="/api/predictive")
 app.register_blueprint(anomaly_explainer_api, url_prefix="/api/anomaly_explainer")
 app.register_blueprint(env_change_api, url_prefix="/api/environment_change")
+app.register_blueprint(sla_api, url_prefix="/api/sla")
 
 
 @app.route("/")
@@ -247,3 +249,8 @@ def predictive_maintenance_page():
 @app.route("/environment-change")
 def environment_change_page():
     return render_template("environment_change.html")
+
+
+@app.route("/sla")
+def sla_page():
+    return render_template("sla.html")
