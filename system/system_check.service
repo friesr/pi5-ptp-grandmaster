@@ -1,0 +1,9 @@
+[Unit]
+Description=Periodic System Health Check
+
+[Service]
+Type=oneshot
+ExecStart=/opt/pi5-ptp-grandmaster/system/health_check.sh
+
+[Install]
+WantedBy=multi-user.target
