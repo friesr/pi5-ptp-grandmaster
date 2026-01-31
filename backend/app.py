@@ -39,6 +39,7 @@ from backend.api.timing_accuracy import timing_accuracy_api
 from backend.api.anomaly_clustering import anomaly_cluster_api
 from backend.api.receiver_health import receiver_health_api
 from backend.api.environment_fingerprint import environment_api
+from backend.api.timing_confidence import timing_conf_api
 
 
 
@@ -90,6 +91,7 @@ app.register_blueprint(timing_accuracy_api, url_prefix="/api/timing_accuracy")
 app.register_blueprint(anomaly_cluster_api, url_prefix="/api/anomaly_clusters")
 app.register_blueprint(receiver_health_api, url_prefix="/api/receiver_health")
 app.register_blueprint(environment_api, url_prefix="/api/environment")
+app.register_blueprint(timing_conf_api, url_prefix="/api/timing_confidence")
 
 
 
@@ -222,3 +224,7 @@ def receiver_health_page():
 @app.route("/environment")
 def environment_page():
     return render_template("environment_fingerprint.html")
+
+@app.route("/timing-confidence")
+def timing_confidence_page():
+    return render_template("timing_confidence.html")
