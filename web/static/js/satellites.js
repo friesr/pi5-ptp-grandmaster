@@ -96,6 +96,8 @@ function updateSatellites() {
                 .then(r => r.json())
                 .then(scores => renderMultipathChart(scores));
 
+            updateDOP();
+
         });
 }
 
@@ -119,4 +121,13 @@ function renderMultipathChart(scores) {
         margin: { t: 20 },
         yaxis: { title: "Multipath Score (0 = clean, 1 = severe)" }
     });
+}
+
+function updateDOP() {
+    fetch("/api/dop/current")
+        .then(r => r.json())
+        .then(dop => {
+            document.getElementById("dop-block").innerText =
+                JSON.stringify(dop, null, 2);
+        });
 }
