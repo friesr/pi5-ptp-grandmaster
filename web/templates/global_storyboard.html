@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/storyboard.svg">
+        GNSS Timing Observatory — Global Storyboard
+    </h2>
+    <p>
+        Generate cinematic, narrative storyboards of global timing events, combining replay data,
+        correlation intelligence, risk forecasts, and Digital Twin divergence into human‑readable
+        sequences.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Storyboard Parameters</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Start Time</label>
+            <input id="start" type="datetime-local">
+        </div>
+
+        <div class="flex-1">
+            <label>End Time</label>
+            <input id="end" type="datetime-local">
+        </div>
+
+        <div class="flex-1">
+            <label>Storyboard Style</label>
+            <select id="style">
+                <option value="TECHNICAL">Technical</option>
+                <option value="OPERATOR">Operator‑Friendly</option>
+                <option value="EXECUTIVE">Executive Summary</option>
+                <option value="CINEMATIC">Cinematic</option>
+                <option value="TRAINING">Training Mode</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="generateStoryboard()">
+        Generate Storyboard
+    </button>
+</div>
+
+<div class="card">
+    <h2>Storyboard Summary</h2>
+    <div id="summary">Generate a storyboard to begin.</div>
+</div>
+
+<div class="card">
+    <h2>Storyboard Panels</h2>
+    <div id="panels">No storyboard yet.</div>
+</div>
+
+<div class="card">
+    <h2>Export Storyboard</h2>
+    <button class="save-button" onclick="exportStoryboard()">Export</button>
+    <div id="export-status" style="margin-top:10px;"></div>
+</div>
+
+<script>
+let storyboard = null;
+
+function generateStoryboard() {
+    const params = {
+        start: document.getElementById('start').value,
+        end: document.getElementById('end').value,
+        style: document.getElementById('style').value
+    };
+
+    fetch('/api/storyboard/generate', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        storyboard = d;
+
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Title:</strong> ${d.title}</p>
+            <p><strong>Duration:</strong> ${d.duration}</p>
+            <p><strong>Nodes Involved:</strong> ${d.nodes}</p>
+            <p><strong>Event Count:</strong> ${d.events}</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        document.getElementById('panels').innerHTML =
+            d.panels.map(p => `
+                <div class="alert-row alert-minor" style="margin-bottom:20px;">
+                    <div style="font-weight:600;">${p.time}</div>
+                    <div>${p.caption}</div>
+                    <pre>${JSON.stringify(p.data, null, 2)}</pre>
+                </div>
+            `).join('');
+    });
+}
+
+function exportStoryboard() {
+    if (!storyboard) {
+        document.getElementById('export-status').innerHTML = "<p>No storyboard to export.</p>";
+        return;
+    }
+
+    fetch('/api/storyboard/export', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(storyboard)
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('export-status').innerHTML = `
+            <p><strong>${d.status}</strong>: ${d.notes}</p>
+        `;
+    });
+}
+</script>
+
+{% endblock %}
