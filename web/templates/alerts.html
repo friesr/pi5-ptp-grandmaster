@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Alerts Overview -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/alerts.svg">
+        Alerts & Notifications
+    </h2>
+    <p>
+        Real‑time and historical alerts including SLA violations, interference events, GNSS outages,
+        PTP servo anomalies, and timing degradations. This dashboard provides a unified view of
+        operational risks and timing instability.
+    </p>
+</div>
+
+<!-- Recent Alerts -->
+<div class="card">
+    <h2>Recent Alerts</h2>
+    <div id="alerts-list">Loading...</div>
+</div>
+
+<!-- SLA Summary -->
+<div class="card" style="margin-top:20px;">
+    <h2>SLA Summary</h2>
+    <div id="sla-summary"></div>
+</div>
+
+<!-- Interference Summary -->
+<div class="card" style="margin-top:20px;">
+    <h2>Interference Summary</h2>
+    <div id="interference-summary"></div>
+</div>
+
+<script>
+function loadAlerts() {
+    fetch('/api/alerts')
+        .then(r => r.json())
+        .then(d => {
+            if (!d || d.length === 0) {
+                document.getElementById('alerts-list').innerHTML =
+                    '<p>No recent alerts.</p>';
+                return;
+            }
+
+            const html = d.map(a => {
+                const cls =
+                    a.severity === 'CRITICAL' ? 'alert-critical' :
+                    a.severity === 'MAJOR'    ? 'alert-major' :
+                                                'alert-minor';
+
+                return `
+                    <div class="alert-row ${cls}">
+                        <div style="font-weight:600;">${a.type}</div>
+                        <div>${a.message}</div>
+                        <div class="alert-meta">${a.severity} • ${a.time}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('alerts-list').innerHTML = html;
+        });
+}
+
+function loadSummaries() {
+    fetch('/api/mobile_snapshot')
+        .then(r => r.json())
+        .then(d => {
+            // SLA Summary
+            document.getElementById('sla-summary').innerHTML =
+                `<span class="badge ${d.sla.count > 0 ? 'badge-bad' : 'badge-ok'}">
+                    Today: ${d.sla.count}
+                 </span>`;
+
+            // Interference Summary
+            document.getElementById('interference-summary').innerHTML =
+                `<span class="badge ${d.interference.level === 'LOW' ? 'badge-ok' : 'badge-bad'}">
+                    Level: ${d.interference.level}
+                 </span>`;
+        });
+}
+
+setInterval(loadAlerts, 15000);
+setInterval(loadSummaries, 15000);
+
+loadAlerts();
+loadSummaries();
+</script>
+
+{% endblock %}
