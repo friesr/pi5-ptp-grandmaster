@@ -41,6 +41,7 @@ from backend.api.receiver_health import receiver_health_api
 from backend.api.environment_fingerprint import environment_api
 from backend.api.timing_confidence import timing_conf_api
 from backend.api.anomaly_explainer import anomaly_explainer_api
+from backend.api.predictive_maintenance import predictive_api
 
 
 
@@ -93,7 +94,7 @@ app.register_blueprint(anomaly_cluster_api, url_prefix="/api/anomaly_clusters")
 app.register_blueprint(receiver_health_api, url_prefix="/api/receiver_health")
 app.register_blueprint(environment_api, url_prefix="/api/environment")
 app.register_blueprint(timing_conf_api, url_prefix="/api/timing_confidence")
-
+app.register_blueprint(predictive_api, url_prefix="/api/predictive")
 app.register_blueprint(anomaly_explainer_api, url_prefix="/api/anomaly_explainer")
 
 
@@ -235,4 +236,8 @@ def timing_confidence_page():
 @app.route("/anomaly-explanations")
 def anomaly_explanations_page():
     return render_template("anomaly_explanations.html")
-    
+
+
+@app.route("/predictive-maintenance")
+def predictive_maintenance_page():
+    return render_template("predictive_maintenance.html")
