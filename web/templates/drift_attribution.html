@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/analysis.svg">
+        GNSS Timing Drift Attribution Engine
+    </h2>
+    <p>
+        Analyze any time window and determine how much drift came from satellite, atmospheric,
+        multipath, interference, spoofing, oscillator, servo, geometry, and Digital Twin mismatch.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Attribution Window</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Start</label>
+            <input id="start" type="datetime-local">
+        </div>
+
+        <div class="flex-1">
+            <label>End</label>
+            <input id="end" type="datetime-local">
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="runAttribution()">
+        Run Drift Attribution
+    </button>
+</div>
+
+<div class="card">
+    <h2>Attribution Summary</h2>
+    <div id="summary">Run attribution to see results.</div>
+</div>
+
+<div class="card">
+    <h2>Drift Breakdown</h2>
+    <div id="bars">No data yet.</div>
+</div>
+
+<div class="card">
+    <h2>Trend</h2>
+    <div id="trend-spark"></div>
+</div>
+
+<div class="card">
+    <h2>Component Table</h2>
+    <table id="comp-table" style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="text-align:left; border-bottom:1px solid var(--border);">
+                <th>Component</th>
+                <th>Drift (ns)</th>
+                <th>Percent</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody id="comp-body"></tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h2>Narrative Explanation</h2>
+    <div id="narrative">No explanation yet.</div>
+</div>
+
+<div class="card">
+    <h2>Recommended Mitigations</h2>
+    <div id="recommendations">No recommendations yet.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function runAttribution() {
+    const params = {
+        start: document.getElementById('start').value,
+        end: document.getElementById('end').value
+    };
+
+    fetch('/api/timing/drift_attribution', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Total Drift:</strong> ${d.total} ns</p>
+            <p><strong>Dominant Source:</strong> ${d.dominant}</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        const bars = d.bars || [];
+        const bDiv = document.getElementById('bars');
+        bDiv.innerHTML = bars.map(b => `
+            <div style="margin-bottom:8px;">
+                <div style="font-weight:600;">${b.label}</div>
+                <div style="height:12px; background:var(--accent); width:${b.percent}%;"></div>
+                <div class="alert-meta">${b.value} ns (${b.percent}%)</div>
+            </div>
+        `).join('');
+
+        renderSparkline("trend-spark", d.trend || [], "minimal");
+
+        const comps = d.components || [];
+        const tbody = document.getElementById('comp-body');
+        tbody.innerHTML = comps.map(c => `
+            <tr style="border-bottom:1px solid var(--border);">
+                <td>${c.name}</td>
+                <td>${c.value}</td>
+                <td>${c.percent}%</td>
+                <td>${c.notes}</td>
+            </tr>
+        `).join('');
+
+        document.getElementById('narrative').innerHTML = `
+            <p>${d.narrative}</p>
+        `;
+
+        const recs = d.recommendations || [];
+        const rDiv = document.getElementById('recommendations');
+        rDiv.innerHTML = recs.length === 0
+            ? "<p>No recommendations.</p>"
+            : recs.map(r => `
+                <div class="alert-row alert-major">
+                    <div style="font-weight:600;">${r.title}</div>
+                    <div>${r.action}</div>
+                </div>
+            `).join('');
+    });
+}
+</script>
+
+{% endblock %}
