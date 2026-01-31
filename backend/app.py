@@ -20,6 +20,7 @@ from backend.api.skyplot_playback import skyplot_playback_api
 from backend.api.service_control import service_control_api
 from backend.api.alert_rules import alert_rules_api
 from backend.api.constellation_score import constellation_score_api
+from backend.api.backup import backup_api
 
 
 
@@ -52,6 +53,7 @@ app.register_blueprint(skyplot_playback_api, url_prefix="/api/skyplot_playback")
 app.register_blueprint(service_control_api, url_prefix="/api/services")
 app.register_blueprint(alert_rules_api, url_prefix="/api/alert_rules")
 app.register_blueprint(constellation_score_api, url_prefix="/api/constellation_score")
+app.register_blueprint(backup_api, url_prefix="/api/backup")
 
 
 
@@ -108,4 +110,8 @@ def alert_rules_page():
 @app.route("/constellation-score")
 def constellation_score_page():
     return render_template("constellation_score.html")
+
+@app.route("/backup")
+def backup_page():
+    return render_template("backup.html")
 
