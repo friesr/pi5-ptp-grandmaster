@@ -15,6 +15,7 @@ from backend.api.gnss_history import gnss_history_api
 from backend.api.dop import dop_api
 from backend.api.system_health import system_health_api
 from backend.api.ptp_profile import ptp_profile_api
+from backend.api.prn_lifetime import prn_lifetime_api
 
 
 
@@ -41,6 +42,8 @@ app.register_blueprint(gnss_history_api, url_prefix="/api/gnss_history")
 app.register_blueprint(dop_api, url_prefix="/api/dop")
 app.register_blueprint(system_health_api, url_prefix="/api/system_health")
 app.register_blueprint(ptp_profile_api, url_prefix="/api/ptp_profile")
+app.register_blueprint(prn_lifetime_api, url_prefix="/api/prn_lifetime")
+
 
 
 
