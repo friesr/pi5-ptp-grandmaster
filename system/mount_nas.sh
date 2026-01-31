@@ -2,10 +2,17 @@
 
 CONFIG="/opt/pi5-ptp-grandmaster/system/nas.conf"
 
-# Function to read key=value safely
+# Read INI-style config values from [NAS] section
 get_conf() {
     local key="$1"
-    grep -E "^$key=" "$CONFIG" | sed -e "s/^$key=//" -e 's/^[ \t]*//;s/[ \t]*$//'
+    awk -F '=' -v key="$key" '
+        $0 ~ /^\[NAS\]/ { in_section=1; next }
+        $0 ~ /^\[/ { in_section=0 }
+        in_section && $1 ~ key {
+            gsub(/^[ \t]+|[ \t]+$/, "", $2)
+            print $2
+        }
+    ' "$CONFIG"
 }
 
 enabled=$(get_conf enabled)
