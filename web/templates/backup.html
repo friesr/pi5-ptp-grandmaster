@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backup & Restore</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/system-health">System Health</a>
+        <a href="/services">Service Control</a>
+        <a href="/backup">Backup & Restore</a>
+    </div>
+
+    <h1>Backup & Restore</h1>
+
+    <div class="card">
+        <h2>Download Backup</h2>
+        <button onclick="downloadBackup()">Download</button>
+    </div>
+
+    <div class="card">
+        <h2>Restore From Backup</h2>
+        <input type="file" id="backup-file">
+        <button onclick="restoreBackup()">Restore</button>
+        <pre id="restore-status"></pre>
+    </div>
+
+    <script src="/static/js/backup.js"></script>
+</body>
+</html>
