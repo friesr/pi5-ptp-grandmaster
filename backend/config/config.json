@@ -1,0 +1,7 @@
+{
+    "refresh_rate_ms": 10000,
+    "ntp_poll_hours": 1.0,
+    "local_max_gb": 20,
+    "nas_max_gb": 200,
+    "gps_receivers": ["stratux"]
+}
