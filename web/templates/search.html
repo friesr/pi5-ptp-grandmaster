@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/search.svg">
+        System‑Wide Search
+    </h2>
+    <p>
+        Search across alerts, satellites, logs, scenarios, Digital Twin jobs, exports, and system
+        messages. Results update in real time as you type.
+    </p>
+</div>
+
+<!-- Search Bar -->
+<div class="card">
+    <h2>Search</h2>
+
+    <input id="query" type="text" placeholder="Search everything…" oninput="runSearch()">
+
+    <div id="search-status" style="margin-top:10px;">
+        Waiting for input.
+    </div>
+</div>
+
+<!-- Results -->
+<div class="card">
+    <h2>Results</h2>
+    <div id="results">Start typing to see results.</div>
+</div>
+
+<script>
+let searchTimeout = null;
+
+function runSearch() {
+    const q = document.getElementById('query').value.trim();
+
+    if (q.length === 0) {
+        document.getElementById('search-status').innerHTML = "Waiting for input.";
+        document.getElementById('results').innerHTML = "Start typing to see results.";
+        return;
+    }
+
+    document.getElementById('search-status').innerHTML =
+        `<span class="badge badge-info">Searching…</span>`;
+
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => executeSearch(q), 200);
+}
+
+function executeSearch(q) {
+    fetch('/api/search', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ query: q })
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('search-status').innerHTML =
+            `<span class="badge badge-ok">Results updated</span>`;
+
+        const results = d.results || [];
+        const div = document.getElementById('results');
+
+        if (results.length === 0) {
+            div.innerHTML = "<p>No results found.</p>";
+            return;
+        }
+
+        div.innerHTML = results.map(r => `
+            <div class="alert-row ${severityClass(r.severity)}">
+                <div style="font-weight:600;">${r.title}</div>
+                <div>${r.snippet}</div>
+                <div class="alert-meta">${r.type} • ${r.time}</div>
+            </div>
+        `).join('');
+    });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+</script>
+
+{% endblock %}
