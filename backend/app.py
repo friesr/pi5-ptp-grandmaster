@@ -34,6 +34,7 @@ from backend.api.signal_quality import signal_quality_api
 from backend.api.gnss_ptp_correlation import gnss_ptp_corr_api
 from backend.api.prn_health import prn_health_api
 from backend.api.constellation_drift import constellation_drift_api
+from backend.api.interference_detector import interference_api
 
 
 
@@ -80,6 +81,8 @@ app.register_blueprint(signal_quality_api, url_prefix="/api/signal_quality")
 app.register_blueprint(gnss_ptp_corr_api, url_prefix="/api/gnss_ptp_corr")
 app.register_blueprint(prn_health_api, url_prefix="/api/prn_health")
 app.register_blueprint(constellation_drift_api, url_prefix="/api/constellation_drift")
+app.register_blueprint(interference_api, url_prefix="/api/interference")
+
 
 
 @app.route("/")
@@ -189,4 +192,8 @@ def prn_health_page():
 @app.route("/constellation-drift")
 def constellation_drift_page():
     return render_template("constellation_drift.html")
+
+@app.route("/interference")
+def interference_page():
+    return render_template("interference.html")
 
