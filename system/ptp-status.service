@@ -1,0 +1,10 @@
+[Unit]
+Description=PTP Status Monitor
+After=network.target
+
+[Service]
+ExecStart=/bin/true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
