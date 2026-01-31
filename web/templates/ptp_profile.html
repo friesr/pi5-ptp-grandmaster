@@ -1,31 +1,101 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>PTP Profile Selection</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
+{% extends "base.html" %}
+{% block content %}
 
-<body>
-    <div class="nav">
-        <a href="/">Dashboard</a>
-        <a href="/validation">Validation</a>
-        <a href="/config">Configuration</a>
-        <a href="/ptp-profile">PTP Profile</a>
+<!-- PTP Overview -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/ptp.svg">
+        PTP Timing Profile
+    </h2>
+    <p>
+        Real‑time and historical PTP timing performance including offset, jitter, servo state,
+        stability, and timing accuracy. This dashboard provides deep insight into synchronization
+        behavior and timing drift.
+    </p>
+</div>
+
+<!-- Offset / Jitter -->
+<div style="display:flex; gap:20px;">
+
+    <div class="card" style="flex:1;">
+        <h2>Offset (ns)</h2>
+        <div id="offset"></div>
+        <div id="offset-spark"></div>
     </div>
 
-    <h1>PTP Profile Selection</h1>
-
-    <div class="card">
-        <h2>Select Profile</h2>
-        <select id="profile-select"></select>
-        <button onclick="applyProfile()">Apply</button>
+    <div class="card" style="flex:1;">
+        <h2>Jitter (ns)</h2>
+        <div id="jitter"></div>
+        <div id="jitter-spark"></div>
     </div>
 
-    <div class="card">
-        <h2>Description</h2>
-        <pre id="profile-desc"></pre>
-    </div>
+</div>
 
-    <script src="/static/js/ptp_profile.js"></script>
-</body>
-</html>
+<!-- Servo State -->
+<div class="card" style="margin-top:20px;">
+    <h2>Servo State</h2>
+    <div id="servo"></div>
+</div>
+
+<!-- Stability -->
+<div class="card" style="margin-top:20px;">
+    <h2>Stability</h2>
+    <div id="stability"></div>
+    <div id="stability-spark"></div>
+</div>
+
+<!-- Timing Accuracy -->
+<div class="card" style="margin-top:20px;">
+    <h2>Timing Accuracy</h2>
+    <div id="accuracy"></div>
+    <div id="accuracy-spark"></div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadPTP() {
+    fetch('/api/ptp_profile')
+        .then(r => r.json())
+        .then(d => {
+
+            // Offset
+            document.getElementById('offset').innerHTML =
+                `<span class="badge ${Math.abs(d.offset) > 500 ? 'badge-bad' : Math.abs(d.offset) > 200 ? 'badge-warn' : 'badge-ok'}">
+                    ${d.offset} ns
+                 </span>`;
+            renderSparkline("offset-spark", d.offset_history || [], "minimal");
+
+            // Jitter
+            document.getElementById('jitter').innerHTML =
+                `<span class="badge ${d.jitter > 200 ? 'badge-bad' : d.jitter > 100 ? 'badge-warn' : 'badge-ok'}">
+                    ${d.jitter} ns
+                 </span>`;
+            renderSparkline("jitter-spark", d.jitter_history || [], "minimal");
+
+            // Servo State
+            const servo = d.servo_state || 'UNKNOWN';
+            document.getElementById('servo').innerHTML =
+                `<span class="badge ${servo === 'LOCKED' ? 'badge-ok' : servo === 'FREERUN' ? 'badge-bad' : 'badge-warn'}">
+                    ${servo}
+                 </span>`;
+
+            // Stability
+            document.getElementById('stability').innerHTML =
+                `<span class="badge badge-info">${d.stability}</span>`;
+            renderSparkline("stability-spark", d.stability_history || [], "minimal");
+
+            // Timing Accuracy
+            document.getElementById('accuracy').innerHTML =
+                `<span class="badge ${d.accuracy < 50 ? 'badge-ok' : d.accuracy < 200 ? 'badge-warn' : 'badge-bad'}">
+                    ${d.accuracy} ns
+                 </span>`;
+            renderSparkline("accuracy-spark", d.accuracy_history || [], "minimal");
+        });
+}
+
+setInterval(loadPTP, 10000);
+loadPTP();
+</script>
+
+{% endblock %}
