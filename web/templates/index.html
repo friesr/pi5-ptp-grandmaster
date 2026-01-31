@@ -1,79 +1,262 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PTP Grandmaster Dashboard</title>
-    <link rel="stylesheet" href="/static/css/dark.css">
-    <script src="/static/js/main.js"></script>
+    <title>GNSS Timing Observatory</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        h2 {
+            margin-top: 40px;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .section {
+            margin-top: 20px;
+        }
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .link-card {
+            background: #f5f5f5;
+            padding: 14px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+        .link-card a {
+            font-weight: bold;
+            text-decoration: none;
+            color: #0044aa;
+        }
+        .link-card p {
+            margin: 6px 0 0 0;
+            font-size: 0.9em;
+            color: #444;
+        }
+    </style>
 </head>
+
 <body>
-    <div class="nav">
-        <a href="/">Dashboard</a>
-        <a href="/validation">Validation</a>
+
+<h1>GNSS Timing Observatory</h1>
+<p>Welcome to your unified control center. Choose a module to begin.</p>
+
+<!-- ========================================================= -->
+<!-- CORE SYSTEM -->
+<!-- ========================================================= -->
+<h2>Core System</h2>
+<div class="link-grid">
+
+    <div class="link-card">
+        <a href="/system-health">System Health</a>
+        <p>Live CPU, memory, disk, service status.</p>
+    </div>
+
+    <div class="link-card">
         <a href="/config">Configuration</a>
-        <a href="/satellites">Satellites</a>
+        <p>System settings, thresholds, and parameters.</p>
     </div>
 
-    <h1>PTP Grandmaster Dashboard</h1>
-
-    <div class="card">
-        <h2>System Status</h2>
-        <pre id="status-block">Loading...</pre>
+    <div class="link-card">
+        <a href="/services">Service Control</a>
+        <p>Start/stop GNSS/PTP services.</p>
     </div>
 
-    <div class="card">
-        <h2>Data Export</h2>
-        <button onclick="window.location='/api/export/excel'">Download Excel Export</button>
-    </div>
-    <div class="card">
-        <h2>Allan Deviation</h2>
-        <div id="adev-chart" style="height:300px;"></div>
-    </div>
-    
-    <div class="card">
-        <h2>Drift Model</h2>
-        <div id="drift-chart" style="height:300px;"></div>
+    <div class="link-card">
+        <a href="/backup">Backup & Restore</a>
+        <p>Export/import system state.</p>
     </div>
 
-    <div class="card">
-        <h2>PTP Offset (ns)</h2>
-        <div id="ptp-chart" style="height:300px;"></div>
+</div>
+
+<!-- ========================================================= -->
+<!-- GNSS ANALYTICS -->
+<!-- ========================================================= -->
+<h2>GNSS Analytics</h2>
+<div class="link-grid">
+
+    <div class="link-card">
+        <a href="/gnss-history">GNSS History</a>
+        <p>Daily GNSS logs and playback.</p>
     </div>
 
-    <div class="card">
-        <h2>NTP Offset (ms)</h2>
-        <div id="ntp-chart" style="height:300px;"></div>
-    </div>
-    <div class="card">
-        <h2>Temperature vs Drift</h2>
-        <div id="temp-drift-chart" style="height:300px;"></div>
-    </div>
-    <div class="card">
-        <h2>PTP Servo Status</h2>
-        <pre id="servo-block">Loading...</pre>
+    <div class="link-card">
+        <a href="/skyplot-playback">Skyplot Playback</a>
+        <p>Satellite sky positions over time.</p>
     </div>
 
-    <div class="card">
-        <h2>PTP Frequency Adjustment (ppb)</h2>
-        <div id="servo-chart" style="height:300px;"></div>
+    <div class="link-card">
+        <a href="/dop">DOP Metrics</a>
+        <p>GDOP/PDOP/HDOP/VDOP analysis.</p>
     </div>
-    <div class="card">
-        <h2>GNSS Satellites</h2>
-        <div id="gnss-chart" style="height:300px;"></div>
+
+    <div class="link-card">
+        <a href="/snr-waterfall">SNR Waterfall</a>
+        <p>Signal strength over time.</p>
     </div>
-    <div class="card">
-        <h2>NAS Health</h2>
-        <pre id="nas-block">Loading...</pre>
+
+    <div class="link-card">
+        <a href="/multipath-heatmap">Multipath Heatmap</a>
+        <p>Spatial multipath visualization.</p>
     </div>
- 
-    <div class="card">
-        <h2>PTP Servo Stability</h2>
-        <pre id="servo-stability-block">Loading...</pre>
+
+    <div class="link-card">
+        <a href="/constellation-performance">Constellation Performance</a>
+        <p>GPS/Galileo/GLONASS/BeiDou metrics.</p>
     </div>
-    
-    <div class="card">
-        <h2>Alerts</h2>
-        <ul id="alerts-list"></ul>
+
+    <div class="link-card">
+        <a href="/prn-health">PRN Health</a>
+        <p>Per‑satellite health and lifetime.</p>
     </div>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-</body>
-</html>
+
+    <div class="link-card">
+        <a href="/geometry-timeline">Geometry Timeline</a>
+        <p>Satellite geometry over time.</p>
+    </div>
+
+</div>
+
+<!-- ========================================================= -->
+<!-- PTP & TIMING -->
+<!-- ========================================================= -->
+<h2>PTP & Timing</h2>
+<div class="link-grid">
+
+    <div class="link-card">
+        <a href="/ptp-profile">PTP Profile</a>
+        <p>PTP configuration and status.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/ptp-events">PTP Events</a>
+        <p>Servo events, steps, and anomalies.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/servo-history">Servo History</a>
+        <p>PTP servo loop behavior.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/timing-accuracy">Timing Accuracy</a>
+        <p>Offset, jitter, and stability metrics.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/allan">Allan Deviation</a>
+        <p>Frequency stability analysis.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/drift">Drift Analysis</a>
+        <p>Oscillator drift and temperature effects.</p>
+    </div>
+
+</div>
+
+<!-- ========================================================= -->
+<!-- HEALTH & DIAGNOSTICS -->
+<!-- ========================================================= -->
+<h2>Health & Diagnostics</h2>
+<div class="link-grid">
+
+    <div class="link-card">
+        <a href="/receiver-health">Receiver Health</a>
+        <p>Tracking, SNR, lock stability.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/environment">Environment Fingerprint</a>
+        <p>RF environment and interference.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/interference">Interference Detector</a>
+        <p>Jamming and RF anomalies.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/anomaly-clusters">Anomaly Clusters</a>
+        <p>ML‑based anomaly grouping.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/anomaly-explanations">Anomaly Explanations</a>
+        <p>Root‑cause explanations.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/environment-change">Environment Change</a>
+        <p>RF environment shifts.</p>
+    </div>
+
+</div>
+
+<!-- ========================================================= -->
+<!-- DIGITAL TWIN & SIMULATION SUITE -->
+<!-- ========================================================= -->
+<h2>Digital Twin & Simulation Suite</h2>
+<div class="link-grid">
+
+    <div class="link-card">
+        <a href="/digital-twin">Digital Twin</a>
+        <p>Run a single simulation.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/scenario-designer">Scenario Designer</a>
+        <p>Build simulation scenarios visually.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/scenario-library">Scenario Library</a>
+        <p>Curated real‑world scenarios.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/digital-twin-batch">Batch Runner</a>
+        <p>Run all scenarios automatically.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/digital-twin-report">Report Generator</a>
+        <p>Structured simulation reports.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/sensitivity">Sensitivity Analyzer</a>
+        <p>Parameter sweeps and tuning.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/digital-twin-optimize">Optimization Engine</a>
+        <p>Automatic best‑parameter search.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/digital-twin-evolve">Scenario Evolution</a>
+        <p>Genetic algorithm worst‑case discovery.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/digital-twin-monte-carlo">Monte Carlo Engine</a>
+        <p>Randomized scenario sampling.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/digital-twin-risk-curves">Risk Curves</a>
+        <p>PDF/CDF/percentile analysis.</p>
+    </div>
+
+    <div class="link-card">
+        <a href="/digital-twin-replay">Replay Studio</a>
+        <p>Interactive timeline playback
