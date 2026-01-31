@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/ml.svg">
+        GNSS Timing Observatory — Machine Learning Engine
+    </h2>
+    <p>
+        Train, evaluate, and deploy machine learning models for drift prediction, anomaly detection,
+        constellation forecasting, interference classification, and timing confidence prediction.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Model Selection</h2>
+    <select id="model" onchange="loadModelInfo()">
+        <option value="DRIFT">Drift Predictor</option>
+        <option value="ANOMALY">Anomaly Detector</option>
+        <option value="CONFIDENCE">Confidence Predictor</option>
+        <option value="CONSTELLATION">Constellation Forecaster</option>
+        <option value="INTERFERENCE">Interference Classifier</option>
+        <option value="OSC">Oscillator Stability Model</option>
+        <option value="SERVO">Servo Behavior Model</option>
+    </select>
+</div>
+
+<div class="card">
+    <h2>Model Info</h2>
+    <div id="info">Select a model to view details.</div>
+</div>
+
+<div class="card">
+    <h2>Training Controls</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Training Window (days)</label>
+            <input id="window" type="number" min="1" max="365" value="30">
+        </div>
+
+        <div class="flex-1">
+            <label>Feature Set</label>
+            <select id="features">
+                <option value="STANDARD">Standard</option>
+                <option value="EXTENDED">Extended</option>
+                <option value="FULL">Full</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Training Mode</label>
+            <select id="mode">
+                <option value="FAST">Fast</option>
+                <option value="BALANCED">Balanced</option>
+                <option value="ACCURATE">Accurate</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="trainModel()">
+        Train Model
+    </button>
+</div>
+
+<div class="card">
+    <h2>Training Output</h2>
+    <div id="training">No training yet.</div>
+</div>
+
+<div class="card">
+    <h2>Run Prediction</h2>
+    <button class="save-button" onclick="runPrediction()">Run Prediction</button>
+    <div id="prediction" style="margin-top:20px;">No prediction yet.</div>
+</div>
+
+<script>
+function loadModelInfo() {
+    const model = document.getElementById('model').value;
+
+    fetch('/api/ml/info?model=' + model)
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('info').innerHTML = `
+                <p><strong>Name:</strong> ${d.name}</p>
+                <p><strong>Description:</strong> ${d.description}</p>
+                <p><strong>Features:</strong> ${d.features.join(", ")}</p>
+                <p><strong>Last Trained:</strong> ${d.last_trained}</p>
+            `;
+        });
+}
+
+function trainModel() {
+    const params = {
+        model: document.getElementById('model').value,
+        window: parseInt(document.getElementById('window').value),
+        features: document.getElementById('features').value,
+        mode: document.getElementById('mode').value
+    };
+
+    fetch('/api/ml/train', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('training').innerHTML = `
+            <p><strong>Status:</strong> ${d.status}</p>
+            <p><strong>Accuracy:</strong> ${d.accuracy}</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+    });
+}
+
+function runPrediction() {
+    const model = document.getElementById('model').value;
+
+    fetch('/api/ml/predict?model=' + model)
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('prediction').innerHTML = `
+                <pre>${JSON.stringify(d.prediction, null, 2)}</pre>
+            `;
+        });
+}
+
+loadModelInfo();
+</script>
+
+{% endblock %}
