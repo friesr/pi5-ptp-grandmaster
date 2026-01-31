@@ -65,6 +65,10 @@ from backend.api.constellation_performance import constellation_perf_api
 # Unified timeline builder
 from backend.analysis.unified_timeline import build_unified_timeline
 
+#Eclipse Prediction
+from backend.api.eclipse import eclipse_api
+
+
 
 # -------------------------------------------------------------------
 # Unified timeline API (inline definition)
@@ -162,6 +166,8 @@ app.register_blueprint(unified_api,             url_prefix="/api/unified_timelin
 app.register_blueprint(anomaly_ml_api,          url_prefix="/api/anomaly_ml")
 app.register_blueprint(multi_api,               url_prefix="/api/multi_receiver")
 app.register_blueprint(constellation_perf_api,  url_prefix="/api/constellation_performance")
+app.register_blueprint(eclipse_api, url_prefix="/api/eclipse")
+
 
 
 # -------------------------------------------------------------------
@@ -359,6 +365,10 @@ def prn_fingerprint_page():
 @app.route("/orbit-phase")
 def orbit_phase_page():
     return render_template("orbit_phase.html")
+
+@app.route("/eclipse")
+def eclipse_page():
+    return render_template("eclipse.html")
 
 
 # -------------------------------------------------------------------
