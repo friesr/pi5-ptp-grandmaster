@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GNSS Outages</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/gnss-outages">GNSS Outages</a>
+    </div>
+
+    <h1>GNSS Outage Detection</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadOutages()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Outage Timeline</h2>
+        <div id="outage-chart" style="height:400px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/gnss_outages.js"></script>
+</body>
+</html>
