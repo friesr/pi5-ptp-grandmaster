@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Skyplot Playback</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/satellites">Satellites</a>
+        <a href="/gnss-history">GNSS SNR History</a>
+        <a href="/prn-lifetime">PRN Lifetime</a>
+        <a href="/skyplot-playback">Skyplot Playback</a>
+    </div>
+
+    <h1>GNSS Skyplot Playback</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadPlayback()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Skyplot Animation</h2>
+        <div id="skyplot" style="height:500px;"></div>
+        <div style="margin-top:10px;">
+            <button onclick="play()">Play</button>
+            <button onclick="pause()">Pause</button>
+            <button onclick="faster()">Faster</button>
+            <button onclick="slower()">Slower</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/skyplot_playback.js"></script>
+</body>
+</html>
