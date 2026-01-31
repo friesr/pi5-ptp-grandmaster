@@ -51,6 +51,7 @@ from backend.analysis.unified_timeline import build_unified_timeline
 from backend.api.report import report_api
 from backend.api.stability_predictor import stability_api
 from backend.api.mission_control import mission_api
+from backend.api.master_summary import master_api
 
 
 
@@ -131,6 +132,7 @@ app.register_blueprint(sla_api, url_prefix="/api/sla")
 app.register_blueprint(unified_api, url_prefix="/api/unified_timeline")
 app.register_blueprint(stability_api, url_prefix="/api/stability")
 app.register_blueprint(report_api, url_prefix="/api/report")
+app.register_blueprint(master_api, url_prefix="/api/master")
 
 app.register_blueprint(mission_api, url_prefix="/api/mission")
 
