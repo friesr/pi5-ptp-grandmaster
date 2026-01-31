@@ -12,6 +12,7 @@ from backend.api.ptp_servo import ptp_servo_api
 from backend.api.alerts import alerts_api
 from backend.api.multipath import multipath_api
 from backend.api.gnss_history import gnss_history_api
+from backend.api.dop import dop_api
 
 
 
@@ -35,6 +36,8 @@ app.register_blueprint(ptp_servo_api, url_prefix="/api/ptp_servo")
 app.register_blueprint(alerts_api, url_prefix="/api/alerts")
 app.register_blueprint(multipath_api, url_prefix="/api/multipath")
 app.register_blueprint(gnss_history_api, url_prefix="/api/gnss_history")
+app.register_blueprint(dop_api, url_prefix="/api/dop")
+
 
 
 @app.route("/")
