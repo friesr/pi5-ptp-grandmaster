@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Health</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/validation">Validation</a>
+        <a href="/config">Configuration</a>
+        <a href="/satellites">Satellites</a>
+        <a href="/history">History</a>
+        <a href="/gnss-history">GNSS SNR History</a>
+        <a href="/system-health">System Health</a>
+    </div>
+
+    <h1>System Health</h1>
+
+    <div class="card">
+        <h2>System Metrics</h2>
+        <pre id="system-block">Loading...</pre>
+    </div>
+
+    <div class="card">
+        <h2>Service Status</h2>
+        <ul id="service-list"></ul>
+    </div>
+
+    <div class="card">
+        <h2>Network Status</h2>
+        <ul id="network-list"></ul>
+    </div>
+
+    <script src="/static/js/system_health.js"></script>
+</body>
+</html>
