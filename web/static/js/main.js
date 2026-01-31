@@ -130,5 +130,40 @@ updateTempDrift();
 setInterval(updateDrift, 30000);
 updateDrift();
 
+let servoTimes = [];
+let servoFreq = [];
+
+function updateServo() {
+    fetch("/api/ptp_servo/status")
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById("servo-block").innerText =
+                JSON.stringify(data, null, 2);
+
+            const ts = new Date().toLocaleTimeString();
+
+            servoTimes.push(ts);
+            servoFreq.push(data.freq_adj_ppb);
+
+            if (servoTimes.length > 50) {
+                servoTimes.shift();
+                servoFreq.shift();
+            }
+
+            Plotly.newPlot("servo-chart", [{
+                x: servoTimes,
+                y: servoFreq,
+                mode: "lines",
+                line: { color: "#e67e22" }
+            }], {
+                margin: { t: 20 },
+                yaxis: { title: "Frequency Adjustment (ppb)" }
+            });
+        });
+}
+
+setInterval(updateServo, 10000);
+updateServo();
+
 document.getElementById("nas-block").innerText =
     JSON.stringify(data.storage.nas_health, null, 2);
