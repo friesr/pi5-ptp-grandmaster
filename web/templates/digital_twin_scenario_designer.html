@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Scenario Designer Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        Digital Twin — Scenario Designer
+    </h2>
+    <p>
+        Create hypothetical GNSS, PTP, interference, and system conditions. Scenarios can be previewed,
+        simulated, and saved to the Scenario Library for future analysis.
+    </p>
+</div>
+
+<!-- Scenario Parameters -->
+<div class="card">
+    <h2>Scenario Parameters</h2>
+
+    <div style="display:flex; gap:40px;">
+
+        <!-- GNSS -->
+        <div style="flex:1;">
+            <h3>GNSS</h3>
+            <label>Locked Satellites</label><br>
+            <input id="gnss_locked" type="number" min="0" max="32" value="8"><br><br>
+
+            <label>Visible Satellites</label><br>
+            <input id="gnss_visible" type="number" min="0" max="32" value="12"><br><br>
+
+            <label>Average SNR (dB‑Hz)</label><br>
+            <input id="gnss_snr" type="number" min="10" max="60" value="35"><br><br>
+        </div>
+
+        <!-- PTP -->
+        <div style="flex:1;">
+            <h3>PTP</h3>
+            <label>Offset (ns)</label><br>
+            <input id="ptp_offset" type="number" value="0"><br><br>
+
+            <label>Jitter (ns)</label><br>
+            <input id="ptp_jitter" type="number" value="50"><br><br>
+
+            <label>Servo State</label><br>
+            <select id="ptp_servo">
+                <option value="LOCKED">LOCKED</option>
+                <option value="HOLDOVER">HOLDOVER</option>
+                <option value="FREERUN">FREERUN</option>
+            </select><br><br>
+        </div>
+
+        <!-- Interference -->
+        <div style="flex:1;">
+            <h3>Interference</h3>
+            <label>Level</label><br>
+            <select id="int_level">
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+            </select><br><br>
+
+            <label>Severity (%)</label><br>
+            <input id="int_severity" type="number" min="0" max="100" value="10"><br><br>
+        </div>
+
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="previewScenario()">
+        Preview Scenario
+    </button>
+</div>
+
+<!-- Scenario Preview -->
+<div class="card">
+    <h2>Scenario Preview</h2>
+    <div id="preview">No scenario preview yet.</div>
+</div>
+
+<!-- Save Scenario -->
+<div class="card">
+    <h2>Save Scenario</h2>
+    <label>Scenario Name</label><br>
+    <input id="scenario_name" type="text" placeholder="e.g., GNSS outage + servo holdover"><br><br>
+
+    <button class="save-button" onclick="saveScenario()">Save Scenario</button>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function collectScenario() {
+    return {
+        gnss: {
+            locked: parseInt(document.getElementById('gnss_locked').value),
+            visible: parseInt(document.getElementById('gnss_visible').value),
+            snr: parseFloat(document.getElementById('gnss_snr').value)
+        },
+        ptp: {
+            offset: parseFloat(document.getElementById('ptp_offset').value),
+            jitter: parseFloat(document.getElementById('ptp_jitter').value),
+            servo: document.getElementById('ptp_servo').value
+        },
+        interference: {
+            level: document.getElementById('int_level').value,
+            severity: parseFloat(document.getElementById('int_severity').value)
+        }
+    };
+}
+
+function previewScenario() {
+    const s = collectScenario();
+
+    document.getElementById('preview').innerHTML = `
+        <div style="display:flex; gap:20px;">
+
+            <div style="flex:1;">
+                <h3>GNSS</h3>
+                <span class="badge ${s.gnss.locked > 0 ? 'badge-ok' : 'badge-bad'}">
+                    ${s.gnss.locked} locked
+                </span><br>
+                <span class="badge badge-info">${s.gnss.visible} visible</span><br>
+                <span class="badge badge-info">SNR: ${s.gnss.snr}</span>
+            </div>
+
+            <div style="flex:1;">
+                <h3>PTP</h3>
+                <span class="badge ${Math.abs(s.ptp.offset) > 500 ? 'badge-bad' : Math.abs(s.ptp.offset) > 200 ? 'badge-warn' : 'badge-ok'}">
+                    Offset: ${s.ptp.offset} ns
+                </span><br>
+                <span class="badge ${s.ptp.jitter > 200 ? 'badge-bad' : s.ptp.jitter > 100 ? 'badge-warn' : 'badge-ok'}">
+                    Jitter: ${s.ptp.jitter} ns
+                </span><br>
+                <span class="badge badge-info">${s.ptp.servo}</span>
+            </div>
+
+            <div style="flex:1;">
+                <h3>Interference</h3>
+                <span class="badge ${s.interference.level === 'LOW' ? 'badge-ok' : 'badge-bad'}">
+                    Level: ${s.interference.level}
+                </span><br>
+                <span class="badge badge-info">Severity: ${s.interference.severity}%</span>
+            </div>
+
+        </div>
+    `;
+}
+
+function saveScenario() {
+    const name = document.getElementById('scenario_name').value;
+    if (!name) {
+        alert("Please enter a scenario name");
+        return;
+    }
+
+    const scenario = collectScenario();
+
+    fetch('/api/digital_twin/scenario/save', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ name, scenario })
+    }).then(() => alert("Scenario saved"));
+}
+</script>
+
+{% endblock %}
