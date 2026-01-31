@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Receiver Health</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/receiver-health">Receiver Health</a>
+    </div>
+
+    <h1>GNSS Receiver Self-Diagnostics</h1>
+
+    <div class="card">
+        <h2>Hardware Health</h2>
+        <div id="health-summary"></div>
+    </div>
+
+    <div class="card">
+        <h2>Indicators</h2>
+        <pre id="health-details" style="height:300px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="/static/js/receiver_health.js"></script>
+</body>
+</html>
