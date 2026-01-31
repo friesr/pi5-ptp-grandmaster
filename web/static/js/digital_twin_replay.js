@@ -18,6 +18,27 @@ function loadScenarios() {
         });
 }
 
+
+ReplaySyncBus.subscribe((timestamp) => {
+    if (!replayData.length) return;
+
+    // Find nearest index
+    let nearest = 0;
+    let bestDiff = Infinity;
+
+    for (let i = 0; i < replayData.length; i++) {
+        const diff = Math.abs(replayData[i].timestamp - timestamp);
+        if (diff < bestDiff) {
+            bestDiff = diff;
+            nearest = i;
+        }
+    }
+
+    index = nearest;
+    updateFrame();
+});
+
+
 function loadReplay() {
     const scenario = document.getElementById("scenario-select").value;
 
