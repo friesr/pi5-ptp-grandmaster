@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Configuration</title>
+    <link rel="stylesheet" href="/static/css/dark.css">
+    <script src="/static/js/config.js"></script>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/validation">Validation</a>
+        <a href="/config">Configuration</a>
+        <a href="/satellites">Satellites</a>
+    </div>
+
+    <h1>Configuration</h1>
+
+    <div class="card">
+        <h2>Refresh Rate</h2>
+        <select id="refresh-rate">
+            <option value="1000">1s</option>
+            <option value="2000">2s</option>
+            <option value="5000">5s</option>
+            <option value="10000" selected>10s (default)</option>
+            <option value="30000">30s</option>
+        </select>
+        <button id="save-refresh">Save</button>
+    </div>
+
+    <div class="card">
+        <h2>GPS Receiver Selection</h2>
+        <div id="gps-list"></div>
+        <button id="save-gps">Save GPS Configuration</button>
+    </div>
+
+    <div class="card">
+        <h2>NTP Polling Period (hours)</h2>
+        <input type="number" id="ntp-period" min="0.1" step="0.1">
+        <button id="save-ntp">Save</button>
+    </div>
+
+    <div class="card">
+        <h2>Storage Limits</h2>
+        <label>Local Max (GB):</label>
+        <input type="number" id="local-max"><br>
+        <label>NAS Max (GB):</label>
+        <input type="number" id="nas-max"><br>
+        <button id="save-storage">Save</button>
+    </div>
+</body>
+</html>
