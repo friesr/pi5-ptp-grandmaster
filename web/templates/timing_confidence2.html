@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Timing Confidence 2.0</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/timing-confidence-2">Timing Confidence 2.0</a>
+    </div>
+
+    <h1>Unified Timing Confidence Engine</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadConfidence()">Compute</button>
+    </div>
+
+    <div class="card">
+        <h2>Confidence Score</h2>
+        <div id="score" style="font-size: 48px; font-weight: bold;"></div>
+    </div>
+
+    <div class="card">
+        <h2>Feature Breakdown</h2>
+        <pre id="features" style="height:400px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="/static/js/timing_confidence2.js"></script>
+</body>
+</html>
