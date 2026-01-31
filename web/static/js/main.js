@@ -62,3 +62,23 @@ function updateStatus() {
 
 setInterval(updateStatus, 10000);
 updateStatus();
+
+function updateAdev() {
+    fetch("/api/allan/adev")
+        .then(r => r.json())
+        .then(data => {
+            Plotly.newPlot("adev-chart", [{
+                x: data.tau,
+                y: data.adev,
+                mode: "lines+markers",
+                line: { color: "#1db954" }
+            }], {
+                xaxis: { title: "Tau (s)" },
+                yaxis: { title: "ADEV (ns)" },
+                margin: { t: 20 }
+            });
+        });
+}
+
+setInterval(updateAdev, 30000);
+updateAdev();
