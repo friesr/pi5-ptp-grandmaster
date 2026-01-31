@@ -17,4 +17,6 @@
     "nas_server": "192.168.1.100",
     "nas_mount_point": "/mnt/Ark-1/GPS-Data"
     "logging_enabled": true
+
+    "alert_webhook_url": null
 }
