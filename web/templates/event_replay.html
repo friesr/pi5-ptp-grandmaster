@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/replay.svg">
+        GNSS Timing Event Replay Engine
+    </h2>
+    <p>
+        Replay historical timing events with subsystem overlays, annotations, and Digital Twin
+        comparisons.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Select Event</h2>
+    <select id="event-select" onchange="loadEvent()">
+        <option value="">Loading…</option>
+    </select>
+</div>
+
+<div class="card">
+    <h2>Event Summary</h2>
+    <div id="summary">Select an event to begin replay.</div>
+</div>
+
+<div class="card">
+    <h2>Replay Controls</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Time</label>
+            <input id="time" type="range" min="0" max="100" value="0" oninput="updateReplay()">
+        </div>
+
+        <div class="flex-1">
+            <button class="save-button" onclick="playReplay()">Play</button>
+            <button class="save-button" onclick="pauseReplay()">Pause</button>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Timing Drift</h2>
+    <div id="drift-spark"></div>
+</div>
+
+<div class="card">
+    <h2>Spoofing / Interference</h2>
+    <div id="threat-spark"></div>
+</div>
+
+<div class="card">
+    <h2>Tracking Loop State</h2>
+    <div id="loop-spark"></div>
+</div>
+
+<div class="card">
+    <h2>Residuals</h2>
+    <div id="residual-spark"></div>
+</div>
+
+<div class="card">
+    <h2>Digital Twin Comparison</h2>
+    <div id="dt-spark"></div>
+</div>
+
+<div class="card">
+    <h2>Annotations</h2>
+    <div id="annotations">No annotations yet.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+let replayData = null;
+let replayTimer = null;
+
+function loadEventList() {
+    fetch('/api/timing/events')
+        .then(r => r.json())
+        .then(d => {
+            const sel = document.getElementById('event-select');
+            sel.innerHTML = "";
+
+            d.events.forEach(ev => {
+                sel.innerHTML += `<option value="${ev.id}">${ev.label}</option>`;
+            });
+
+            loadEvent();
+        });
+}
+
+function loadEvent() {
+    const id = document.getElementById('event-select').value;
+    if (!id) return;
+
+    fetch(`/api/timing/event_replay?id=${id}`)
+        .then(r => r.json())
+        .then(d => {
+            replayData = d;
+
+            document.getElementById('summary').innerHTML = `
+                <p><strong>Event:</strong> ${d.label}</p>
+                <p><strong>Start:</strong> ${d.start}</p>
+                <p><strong>End:</strong> ${d.end}</p>
+                <p><strong>Root Cause:</strong> ${d.root_cause}</p>
+                <p><strong>Notes:</strong> ${d.notes}</p>
+            `;
+
+            renderSparkline("drift-spark", d.drift || [], "minimal");
+            renderSparkline("threat-spark", d.threat || [], "minimal");
+            renderSparkline("loop-spark", d.loop || [], "minimal");
+            renderSparkline("residual-spark", d.residuals || [], "minimal");
+            renderSparkline("dt-spark", d.digital_twin || [], "minimal");
+
+            const aDiv = document.getElementById('annotations');
+            if (d.annotations.length === 0) {
+                aDiv.innerHTML = "<p>No annotations.</p>";
+            } else {
+                aDiv.innerHTML = d.annotations.map(a => `
+                    <div class="alert-row alert-minor">
+                        <div style="font-weight:600;">${a.time}</div>
+                        <div>${a.text}</div>
+                    </div>
+                `).join('');
+            }
+        });
+}
+
+function updateReplay() {
+    if (!replayData) return;
+    const t = parseInt(document.getElementById('time').value);
+    // In a real implementation, this would update all sparkline cursors.
+}
+
+function playReplay() {
+    if (replayTimer) return;
+    replayTimer = setInterval(() => {
+        const slider = document.getElementById('time');
+        slider.value = Math.min(100, parseInt(slider.value) + 1);
+        updateReplay();
+        if (slider.value >= 100) pauseReplay();
+    }, 200);
+}
+
+function pauseReplay() {
+    clearInterval(replayTimer);
+    replayTimer = null;
+}
+
+loadEventList();
+</script>
+
+{% endblock %}
