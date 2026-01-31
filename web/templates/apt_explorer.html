@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/api.svg">
+        GNSS Timing Observatory — API Explorer
+    </h2>
+    <p>
+        Browse, test, and inspect all backend API endpoints. Designed for developers, integrators,
+        and advanced operators.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Endpoints</h2>
+    <select id="endpoint-select" onchange="loadEndpoint()">
+        <option value="">Loading…</option>
+    </select>
+</div>
+
+<div class="card">
+    <h2>Endpoint Details</h2>
+    <div id="details">Select an endpoint to view details.</div>
+</div>
+
+<div class="card">
+    <h2>Parameters</h2>
+    <div id="params">No parameters.</div>
+</div>
+
+<div class="card">
+    <h2>Try It</h2>
+    <button class="save-button" onclick="runQuery()">Run Query</button>
+    <pre id="response" style="margin-top:20px;">No response yet.</pre>
+</div>
+
+<script>
+let endpoints = {};
+
+function loadEndpoints() {
+    fetch('/api/explorer/list')
+        .then(r => r.json())
+        .then(d => {
+            endpoints = d.endpoints;
+
+            const sel = document.getElementById('endpoint-select');
+            sel.innerHTML = "";
+
+            Object.keys(endpoints).forEach(key => {
+                sel.innerHTML += `<option value="${key}">${key}</option>`;
+            });
+
+            loadEndpoint();
+        });
+}
+
+function loadEndpoint() {
+    const key = document.getElementById('endpoint-select').value;
+    if (!key) return;
+
+    const ep = endpoints[key];
+
+    document.getElementById('details').innerHTML = `
+        <p><strong>Route:</strong> ${ep.route}</p>
+        <p><strong>Method:</strong> ${ep.method}</p>
+        <p><strong>Description:</strong> ${ep.description}</p>
+        <p><strong>Linked UI:</strong> ${ep.ui}</p>
+    `;
+
+    const pDiv = document.getElementById('params');
+    if (!ep.params || ep.params.length === 0) {
+        pDiv.innerHTML = "<p>No parameters.</p>";
+    } else {
+        pDiv.innerHTML = ep.params.map(p => `
+            <div style="margin-bottom:10px;">
+                <div style="font-weight:600;">${p.name}</div>
+                <div class="alert-meta">${p.type}</div>
+                <input id="param-${p.name}" type="text" placeholder="${p.example}">
+            </div>
+        `).join('');
+    }
+}
+
+function runQuery() {
+    const key = document.getElementById('endpoint-select').value;
+    const ep = endpoints[key];
+
+    const body = {};
+    (ep.params || []).forEach(p => {
+        const val = document.getElementById(`param-${p.name}`).value;
+        if (val !== "") body[p.name] = val;
+    });
+
+    fetch(ep.route, {
+        method: ep.method,
+        headers: {"Content-Type": "application/json"},
+        body: ep.method === "POST" ? JSON.stringify(body) : undefined
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('response').innerText =
+            JSON.stringify(d, null, 2);
+    });
+}
+
+loadEndpoints();
+</script>
+
+{% endblock %}
