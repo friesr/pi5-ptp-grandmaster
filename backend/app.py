@@ -70,6 +70,8 @@ from backend.api.eclipse import eclipse_api
 
 from backend.api.clock_stability import clock_api
 from backend.api.satellite_aging import satellite_aging_api
+from backend.api.digital_twin import digital_twin_api
+
 
 
 
@@ -172,6 +174,8 @@ app.register_blueprint(constellation_perf_api,  url_prefix="/api/constellation_p
 app.register_blueprint(eclipse_api, url_prefix="/api/eclipse")
 app.register_blueprint(clock_api, url_prefix="/api/clock_stability")
 app.register_blueprint(satellite_aging_api, url_prefix="/api/satellite_aging")
+app.register_blueprint(digital_twin_api, url_prefix="/api/digital_twin")
+
 
 
 
@@ -407,6 +411,10 @@ def resilience_advisor_page():
 @app.route("/timing-confidence-2")
 def timing_confidence2_page():
     return render_template("timing_confidence2.html")
+
+@app.route("/digital-twin")
+def digital_twin_page():
+    return render_template("digital_twin.html")
 
 
 # -------------------------------------------------------------------
