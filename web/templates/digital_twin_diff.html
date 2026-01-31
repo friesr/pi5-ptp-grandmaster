@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scenario Diff</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/digital-twin">Digital Twin</a>
+    <a href="/digital-twin-diff">Scenario Diff</a>
+</div>
+
+<h1>GNSS Timing Scenario Diff Engine</h1>
+
+<div class="card">
+    <h2>Select Two Scenarios</h2>
+    <select id="scenario-a"></select>
+    <select id="scenario-b"></select>
+    <button onclick="runDiff()">Compare</button>
+</div>
+
+<div class="card">
+    <h2>Timing Error Delta</h2>
+    <div id="delta-chart" style="height:400px;"></div>
+</div>
+
+<div class="card">
+    <h2>Summary</h2>
+    <pre id="summary-output"></pre>
+</div>
+
+<div class="card">
+    <h2>Raw Diff</h2>
+    <pre id="diff-output" style="height:400px; overflow-y:auto;"></pre>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="/static/js/digital_twin_diff.js"></script>
+
+</body>
+</html>
