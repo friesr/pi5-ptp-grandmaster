@@ -1,0 +1,38 @@
+body {
+    background-color: #111;
+    color: #ddd;
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+.nav a {
+    color: #1db954;
+    margin-right: 20px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.nav a:hover {
+    color: #4be27a;
+}
+
+.card {
+    background: #1b1b1b;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 6px;
+}
+
+button {
+    background: #1db954;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #111;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #4be27a;
+}
