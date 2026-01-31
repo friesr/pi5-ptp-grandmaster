@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/risk.svg">
+        GNSS Timing Observatory — Global Risk Forecasting Engine
+    </h2>
+    <p>
+        Predict global timing risks using ML models, federation intelligence, Digital Twin
+        simulations, and cross‑site correlation. Identify upcoming risk windows and global
+        vulnerability patterns.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Forecast Parameters</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Forecast Horizon (hours)</label>
+            <input id="horizon" type="number" min="1" max="168" value="24">
+        </div>
+
+        <div class="flex-1">
+            <label>Resolution (minutes)</label>
+            <input id="resolution" type="number" min="1" max="60" value="10">
+        </div>
+
+        <div class="flex-1">
+            <label>Risk Types</label>
+            <select id="types" multiple style="height:120px;">
+                <option value="DRIFT">Drift</option>
+                <option value="CONFIDENCE">Confidence Drops</option>
+                <option value="CONSTELLATION">Constellation Issues</option>
+                <option value="INTERFERENCE">Interference</option>
+                <option value="SPOOFING">Spoofing</option>
+                <option value="IONO">Ionospheric Disturbance</option>
+                <option value="GEO">Geomagnetic Activity</option>
+                <option value="DT">Digital Twin Divergence</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="runForecast()">
+        Run Forecast
+    </button>
+</div>
+
+<div class="card">
+    <h2>Forecast Summary</h2>
+    <div id="summary">Run a forecast to see results.</div>
+</div>
+
+<div class="card">
+    <h2>Global Risk Map</h2>
+    <div id="map" style="height:500px; background:#111;">Loading…</div>
+</div>
+
+<div class="card">
+    <h2>Risk Timeline</h2>
+    <div id="timeline-spark"></div>
+</div>
+
+<div class="card">
+    <h2>Risk Windows</h2>
+    <div id="windows">No risk windows yet.</div>
+</div>
+
+<div class="card">
+    <h2>Root‑Cause Hypothesis</h2>
+    <div id="hypothesis">No hypothesis yet.</div>
+</div>
+
+<div class="card">
+    <h2>Recommended Actions</h2>
+    <div id="actions">No recommendations yet.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+let map = null;
+let markers = [];
+
+function initMap() {
+    map = L.map('map').setView([20, 0], 2);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 6,
+        minZoom: 2
+    }).addTo(map);
+}
+
+function runForecast() {
+    const params = {
+        horizon: parseInt(document.getElementById('horizon').value),
+        resolution: parseInt(document.getElementById('resolution').value),
+        types: Array.from(document.getElementById('types').selectedOptions).map(o => o.value)
+    };
+
+    fetch('/api/global_risk/forecast', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Forecast Horizon:</strong> ${d.horizon} hours</p>
+            <p><strong>Global Risk Level:</strong> ${d.global_risk}</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+
+        d.locations.forEach(loc => {
+            const marker = L.circleMarker([loc.lat, loc.lon], {
+                radius: 10,
+                color: loc.color,
+                fillColor: loc.color,
+                fillOpacity: 0.8
+            }).addTo(map);
+
+            markers.push(marker);
+        });
+
+        renderSparkline("timeline-spark", d.timeline, "minimal");
+
+        document.getElementById('windows').innerHTML =
+            d.windows.length === 0
+                ? "<p>No upcoming risk windows.</p>"
+                : d.windows.map(w => `
+                    <div class="alert-row alert-major">
+                        <div style="font-weight:600;">${w.start} → ${w.end}</div>
+                        <div>${w.reason}</div>
+                    </div>
+                `).join('');
+
+        document.getElementById('hypothesis').innerHTML = `
+            <p>${d.hypothesis}</p>
+        `;
+
+        document.getElementById('actions').innerHTML =
+            d.actions.length === 0
+                ? "<p>No recommended actions.</p>"
+                : d.actions.map(a => `
+                    <div class="alert-row alert-major">
+                        <div style="font-weight:600;">${a.title}</div>
+                        <div>${a.action}</div>
+                    </div>
+                `).join('');
+    });
+}
+
+setTimeout(initMap, 100);
+</script>
+
+{% endblock %}
