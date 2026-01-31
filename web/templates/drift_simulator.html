@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        GNSS Timing Drift Simulator
+    </h2>
+    <p>
+        Simulate future timing drift under hypothetical GNSS, interference, multipath, oscillator,
+        and servo conditions. Powered by the Digital Twin engine.
+    </p>
+</div>
+
+<!-- Scenario Controls -->
+<div class="card">
+    <h2>Simulation Scenario</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Simulation Horizon (minutes)</label>
+            <input id="horizon" type="number" min="1" max="1440" value="120">
+        </div>
+
+        <div class="flex-1">
+            <label>GNSS Availability</label>
+            <select id="gnss">
+                <option value="NORMAL">Normal</option>
+                <option value="DEGRADED">Degraded</option>
+                <option value="OUTAGE">Outage</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Interference Level</label>
+            <select id="interference">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Multipath Severity</label>
+            <select id="multipath">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Oscillator Condition</label>
+            <select id="osc">
+                <option value="NORMAL">Normal</option>
+                <option value="AGING">Aging</option>
+                <option value="DRIFTING">Drifting</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="runSimulation()">
+        Run Simulation
+    </button>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Simulation Summary</h2>
+    <div id="summary">Run a simulation to see results.</div>
+</div>
+
+<!-- Drift Curve -->
+<div class="card">
+    <h2>Simulated Drift Curve</h2>
+    <div id="drift-spark"></div>
+</div>
+
+<!-- Risk Windows -->
+<div class="card">
+    <h2>Predicted Risk Windows</h2>
+    <div id="risks">No risk windows yet.</div>
+</div>
+
+<!-- Comparison -->
+<div class="card">
+    <h2>Scenario Comparison</h2>
+    <div id="comparison">Run multiple simulations to compare scenarios.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+let lastSim = null;
+
+function runSimulation() {
+    const params = {
+        horizon: parseInt(document.getElementById('horizon').value),
+        gnss: document.getElementById('gnss').value,
+        interference: document.getElementById('interference').value,
+        multipath: document.getElementById('multipath').value,
+        osc: document.getElementById('osc').value
+    };
+
+    fetch('/api/timing/drift_simulator', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        lastSim = d;
+
+        // Summary
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Predicted Max Drift:</strong> ${d.max_drift} ns</p>
+            <p><strong>Risk Level:</strong> ${d.risk}</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        // Drift curve
+        renderSparkline("drift-spark", d.drift_curve || [], "minimal");
+
+        // Risk windows
+        const risks = d.risk_windows || [];
+        const rDiv = document.getElementById('risks');
+
+        if (risks.length === 0) {
+            rDiv.innerHTML = "<p>No predicted risk windows.</p>";
+        } else {
+            rDiv.innerHTML = risks.map(r => `
+                <div class="alert-row ${severityClass(r.severity)}">
+                    <div style="font-weight:600;">${r.label}</div>
+                    <div>${r.start} → ${r.end}</div>
+                    <div class="alert-meta">Reason: ${r.reason}</div>
+                </div>
+            `).join('');
+        }
+
+        // Comparison
+        const cDiv = document.getElementById('comparison');
+        if (!cDiv.dataset.history) {
+            cDiv.dataset.history = JSON.stringify([d]);
+            cDiv.innerHTML = "<p>Scenario saved. Run another simulation to compare.</p>";
+        } else {
+            const hist = JSON.parse(cDiv.dataset.history);
+            hist.push(d);
+            cDiv.dataset.history = JSON.stringify(hist);
+
+            cDiv.innerHTML = hist.map((h, i) => `
+                <div class="alert-row alert-minor">
+                    <div style="font-weight:600;">Scenario ${i+1}</div>
+                    <div>Max Drift: ${h.max_drift} ns</div>
+                    <div>Risk: ${h.risk}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+</script>
+
+{% endblock %}
