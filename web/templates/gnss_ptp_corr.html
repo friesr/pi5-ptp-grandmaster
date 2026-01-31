@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GNSS ↔ PTP Correlation</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/gnss-ptp-corr">GNSS ↔ PTP Correlation</a>
+    </div>
+
+    <h1>GNSS ↔ PTP Correlation Viewer</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadCorr()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Correlation Timeline</h2>
+        <div id="corr-chart" style="height:600px;"></div>
+    </div>
+
+    <div class="card">
+        <h2>Correlation Details</h2>
+        <pre id="corr-list" style="height:300px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/gnss_ptp_corr.js"></script>
+</body>
+</html>
