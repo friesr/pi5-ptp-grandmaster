@@ -1,0 +1,11 @@
+{
+    "default": {
+        "description": "Linux default PTP profile"
+    },
+    "g8275.1": {
+        "description": "Telecom profile G.8275.1 (full timing support)"
+    },
+    "g8275.2": {
+        "description": "Telecom profile G.8275.2 (partial timing support)"
+    }
+}
