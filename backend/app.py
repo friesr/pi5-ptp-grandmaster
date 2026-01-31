@@ -36,6 +36,7 @@ from backend.api.prn_health import prn_health_api
 from backend.api.constellation_drift import constellation_drift_api
 from backend.api.interference_detector import interference_api
 from backend.api.timing_accuracy import timing_accuracy_api
+from backend.api.anomaly_clustering import anomaly_cluster_api
 
 
 
@@ -84,6 +85,7 @@ app.register_blueprint(prn_health_api, url_prefix="/api/prn_health")
 app.register_blueprint(constellation_drift_api, url_prefix="/api/constellation_drift")
 app.register_blueprint(interference_api, url_prefix="/api/interference")
 app.register_blueprint(timing_accuracy_api, url_prefix="/api/timing_accuracy")
+app.register_blueprint(anomaly_cluster_api, url_prefix="/api/anomaly_clusters")
 
 
 
@@ -204,3 +206,7 @@ def interference_page():
 @app.route("/timing-accuracy")
 def timing_accuracy_page():
     return render_template("timing_accuracy.html")
+
+@app.route("/anomaly-clusters")
+def anomaly_clusters_page():
+    return render_template("anomaly_clusters.html")
