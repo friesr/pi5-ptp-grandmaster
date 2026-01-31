@@ -85,6 +85,7 @@ from backend.api.digital_twin_replay import digital_twin_replay_api
 from backend.api.digital_twin_multi_replay import digital_twin_multi_replay_api
 from backend.api.digital_twin_diff import digital_twin_diff_api
 from backend.api.digital_twin_events import digital_twin_events_api
+from backend.api.digital_twin_event_timeline import digital_twin_event_timeline_api
 
 
 
@@ -209,7 +210,7 @@ app.register_blueprint(digital_twin_replay_api, url_prefix="/api/digital_twin_re
 app.register_blueprint(digital_twin_multi_replay_api, url_prefix="/api/digital_twin_multi_replay")
 app.register_blueprint(digital_twin_diff_api, url_prefix="/api/digital_twin_diff")
 app.register_blueprint(digital_twin_events_api, url_prefix="/api/digital_twin_events")
-
+app.register_blueprint(digital_twin_event_timeline_api, url_prefix="/api/digital_twin_event_timeline")
 
 
 
@@ -505,6 +506,10 @@ def digital_twin_diff_page():
 @app.route("/digital-twin-events")
 def digital_twin_events_page():
     return render_template("digital_twin_events.html")
+
+@app.route("/digital-twin-event-timeline")
+def digital_twin_event_timeline_page():
+    return render_template("digital_twin_event_timeline.html")
 # -------------------------------------------------------------------
 # Entry point
 # -------------------------------------------------------------------
