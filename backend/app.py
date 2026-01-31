@@ -136,6 +136,10 @@ app.register_blueprint(master_api, url_prefix="/api/master")
 
 app.register_blueprint(mission_api, url_prefix="/api/mission")
 
+@app.route("/multi-receiver")
+def multi_receiver_page():
+    return render_template("multi_receiver.html")
+
 
 @app.route("/anomaly-ml")
 def anomaly_ml_page():
