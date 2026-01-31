@@ -1,112 +1,201 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- Mission Control Overview -->
+<!-- Header -->
 <div class="card">
     <h2>
-        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
-        Mission Control Overview
+        <img class="card-icon" src="/static/icons/desktop/mission.svg">
+        GNSS Timing Observatory — Mission Control
     </h2>
     <p>
-        Real‑time operational status of GNSS, PTP, timing confidence, interference, and SLA health.
-        This page provides a consolidated view for monitoring timing stability and diagnosing issues quickly.
+        Unified real‑time operational console integrating timing confidence, constellation health,
+        signal quality, interference, spoofing, drift, integrity, and Digital Twin predictions.
     </p>
 </div>
 
-<!-- GNSS + PTP Row -->
-<div style="display:flex; gap:20px;">
+<!-- Top Row: Confidence / Integrity / Drift -->
+<div class="flex-row">
 
-    <!-- GNSS Status -->
-    <div class="card" style="flex:1;">
-        <h2>
-            <img class="card-icon" src="/static/icons/desktop/gnss.svg">
-            GNSS Lock Status
-        </h2>
-        <div id="gnss-lock"></div>
-        <div id="gnss-spark"></div>
+    <div class="card flex-1">
+        <h2>Timing Confidence</h2>
+        <div id="conf-score" style="font-size:48px; font-weight:700;">--</div>
+        <div id="conf-badge" class="badge badge-info">Loading…</div>
+        <div id="conf-spark"></div>
     </div>
 
-    <!-- PTP Status -->
-    <div class="card" style="flex:1;">
-        <h2>
-            <img class="card-icon" src="/static/icons/desktop/ptp.svg">
-            PTP Servo State
-        </h2>
-        <div id="ptp-servo"></div>
-        <div id="ptp-spark"></div>
+    <div class="card flex-1">
+        <h2>Integrity Score</h2>
+        <div id="int-score" style="font-size:48px; font-weight:700;">--</div>
+        <div id="int-badge" class="badge badge-info">Loading…</div>
+        <div id="int-spark"></div>
     </div>
 
-</div>
-
-<!-- Confidence + Interference Row -->
-<div style="display:flex; gap:20px; margin-top:20px;">
-
-    <!-- Timing Confidence -->
-    <div class="card" style="flex:1;">
-        <h2>
-            <img class="card-icon" src="/static/icons/desktop/health.svg">
-            Timing Confidence
-        </h2>
-        <div id="confidence"></div>
-        <div id="confidence-spark"></div>
-    </div>
-
-    <!-- Interference -->
-    <div class="card" style="flex:1;">
-        <h2>
-            <img class="card-icon" src="/static/icons/desktop/alerts.svg">
-            Interference Level
-        </h2>
-        <div id="interference"></div>
-        <div id="interference-heat"></div>
+    <div class="card flex-1">
+        <h2>Drift Status</h2>
+        <div id="drift" style="font-size:32px; font-weight:700;">-- ns</div>
+        <div id="drift-spark"></div>
     </div>
 
 </div>
 
-<!-- SLA -->
-<div class="card" style="margin-top:20px;">
-    <h2>
-        <img class="card-icon" src="/static/icons/desktop/alerts.svg">
-        SLA Violations
-    </h2>
-    <div id="sla"></div>
+<!-- Constellation Health -->
+<div class="card">
+    <h2>Constellation Health</h2>
+    <div id="constellation" class="flex-row"></div>
+</div>
+
+<!-- Signal / Threat -->
+<div class="flex-row">
+
+    <div class="card flex-1">
+        <h2>Signal Quality</h2>
+        <div id="signal-spark"></div>
+    </div>
+
+    <div class="card flex-1">
+        <h2>Interference & Spoofing</h2>
+        <div id="threat-spark"></div>
+    </div>
+
+</div>
+
+<!-- Servo / Oscillator -->
+<div class="flex-row">
+
+    <div class="card flex-1">
+        <h2>Servo Health</h2>
+        <div id="servo-spark"></div>
+    </div>
+
+    <div class="card flex-1">
+        <h2>Oscillator Health</h2>
+        <div id="osc-spark"></div>
+    </div>
+
+</div>
+
+<!-- Digital Twin -->
+<div class="card">
+    <h2>Digital Twin Prediction</h2>
+    <div id="dt-spark"></div>
+</div>
+
+<!-- Risk Windows -->
+<div class="card">
+    <h2>Upcoming Risk Windows</h2>
+    <div id="risks">Loading…</div>
+</div>
+
+<!-- Alerts -->
+<div class="card">
+    <h2>Active Alerts</h2>
+    <div id="alerts">Loading…</div>
 </div>
 
 <!-- Quick Actions -->
-<div class="card" style="margin-top:20px;">
-    <h2>
-        <img class="card-icon" src="/static/icons/desktop/config.svg">
-        Quick Actions
-    </h2>
-    <button class="save-button" onclick="callAction('/api/services/restart_gnss')">Restart GNSS</button>
-    <button class="save-button" onclick="callAction('/api/services/restart_ptp')">Restart PTP</button>
+<div class="card">
+    <h2>Quick Actions</h2>
+    <div class="flex-row">
+        <a class="button" href="/innovation_monitor">Innovation Monitor</a>
+        <a class="button" href="/drift_attribution">Drift Attribution</a>
+        <a class="button" href="/scenario_builder">Scenario Builder</a>
+        <a class="button" href="/self_test">Run Self‑Test</a>
+        <a class="button" href="/performance_report">Generate Report</a>
+    </div>
 </div>
 
 <script src="/static/js/mobile_viz.js"></script>
 
 <script>
 function loadMission() {
-    fetch('/api/mobile_snapshot')
+    fetch('/api/mission_control')
         .then(r => r.json())
         .then(d => {
 
-            // GNSS
-            const locked = d.gnss.locked;
-            document.getElementById('gnss-lock').innerHTML =
-                `<span class="badge ${locked > 0 ? 'badge-ok' : 'badge-bad'}">
-                    ${locked > 0 ? 'LOCKED' : 'NO LOCK'} (${locked})
-                 </span>`;
-            renderSparkline("gnss-spark", d.gnss.history || [], d.prefs.sparkline);
+            // Timing Confidence
+            document.getElementById('conf-score').innerText = d.confidence.score;
+            const cb = document.getElementById('conf-badge');
+            cb.innerText = d.confidence.label;
+            cb.className = badgeClass(d.confidence.score);
+            renderSparkline("conf-spark", d.confidence.trend, "minimal");
 
-            // PTP
-            const servo = d.ptp.servo_state || 'UNKNOWN';
-            document.getElementById('ptp-servo').innerHTML =
-                `<span class="badge ${servo === 'LOCKED' ? 'badge-ok' : 'badge-warn'}">
-                    ${servo}
-                 </span>`;
-            renderSparkline("ptp-spark", d.ptp.offset_history || [], d.prefs.sparkline);
+            // Integrity
+            document.getElementById('int-score').innerText = d.integrity.score;
+            const ib = document.getElementById('int-badge');
+            ib.innerText = d.integrity.label;
+            ib.className = badgeClass(d.integrity.score);
+            renderSparkline("int-spark", d.integrity.trend, "minimal");
 
-            // Confidence
-            document.getElementById('confidence').innerHTML =
-                `<span class="badge badge-info">Score: ${d.confidence.score}</span>`;
-            render
+            // Drift
+            document.getElementById('drift').innerText = d.drift.value + " ns";
+            renderSparkline("drift-spark", d.drift.trend, "minimal");
+
+            // Constellation Health
+            const cDiv = document.getElementById('constellation');
+            cDiv.innerHTML = d.constellations.map(c => `
+                <div class="card flex-1" style="text-align:center;">
+                    <div style="font-weight:600;">${c.name}</div>
+                    <div class="${badgeClassRaw(c.score)}" style="margin-top:8px;">${c.score}</div>
+                </div>
+            `).join('');
+
+            // Signal / Threat
+            renderSparkline("signal-spark", d.signal, "minimal");
+            renderSparkline("threat-spark", d.threat, "minimal");
+
+            // Servo / Oscillator
+            renderSparkline("servo-spark", d.servo, "minimal");
+            renderSparkline("osc-spark", d.oscillator, "minimal");
+
+            // Digital Twin
+            renderSparkline("dt-spark", d.digital_twin, "minimal");
+
+            // Risk Windows
+            const rDiv = document.getElementById('risks');
+            rDiv.innerHTML = d.risks.length === 0
+                ? "<p>No upcoming risk windows.</p>"
+                : d.risks.map(r => `
+                    <div class="alert-row ${severityClass(r.severity)}">
+                        <div style="font-weight:600;">${r.label}</div>
+                        <div>${r.start} → ${r.end}</div>
+                        <div class="alert-meta">${r.reason}</div>
+                    </div>
+                `).join('');
+
+            // Alerts
+            const aDiv = document.getElementById('alerts');
+            aDiv.innerHTML = d.alerts.length === 0
+                ? "<p>No active alerts.</p>"
+                : d.alerts.map(a => `
+                    <div class="alert-row ${severityClass(a.severity)}">
+                        <div style="font-weight:600;">${a.title}</div>
+                        <div>${a.description}</div>
+                        <div class="alert-meta">${a.time}</div>
+                    </div>
+                `).join('');
+        });
+}
+
+function badgeClass(score) {
+    return score >= 90 ? "badge badge-ok" :
+           score >= 70 ? "badge badge-warn" :
+                         "badge badge-bad";
+}
+
+function badgeClassRaw(label) {
+    return label >= 90 ? "badge badge-ok" :
+           label >= 70 ? "badge badge-warn" :
+                         "badge badge-bad";
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+setInterval(loadMission, 5000);
+loadMission();
+</script>
+
+{% endblock %}
