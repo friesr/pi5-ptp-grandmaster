@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multi-Scenario Replay</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/digital-twin">Digital Twin</a>
+    <a href="/digital-twin-multi-replay">Multi Replay</a>
+</div>
+
+<h1>GNSS Timing Multi-Scenario Replay</h1>
+
+<div class="card">
+    <h2>Select Scenarios</h2>
+    <select id="scenario-select" multiple size="8"></select>
+    <button onclick="loadMultiReplay()">Load Selected</button>
+</div>
+
+<div class="card">
+    <h2>Timeline Controls</h2>
+    <button onclick="play()">Play</button>
+    <button onclick="pause()">Pause</button>
+    <button onclick="stepBack()">◀</button>
+    <button onclick="stepForward()">▶</button>
+    <input id="timeline" type="range" min="0" max="100" value="0" oninput="scrub()">
+</div>
+
+<div class="card">
+    <h2>Timing Error Comparison</h2>
+    <div id="multi-chart" style="height:400px;"></div>
+</div>
+
+<div class="card">
+    <h2>Current Samples</h2>
+    <pre id="sample-output" style="height:300px; overflow-y:auto;"></pre>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="/static/js/digital_twin_multi_replay.js"></script>
+
+</body>
+</html>
