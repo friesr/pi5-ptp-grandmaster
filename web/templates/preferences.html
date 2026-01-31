@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Preferences</title>
+    <link rel="stylesheet" href="/static/css/mobile.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+<header>Preferences</header>
+
+<div class="card">
+    <h2>Sparkline Style</h2>
+
+    <label class="pref-option">
+        <input type="radio" name="sparkline" value="minimal"> Minimal Line
+    </label>
+
+    <label class="pref-option">
+        <input type="radio" name="sparkline" value="bold"> Bold Line
+    </label>
+
+    <label class="pref-option">
+        <input type="radio" name="sparkline" value="filled"> Filled Area
+    </label>
+
+    <button class="save-button" onclick="savePrefs()">Save</button>
+</div>
+
+<div class="bottom-nav">
+    <button class="nav-button" onclick="location.href='/mobile'">Dashboard</button>
+    <button class="nav-button" onclick="location.href='/mobile-mission'">Mission</button>
+    <button class="nav-button" onclick="location.href='/mobile-alerts'">Alerts</button>
+</div>
+
+<script>
+function loadPrefs() {
+    fetch('/api/mobile_prefs')
+        .then(r => r.json())
+        .then(p => {
+            document.querySelector(`input[value="${p.sparkline}"]`).checked = true;
+        });
+}
+
+function savePrefs() {
+    const style = document.querySelector('input[name="sparkline"]:checked').value;
+
+    fetch('/api/mobile_prefs', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({sparkline: style})
+    }).then(() => alert("Saved"));
+}
+
+loadPrefs();
+</script>
+
+</body>
+</html>
