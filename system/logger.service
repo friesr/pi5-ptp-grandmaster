@@ -3,9 +3,28 @@ Description=PTP Data Logging Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /opt/pi5-ptp-grandmaster/backend/logging_service.py
+Type=simple
 WorkingDirectory=/opt/pi5-ptp-grandmaster/backend
+ExecStart=/usr/bin/python3 logging_service.py
+
+# Ensure data directories exist
+ExecStartPre=/usr/bin/test -d /opt/ptp-data/live
+ExecStartPre=/usr/bin/test -d /opt/ptp-data/archive
+
+# Restart behavior
 Restart=always
+RestartSec=3
+KillMode=process
+TimeoutStopSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+# Environment
+Environment="PYTHONUNBUFFERED=1"
+
+# User
 User=root
 
 [Install]
