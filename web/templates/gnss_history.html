@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GNSS Signal History</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/validation">Validation</a>
+        <a href="/config">Configuration</a>
+        <a href="/satellites">Satellites</a>
+        <a href="/history">History</a>
+        <a href="/gnss-history">GNSS SNR History</a>
+    </div>
+
+    <h1>GNSS SNR History</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadGNSSHistory()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>SNR Over Time (per PRN)</h2>
+        <div id="snr-history-chart" style="height:400px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/gnss_history.js"></script>
+</body>
+</html>
