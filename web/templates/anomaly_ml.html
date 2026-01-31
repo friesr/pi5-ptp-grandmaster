@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ML Anomaly Classifier</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/anomaly-ml">ML Anomaly Classifier</a>
+    </div>
+
+    <h1>Machine-Learned GNSS Anomaly Classifier</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadML()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Prediction</h2>
+        <pre id="ml-output" style="height:300px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="/static/js/anomaly_ml.js"></script>
+</body>
+</html>
