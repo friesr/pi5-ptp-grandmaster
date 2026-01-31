@@ -74,6 +74,8 @@ from backend.api.digital_twin import digital_twin_api
 from backend.api.scenario_list import scenario_list_api
 from backend.api.scenario_save import scenario_save_api
 from backend.api.digital_twin_batch import digital_twin_batch_api
+from backend.api.digital_twin_report import digital_twin_report_api
+
 
 
 
@@ -183,6 +185,8 @@ app.register_blueprint(digital_twin_api, url_prefix="/api/digital_twin")
 app.register_blueprint(scenario_list_api, url_prefix="/api/gnss_history")
 app.register_blueprint(scenario_save_api, url_prefix="/api/scenario")
 app.register_blueprint(digital_twin_batch_api, url_prefix="/api/digital_twin_batch")
+app.register_blueprint(digital_twin_report_api, url_prefix="/api/digital_twin_report")
+
 
 
 
@@ -434,6 +438,10 @@ def scenario_designer_page():
 @app.route("/digital-twin-batch")
 def digital_twin_batch_page():
     return render_template("digital_twin_batch.html")
+
+@app.route("/digital-twin-report")
+def digital_twin_report_page():
+    return render_template("digital_twin_report.html")
 
 
 # -------------------------------------------------------------------
