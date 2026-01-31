@@ -1,0 +1,12 @@
+[Unit]
+Description=PTP Dashboard Web Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/pi5-ptp-grandmaster/backend/app.py
+WorkingDirectory=/opt/pi5-ptp-grandmaster/backend
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
