@@ -17,6 +17,8 @@ from backend.api.system_health import system_health_api
 from backend.api.ptp_profile import ptp_profile_api
 from backend.api.prn_lifetime import prn_lifetime_api
 from backend.api.skyplot_playback import skyplot_playback_api
+from backend.api.service_control import service_control_api
+
 
 
 
@@ -45,6 +47,8 @@ app.register_blueprint(system_health_api, url_prefix="/api/system_health")
 app.register_blueprint(ptp_profile_api, url_prefix="/api/ptp_profile")
 app.register_blueprint(prn_lifetime_api, url_prefix="/api/prn_lifetime")
 app.register_blueprint(skyplot_playback_api, url_prefix="/api/skyplot_playback")
+app.register_blueprint(service_control_api, url_prefix="/api/services")
+
 
 
 
@@ -88,3 +92,6 @@ def prn_lifetime_page():
 def skyplot_playback_page():
     return render_template("skyplot_playback.html")
 
+@app.route("/services")
+def services_page():
+    return render_template("services.html")
