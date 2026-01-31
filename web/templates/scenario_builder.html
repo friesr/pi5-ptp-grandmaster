@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/simulation.svg">
+        GNSS Digital Twin Scenario Builder
+    </h2>
+    <p>
+        Design hypothetical GNSS environments and simulate timing performance under custom
+        constellation, interference, multipath, atmospheric, oscillator, and servo conditions.
+    </p>
+</div>
+
+<!-- Scenario Controls -->
+<div class="card">
+    <h2>Scenario Parameters</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Scenario Name</label>
+            <input id="name" type="text" placeholder="e.g., GPS outage + multipath burst">
+        </div>
+
+        <div class="flex-1">
+            <label>Duration (minutes)</label>
+            <input id="duration" type="number" min="1" max="1440" value="60">
+        </div>
+
+        <div class="flex-1">
+            <label>Time Step (seconds)</label>
+            <input id="step" type="number" min="1" max="60" value="10">
+        </div>
+    </div>
+
+    <h3 style="margin-top:20px;">Constellation Conditions</h3>
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>GPS</label>
+            <select id="gps">
+                <option value="NORMAL">Normal</option>
+                <option value="DEGRADED">Degraded</option>
+                <option value="OUTAGE">Outage</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Galileo</label>
+            <select id="gal">
+                <option value="NORMAL">Normal</option>
+                <option value="DEGRADED">Degraded</option>
+                <option value="OUTAGE">Outage</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>BeiDou</label>
+            <select id="bds">
+                <option value="NORMAL">Normal</option>
+                <option value="DEGRADED">Degraded</option>
+                <option value="OUTAGE">Outage</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>GLONASS</label>
+            <select id="glo">
+                <option value="NORMAL">Normal</option>
+                <option value="DEGRADED">Degraded</option>
+                <option value="OUTAGE">Outage</option>
+            </select>
+        </div>
+    </div>
+
+    <h3 style="margin-top:20px;">Environmental Conditions</h3>
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Multipath Severity</label>
+            <select id="multipath">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Interference Level</label>
+            <select id="interference">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Spoofing Scenario</label>
+            <select id="spoof">
+                <option value="NONE">None</option>
+                <option value="SIMPLE">Simple</option>
+                <option value="ADVANCED">Advanced</option>
+            </select>
+        </div>
+    </div>
+
+    <h3 style="margin-top:20px;">Receiver Conditions</h3>
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Oscillator Condition</label>
+            <select id="osc">
+                <option value="NORMAL">Normal</option>
+                <option value="AGING">Aging</option>
+                <option value="DRIFTING">Drifting</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Servo Tuning</label>
+            <select id="servo">
+                <option value="OPTIMAL">Optimal</option>
+                <option value="LOOSE">Loose</option>
+                <option value="TIGHT">Tight</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="runScenario()">
+        Run Scenario
+    </button>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Scenario Summary</h2>
+    <div id="summary">Run a scenario to see results.</div>
+</div>
+
+<!-- Drift Curve -->
+<div class="card">
+    <h2>Simulated Timing Drift</h2>
+    <div id="drift-spark"></div>
+</div>
+
+<!-- Integrity Impact -->
+<div class="card">
+    <h2>Integrity Impact</h2>
+    <div id="integrity">No integrity data yet.</div>
+</div>
+
+<!-- Risk Windows -->
+<div class="card">
+    <h2>Predicted Risk Windows</h2>
+    <div id="risks">No risk windows yet.</div>
+</div>
+
+<!-- Recommendations -->
+<div class="card">
+    <h2>Recommended Mitigations</h2>
+    <div id="recommendations">No recommendations yet.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function runScenario() {
+    const params = {
+        name: document.getElementById('name').value,
+        duration: parseInt(document.getElementById('duration').value),
+        step: parseInt(document.getElementById('step').value),
+        gps: document.getElementById('gps').value,
+        gal: document.getElementById('gal').value,
+        bds: document.getElementById('bds').value,
+        glo: document.getElementById('glo').value,
+        multipath: document.getElementById('multipath').value,
+        interference: document.getElementById('interference').value,
+        spoof: document.getElementById('spoof').value,
+        osc: document.getElementById('osc').value,
+        servo: document.getElementById('servo').value
+    };
+
+    fetch('/api/timing/scenario_builder', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        // Summary
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Scenario:</strong> ${d.name}</p>
+            <p><strong>Max Drift:</strong> ${d.max_drift} ns</p>
+            <p><strong>Integrity Impact:</strong> ${d.integrity.label}</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        // Drift curve
+        renderSparkline("drift-spark", d.drift_curve || [], "minimal");
+
+        // Integrity
+        document.getElementById('integrity').innerHTML = `
+            <p><strong>Score:</strong> ${d.integrity.score}</p>
+            <p><strong>Label:</strong> ${d.integrity.label}</p>
+            <p><strong>Notes:</strong> ${d.integrity.notes}</p>
+        `;
+
+        // Risk windows
+        const risks = d.risk_windows || [];
+        const rDiv = document.getElementById('risks');
+
+        if (risks.length === 0) {
+            rDiv.innerHTML = "<p>No predicted risk windows.</p>";
+        } else {
+            rDiv.innerHTML = risks.map(r => `
+                <div class="alert-row ${severityClass(r.severity)}">
+                    <div style="font-weight:600;">${r.label}</div>
+                    <div>${r.start} → ${r.end}</div>
+                    <div class="alert-meta">Reason: ${r.reason}</div>
+                </div>
+            `).join('');
+        }
+
+        // Recommendations
+        const recs = d.recommendations || [];
+        const recDiv = document.getElementById('recommendations');
+
+        if (recs.length === 0) {
+            recDiv.innerHTML = "<p>No recommendations.</p>";
+        } else {
+            recDiv.innerHTML = recs.map(r => `
+                <div class="alert-row alert-major">
+                    <div style="font-weight:600;">${r.title}</div>
+                    <div>${r.action}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+</script>
+
+{% endblock %}
