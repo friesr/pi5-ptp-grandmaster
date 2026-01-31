@@ -136,6 +136,11 @@ app.register_blueprint(master_api, url_prefix="/api/master")
 
 app.register_blueprint(mission_api, url_prefix="/api/mission")
 
+
+@app.route("/anomaly-ml")
+def anomaly_ml_page():
+    return render_template("anomaly_ml.html")
+    
 @app.route("/mission-control")
 def mission_control_page():
     return render_template("mission_control.html")
