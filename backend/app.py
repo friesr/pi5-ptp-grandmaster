@@ -2,6 +2,18 @@ from flask import Flask, render_template, Blueprint, jsonify
 import os
 import json
 
+from flask import request, redirect
+
+@app.before_request
+def mobile_redirect():
+    ua = request.headers.get('User-Agent', '').lower()
+    mobile_signatures = ["iphone", "android", "ipad", "mobile"]
+
+    # Only redirect the root page, not API calls or subpages
+    if request.path == "/":
+        if any(sig in ua for sig in mobile_signatures):
+            return redirect("/mobile")
+
 # ------------------------------------------------------------
 # Core API Imports
 # ------------------------------------------------------------
