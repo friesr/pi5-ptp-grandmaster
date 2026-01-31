@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GNSS Eclipse Analyzer</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/eclipse">Eclipse Analyzer</a>
+    </div>
+
+    <h1>GNSS Eclipse & Thermal Behavior Analyzer</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadEclipse()">Analyze</button>
+    </div>
+
+    <div class="card">
+        <h2>Results</h2>
+        <pre id="eclipse-output" style="height:400px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="/static/js/eclipse.js"></script>
+</body>
+</html>
