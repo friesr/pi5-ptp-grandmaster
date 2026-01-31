@@ -40,6 +40,7 @@ from backend.api.anomaly_clustering import anomaly_cluster_api
 from backend.api.receiver_health import receiver_health_api
 from backend.api.environment_fingerprint import environment_api
 from backend.api.timing_confidence import timing_conf_api
+from backend.api.anomaly_explainer import anomaly_explainer_api
 
 
 
@@ -93,6 +94,7 @@ app.register_blueprint(receiver_health_api, url_prefix="/api/receiver_health")
 app.register_blueprint(environment_api, url_prefix="/api/environment")
 app.register_blueprint(timing_conf_api, url_prefix="/api/timing_confidence")
 
+app.register_blueprint(anomaly_explainer_api, url_prefix="/api/anomaly_explainer")
 
 
 @app.route("/")
@@ -228,3 +230,9 @@ def environment_page():
 @app.route("/timing-confidence")
 def timing_confidence_page():
     return render_template("timing_confidence.html")
+
+
+@app.route("/anomaly-explanations")
+def anomaly_explanations_page():
+    return render_template("anomaly_explanations.html")
+    
