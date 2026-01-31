@@ -1,0 +1,13 @@
+{
+  "scenario_name": "base_scenario.json",
+  "iterations": 500,
+  "randomization": {
+    "outage_start": { "min": 0, "max": 8000 },
+    "outage_duration": { "min": 0, "max": 1200 },
+    "interference_severity": { "min": 0.0, "max": 3.0 },
+    "spoofing_duration": { "min": 0, "max": 600 },
+    "multipath_factor": { "min": 1.0, "max": 2.0 },
+    "constellation_failure_duration": { "min": 0, "max": 1800 },
+    "receiver_health": { "min": 40, "max": 100 }
+  }
+}
