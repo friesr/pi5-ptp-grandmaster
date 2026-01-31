@@ -10,6 +10,7 @@ from backend.api.history import history_api
 from backend.api.temp_drift import temp_drift_api
 from backend.api.ptp_servo import ptp_servo_api
 from backend.api.alerts import alerts_api
+from backend.api.multipath import multipath_api
 
 
 app = Flask(
@@ -30,6 +31,7 @@ app.register_blueprint(history_api, url_prefix="/api/history")
 app.register_blueprint(temp_drift_api, url_prefix="/api/temp_drift")
 app.register_blueprint(ptp_servo_api, url_prefix="/api/ptp_servo")
 app.register_blueprint(alerts_api, url_prefix="/api/alerts")
+app.register_blueprint(multipath_api, url_prefix="/api/multipath")
 
 
 @app.route("/")
