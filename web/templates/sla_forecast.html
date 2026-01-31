@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SLA Forecast</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/sla-forecast">SLA Forecast</a>
+    </div>
+
+    <h1>GNSS Timing SLA Violation Forecast</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadSLA()">Predict</button>
+    </div>
+
+    <div class="card">
+        <h2>Prediction</h2>
+        <pre id="sla-output" style="height:400px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="/static/js/sla_forecast.js"></script>
+</body>
+</html>
