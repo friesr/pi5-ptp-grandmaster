@@ -190,5 +190,17 @@ function updateAlerts() {
 setInterval(updateAlerts, 10000);
 updateAlerts();
 
+function updateServoStability() {
+    fetch("/api/servo_stability/current")
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById("servo-stability-block").innerText =
+                JSON.stringify(data, null, 2);
+        });
+}
+
+setInterval(updateServoStability, 15000);
+updateServoStability();
+
 document.getElementById("nas-block").innerText =
     JSON.stringify(data.storage.nas_health, null, 2);
