@@ -27,6 +27,7 @@ function loadTimeline() {
                 mode: "lines",
                 line: { width: 12 },
                 name: ev.event,
+                customdata: [ev.start],   // store timestamp
                 hovertemplate:
                     `Event: ${ev.event}<br>` +
                     `Start: ${ev.start}<br>` +
@@ -39,7 +40,12 @@ function loadTimeline() {
                 xaxis: { title: "Timestamp (s)" },
                 yaxis: { title: "Event Type" }
             });
+
+            document.getElementById("timeline-chart")
+                .on("plotly_click", function(data) {
+                    const ts = data.points[0].customdata;
+                    ReplaySyncBus.emit(ts);
+                });
         });
 }
-
 loadScenarios();
