@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Signal Quality</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/signal-quality">Signal Quality</a>
+    </div>
+
+    <h1>GNSS Signal Quality Classification</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadSignalQuality()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Signal State Timeline</h2>
+        <div id="quality-chart" style="height:600px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/signal_quality.js"></script>
+</body>
+</html>
