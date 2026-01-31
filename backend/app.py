@@ -55,3 +55,7 @@ def satellites():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80)
+
+@app.route("/gnss-history")
+def gnss_history_page():
+    return render_template("gnss_history.html")
