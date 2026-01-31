@@ -1,2 +1,20 @@
-"nas_server": "192.168.1.100",
-"nas_mount_point": "/mnt/Ark-1/GPS-Data"
+{
+    "refresh_rate_ms": 10000,
+
+    "gps_receivers": [
+        "stratux",
+        "vk162",
+        "vk172",
+        "neom8t"
+    ],
+
+    "ntp_poll_hours": 1.0,
+
+    "local_max_gb": 20,
+    "nas_max_gb": 200,
+
+
+    "nas_server": "192.168.1.100",
+    "nas_mount_point": "/mnt/Ark-1/GPS-Data"
+    "logging_enabled": true
+}
