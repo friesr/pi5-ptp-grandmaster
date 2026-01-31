@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mobile Mission Control</title>
+    <link rel="stylesheet" href="/static/css/mobile.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+<header>Mission Control</header>
+
+<div class="card">
+    <h2>GNSS Lock</h2>
+    <div id="gnss-lock"></div>
+</div>
+
+<div class="card">
+    <h2>PTP Servo</h2>
+    <div id="ptp-servo"></div>
+</div>
+
+<div class="card">
+    <h2>Timing Confidence</h2>
+    <div id="mission-confidence"></div>
+</div>
+
+<div class="card">
+    <h2>Interference</h2>
+    <div id="mission-interference"></div>
+</div>
+
+<div class="card">
+    <h2>Quick Actions</h2>
+    <button class="save-button" onclick="callAction('/api/services/restart_gnss')">Restart GNSS</button>
+    <button class="save-button" onclick="callAction('/api/services/restart_ptp')">Restart PTP</button>
+</div>
+
+<div class="bottom-nav">
+    <button class="nav-button" onclick="location.href='/mobile'">Dashboard</button>
+    <button class="nav-button" onclick="location.href='/mobile-mission'">Mission</button>
+    <button class="nav-button" onclick="location.href='/mobile-alerts'">Alerts</button>
+    <button class="nav-button" onclick="location.href='/preferences'">Prefs</button>
+</div>
+
+<script>
+function loadMission() {
+    fetch('/api/mobile_snapshot')
+        .then(r => r.json())
+        .then(d => {
+            const gnssLocked = d.gnss.locked;
+            document.getElementById('gnss-lock').innerHTML =
+                `<span class="badge ${gnssLocked > 0 ? 'badge-ok' : 'badge-bad'}">
+                    ${gnssLocked > 0 ? 'LOCKED' : 'NO LOCK'} (${gnssLocked})
+                 </span>`;
+
+            const servo = d.ptp.servo_state || 'UNKNOWN';
+            document.getElementById('ptp-servo').innerHTML =
+                `<span class="badge ${servo === 'LOCKED' ? 'badge-ok' : 'badge-warn'}">
+                    ${servo}
+                 </span>`;
+
+            document.getElementById('mission-confidence').innerHTML =
+                `<span class="badge badge-info">Score: ${d.confidence.score}</span>`;
+
+            document.getElementById('mission-interference').innerHTML =
+                `<span class="badge ${d.interference.level === 'LOW' ? 'badge-ok' : 'badge-bad'}">
+                    Level: ${d.interference.level}
+                 </span>`;
+        });
+}
+
+function callAction(url) {
+    fetch(url, {method: 'POST'}).then(() => alert('Action sent'));
+}
+
+setInterval(loadMission, 10000);
+loadMission();
+</script>
+
+</body>
+</html>
