@@ -1,0 +1,13 @@
+{
+  "offset_ns_max": 100,
+  "offset_compliance_pct": 99.99,
+
+  "confidence_min": 80,
+  "confidence_compliance_pct": 99.9,
+
+  "max_unlocks_per_day": 1,
+
+  "gnss_availability_min_pct": 95,
+
+  "max_interference_severity": 2
+}
