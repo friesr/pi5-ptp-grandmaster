@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/check.svg">
+        GNSS Receiver Self‑Test Engine
+    </h2>
+    <p>
+        Run automated health checks across all GNSS, timing, RF, and estimation subsystems.
+        Produces a pass/fail score, detailed diagnostics, and recommended actions.
+    </p>
+</div>
+
+<!-- Controls -->
+<div class="card">
+    <h2>Self‑Test Controls</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Test Depth</label>
+            <select id="depth">
+                <option value="QUICK">Quick</option>
+                <option value="STANDARD">Standard</option>
+                <option value="DEEP">Deep</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Include RF Tests</label>
+            <select id="rf">
+                <option value="YES">Yes</option>
+                <option value="NO">No</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Include Digital Twin Validation</label>
+            <select id="dt">
+                <option value="YES">Yes</option>
+                <option value="NO">No</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="runSelfTest()">
+        Run Self‑Test
+    </button>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Self‑Test Summary</h2>
+    <div id="summary">Run a self‑test to see results.</div>
+</div>
+
+<!-- Score -->
+<div class="card">
+    <h2>Self‑Test Score</h2>
+    <div id="score" style="font-size:48px; font-weight:700;">--</div>
+    <div id="score-badge" class="badge badge-info">Waiting…</div>
+</div>
+
+<!-- Component Results -->
+<div class="card">
+    <h2>Component Results</h2>
+    <div id="components">No results yet.</div>
+</div>
+
+<!-- Detailed Diagnostics -->
+<div class="card">
+    <h2>Detailed Diagnostics</h2>
+    <div id="diagnostics">No diagnostics yet.</div>
+</div>
+
+<!-- Recommendations -->
+<div class="card">
+    <h2>Recommended Actions</h2>
+    <div id="recommendations">No recommendations yet.</div>
+</div>
+
+<script>
+function runSelfTest() {
+    const params = {
+        depth: document.getElementById('depth').value,
+        rf: document.getElementById('rf').value,
+        dt: document.getElementById('dt').value
+    };
+
+    fetch('/api/gnss/self_test', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        // Summary
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Test Depth:</strong> ${d.depth}</p>
+            <p><strong>Overall Status:</strong> ${d.status}</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        // Score
+        document.getElementById('score').innerText = d.score;
+
+        const badge = document.getElementById('score-badge');
+        badge.innerText = d.label;
+
+        badge.className =
+            d.score >= 90 ? "badge badge-ok" :
+            d.score >= 70 ? "badge badge-warn" :
+                            "badge badge-bad";
+
+        // Component results
+        const cDiv = document.getElementById('components');
+        cDiv.innerHTML = d.components.map(c => `
+            <div class="alert-row ${severityClass(c.severity)}">
+                <div style="font-weight:600;">${c.name}</div>
+                <div>${c.status}</div>
+            </div>
+        `).join('');
+
+        // Diagnostics
+        const dDiv = document.getElementById('diagnostics');
+        dDiv.innerHTML = d.diagnostics.map(di => `
+            <div class="alert-row alert-minor">
+                <div style="font-weight:600;">${di.title}</div>
+                <div>${di.detail}</div>
+            </div>
+        `).join('');
+
+        // Recommendations
+        const rDiv = document.getElementById('recommendations');
+        if (d.recommendations.length === 0) {
+            rDiv.innerHTML = "<p>No recommendations.</p>";
+        } else {
+            rDiv.innerHTML = d.recommendations.map(r => `
+                <div class="alert-row alert-major">
+                    <div style="font-weight:600;">${r.title}</div>
+                    <div>${r.action}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+</script>
+
+{% endblock %}
