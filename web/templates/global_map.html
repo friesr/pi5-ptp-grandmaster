@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/globe.svg">
+        GNSS Timing Observatory — Global Map
+    </h2>
+    <p>
+        Real‑time world map of all federated observatory nodes, showing timing confidence,
+        constellation health, anomalies, predictions, and shared intelligence.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Map</h2>
+    <div id="map" style="height:600px; width:100%; background:#111; color:#fff;">
+        Loading map…
+    </div>
+</div>
+
+<div class="card">
+    <h2>Node Details</h2>
+    <div id="details">Click a node to view details.</div>
+</div>
+
+<div class="card">
+    <h2>Shared Intelligence</h2>
+    <div id="intel">Loading…</div>
+</div>
+
+<script>
+let map = null;
+let markers = [];
+
+function initMap() {
+    map = L.map('map').setView([20, 0], 2);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 6,
+        minZoom: 2
+    }).addTo(map);
+
+    loadNodes();
+}
+
+function loadNodes() {
+    fetch('/api/federation/map')
+        .then(r => r.json())
+        .then(d => {
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            d.nodes.forEach(n => {
+                const marker = L.circleMarker([n.lat, n.lon], {
+                    radius: 10,
+                    color: n.color,
+                    fillColor: n.color,
+                    fillOpacity: 0.8
+                })
+                .addTo(map)
+                .on('click', () => showNode(n));
+
+                markers.push(marker);
+            });
+
+            document.getElementById('intel').innerHTML = `
+                <pre>${JSON.stringify(d.shared_intel, null, 2)}</pre>
+            `;
+        });
+}
+
+function showNode(n) {
+    document.getElementById('details').innerHTML = `
+        <p><strong>Name:</strong> ${n.name}</p>
+        <p><strong>Location:</strong> ${n.lat}, ${n.lon}</p>
+        <p><strong>Confidence:</strong> ${n.confidence}</p>
+        <p><strong>Integrity:</strong> ${n.integrity}</p>
+        <p><strong>Drift:</strong> ${n.drift} ns</p>
+        <p><strong>Constellation Health:</strong> ${n.constellation}</p>
+        <p><strong>Anomalies:</strong> ${n.anomalies.join(", ")}</p>
+        <p><strong>Threats:</strong> ${n.threats.join(", ")}</p>
+        <p><strong>Digital Twin Divergence:</strong> ${n.dt_divergence}</p>
+        <p><strong>Predictions:</strong></p>
+        <pre>${JSON.stringify(n.predictions, null, 2)}</pre>
+        <p><strong>Risk Windows:</strong></p>
+        <pre>${JSON.stringify(n.risks, null, 2)}</pre>
+        <p><strong>Autonomous Actions:</strong></p>
+        <pre>${JSON.stringify(n.autonomy, null, 2)}</pre>
+    `;
+}
+
+setInterval(loadNodes, 5000);
+setTimeout(initMap, 100);
+</script>
+
+{% endblock %}
