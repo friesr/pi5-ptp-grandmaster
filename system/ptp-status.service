@@ -1,10 +1,10 @@
 [Unit]
-Description=PTP Status Monitor
-After=network.target
+Description=PTP Status Monitor (dummy target)
 
 [Service]
+Type=oneshot
 ExecStart=/bin/true
-Restart=always
+RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
