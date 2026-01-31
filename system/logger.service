@@ -8,8 +8,8 @@ WorkingDirectory=/opt/pi5-ptp-grandmaster/backend
 ExecStart=/usr/bin/python3 logging_service.py
 
 # Ensure data directories exist
-ExecStartPre=/usr/bin/test -d /opt/ptp-data/live
-ExecStartPre=/usr/bin/test -d /opt/ptp-data/archive
+ExecStartPre=/usr/bin/mkdir -p /opt/ptp-data/live
+ExecStartPre=/usr/bin/mkdir -p /opt/ptp-data/archive
 
 # Restart behavior
 Restart=always
@@ -21,10 +21,10 @@ TimeoutStopSec=10
 StandardOutput=journal
 StandardError=journal
 
-# Environment
-Environment="PYTHONUNBUFFERED=1"
+# Environment (centralized config)
+EnvironmentFile=/opt/pi5-ptp-grandmaster/system/environment.conf
 
-# User
+# Run as root (or create a dedicated user)
 User=root
 
 [Install]
