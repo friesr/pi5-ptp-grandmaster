@@ -400,6 +400,10 @@ def sla_forecast_page():
 def sla_root_cause_page():
     return render_template("sla_root_cause.html")
 
+@app.route("/resilience-advisor")
+def resilience_advisor_page():
+    return render_template("resilience_advisor.html")
+
 
 # -------------------------------------------------------------------
 # Entry point
