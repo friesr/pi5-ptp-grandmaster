@@ -1,3 +1,6 @@
-def validate_gnss():
-    # Placeholder — GNSS validation logic added later
+def validate_gnss(gnss):
+    if gnss["used"] < 3:
+        return "red"
+    if gnss["used"] < 5:
+        return "yellow"
     return "green"
