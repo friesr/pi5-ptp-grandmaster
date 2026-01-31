@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PTP Servo History</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/servo-history">Servo History</a>
+    </div>
+
+    <h1>PTP Servo Stability Over Time</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadServoHistory()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Stability Trend</h2>
+        <div id="servo-chart" style="height:400px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/servo_history.js"></script>
+</body>
+</html>
