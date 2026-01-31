@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/heatmap.svg">
+        GNSS Timing Stability Heatmap
+    </h2>
+    <p>
+        Visualize timing stability across satellites, constellations, and time. Identify patterns,
+        anomalies, and stability degradation using a multi‑dimensional heatmap.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Heatmap Parameters</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Window (minutes)</label>
+            <input id="window" type="number" min="5" max="1440" value="120">
+        </div>
+
+        <div class="flex-1">
+            <label>Resolution (seconds)</label>
+            <input id="resolution" type="number" min="1" max="60" value="10">
+        </div>
+
+        <div class="flex-1">
+            <label>Constellation</label>
+            <select id="constellation">
+                <option value="ALL">All</option>
+                <option value="GPS">GPS</option>
+                <option value="GALILEO">Galileo</option>
+                <option value="BEIDOU">BeiDou</option>
+                <option value="GLONASS">GLONASS</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="runHeatmap()">
+        Generate Heatmap
+    </button>
+</div>
+
+<div class="card">
+    <h2>Stability Summary</h2>
+    <div id="summary">Generate a heatmap to see results.</div>
+</div>
+
+<div class="card">
+    <h2>Stability Heatmap</h2>
+    <div id="heatmap" style="min-height:300px;">No data yet.</div>
+</div>
+
+<div class="card">
+    <h2>Constellation Stability</h2>
+    <div id="const-spark"></div>
+</div>
+
+<div class="card">
+    <h2>Anomalies</h2>
+    <div id="anomalies">No anomalies yet.</div>
+</div>
+
+<div class="card">
+    <h2>Recommended Mitigations</h2>
+    <div id="recommendations">No recommendations yet.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function runHeatmap() {
+    const params = {
+        window: parseInt(document.getElementById('window').value),
+        resolution: parseInt(document.getElementById('resolution').value),
+        constellation: document.getElementById('constellation').value
+    };
+
+    fetch('/api/timing/stability_heatmap', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Window:</strong> ${d.window}</p>
+            <p><strong>Constellation:</strong> ${d.constellation}</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        const hDiv = document.getElementById('heatmap');
+        hDiv.innerHTML = "";
+
+        const rows = d.heatmap || [];
+        rows.forEach(row => {
+            const rowDiv = document.createElement("div");
+            rowDiv.style.display = "flex";
+            rowDiv.style.marginBottom = "4px";
+
+            row.values.forEach(v => {
+                const cell = document.createElement("div");
+                cell.style.width = "12px";
+                cell.style.height = "12px";
+                cell.style.marginRight = "2px";
+                cell.style.background = v.color;
+                rowDiv.appendChild(cell);
+            });
+
+            hDiv.appendChild(rowDiv);
+        });
+
+        renderSparkline("const-spark", d.constellation_trend || [], "minimal");
+
+        const anomalies = d.anomalies || [];
+        const aDiv = document.getElementById('anomalies');
+        aDiv.innerHTML = anomalies.length === 0
+            ? "<p>No anomalies detected.</p>"
+            : anomalies.map(a => `
+                <div class="alert-row ${severityClass(a.severity)}">
+                    <div style="font-weight:600;">${a.label}</div>
+                    <div>${a.description}</div>
+                    <div class="alert-meta">${a.time}</div>
+                </div>
+            `).join('');
+
+        const recs = d.recommendations || [];
+        const rDiv = document.getElementById('recommendations');
+        rDiv.innerHTML = recs.length === 0
+            ? "<p>No recommendations.</p>"
+            : recs.map(r => `
+                <div class="alert-row alert-major">
+                    <div style="font-weight:600;">${r.title}</div>
+                    <div>${r.action}</div>
+                </div>
+            `).join('');
+    });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+</script>
+
+{% endblock %}
