@@ -1,30 +1,138 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Constellation Forecast</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
+{% extends "base.html" %}
+{% block content %}
 
-<body>
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        GNSS Constellation Forecast
+    </h2>
+    <p>
+        Predict future satellite visibility, elevation/azimuth tracks, SNR, and DOP. Identify upcoming
+        geometry gaps, timing risk windows, and constellation outages.
+    </p>
+</div>
 
-    <div class="nav">
-        <a href="/">Dashboard</a>
-        <a href="/constellation-forecast">Constellation Forecast</a>
+<!-- Forecast Controls -->
+<div class="card">
+    <h2>Forecast Parameters</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Forecast Horizon (hours)</label>
+            <input id="horizon" type="number" min="1" max="48" value="12">
+        </div>
+
+        <div class="flex-1">
+            <label>Time Step (minutes)</label>
+            <input id="step" type="number" min="1" max="60" value="5">
+        </div>
+
+        <div class="flex-1">
+            <label>Constellation</label>
+            <select id="constellation">
+                <option value="ALL">All</option>
+                <option value="GPS">GPS</option>
+                <option value="GLONASS">GLONASS</option>
+                <option value="Galileo">Galileo</option>
+                <option value="BeiDou">BeiDou</option>
+                <option value="QZSS">QZSS</option>
+                <option value="SBAS">SBAS</option>
+            </select>
+        </div>
     </div>
 
-    <h1>GNSS Constellation Health Forecast</h1>
+    <button class="save-button" style="margin-top:20px;" onclick="runForecast()">
+        Run Forecast
+    </button>
+</div>
 
-    <div class="card">
-        <h2>Forecast Table</h2>
-        <div id="forecast-table"></div>
+<!-- Visibility Forecast -->
+<div class="card">
+    <h2>Satellite Visibility Forecast</h2>
+    <div id="visibility-spark"></div>
+</div>
+
+<!-- Elevation Tracks -->
+<div class="card">
+    <h2>Elevation Tracks</h2>
+    <div id="elev-spark"></div>
+</div>
+
+<!-- DOP Forecast -->
+<div class="card">
+    <h2>DOP Forecast</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <h3>HDOP</h3>
+            <div id="hdop-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>VDOP</h3>
+            <div id="vdop-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>PDOP</h3>
+            <div id="pdop-spark"></div>
+        </div>
     </div>
+</div>
 
-    <div class="card">
-        <h2>Forecast Health Scores</h2>
-        <div id="forecast-chart" style="height:400px;"></div>
-    </div>
+<!-- Risk Windows -->
+<div class="card">
+    <h2>Predicted Risk Windows</h2>
+    <div id="risk-list">Run forecast to see predicted timing risk windows.</div>
+</div>
 
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="/static/js/constellation_forecast.js"></script>
-</body>
-</html>
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function runForecast() {
+    const params = {
+        horizon: parseInt(document.getElementById('horizon').value),
+        step: parseInt(document.getElementById('step').value),
+        constellation: document.getElementById('constellation').value
+    };
+
+    fetch('/api/gnss/forecast', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        renderSparkline("visibility-spark", d.visibility || [], "minimal");
+        renderSparkline("elev-spark", d.elevation || [], "minimal");
+
+        renderSparkline("hdop-spark", d.dop.hdop || [], "minimal");
+        renderSparkline("vdop-spark", d.dop.vdop || [], "minimal");
+        renderSparkline("pdop-spark", d.dop.pdop || [], "minimal");
+
+        const risk = d.risk_windows || [];
+        const div = document.getElementById('risk-list');
+
+        if (risk.length === 0) {
+            div.innerHTML = "<p>No predicted risk windows.</p>";
+        } else {
+            div.innerHTML = risk.map(r => `
+                <div class="alert-row ${severityClass(r.severity)}">
+                    <div style="font-weight:600;">${r.label}</div>
+                    <div>${r.start} → ${r.end}</div>
+                    <div class="alert-meta">Reason: ${r.reason}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+</script>
+
+{% endblock %}
