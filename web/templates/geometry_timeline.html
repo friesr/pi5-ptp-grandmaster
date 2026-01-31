@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Geometry Timeline</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/geometry-timeline">Geometry Timeline</a>
+    </div>
+
+    <h1>GNSS Geometry Score Timeline</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadGeometry()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Geometry Score</h2>
+        <div id="geometry-chart" style="height:500px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/geometry_timeline.js"></script>
+</body>
+</html>
