@@ -83,6 +83,7 @@ from backend.api.digital_twin_risk_curves import digital_twin_risk_api
 from backend.api.scenario_library import scenario_library_api
 from backend.api.digital_twin_replay import digital_twin_replay_api
 from backend.api.digital_twin_multi_replay import digital_twin_multi_replay_api
+from backend.api.digital_twin_diff import digital_twin_diff_api
 
 
 
@@ -205,6 +206,7 @@ app.register_blueprint(digital_twin_risk_api, url_prefix="/api/digital_twin_risk
 app.register_blueprint(scenario_library_api, url_prefix="/api/scenario_library")
 app.register_blueprint(digital_twin_replay_api, url_prefix="/api/digital_twin_replay")
 app.register_blueprint(digital_twin_multi_replay_api, url_prefix="/api/digital_twin_multi_replay")
+app.register_blueprint(digital_twin_diff_api, url_prefix="/api/digital_twin_diff")
 
 
 
@@ -493,6 +495,10 @@ def digital_twin_replay_page():
 @app.route("/digital-twin-multi-replay")
 def digital_twin_multi_replay_page():
     return render_template("digital_twin_multi_replay.html")
+
+@app.route("/digital-twin-diff")
+def digital_twin_diff_page():
+    return render_template("digital_twin_diff.html")
 
 # -------------------------------------------------------------------
 # Entry point
