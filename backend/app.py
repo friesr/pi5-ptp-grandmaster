@@ -44,7 +44,30 @@ from backend.api.anomaly_explainer import anomaly_explainer_api
 from backend.api.predictive_maintenance import predictive_api
 from backend.api.environment_change import env_change_api
 from backend.api.sla import sla_api
+from flask import Blueprint, jsonify
+import os, json
 
+from backend.analysis.unified_timeline import build_unified_timeline
+
+unified_api = Blueprint("unified_api", __name__)
+
+@unified_api.route("/load/<day>")
+def load_unified(day):
+    base = f"/opt/ptp-data/live/{day}"
+
+    def load(name):
+        file = os.path.join(base, name)
+        return json.load(open(file)) if os.path.exists(file) else []
+
+    gnss = load("gnss_events.json")
+    ptp = load("ptp_events.json")
+    inter = load("interference.json")
+    sla = load("sla_violations.json")
+    recv = load("receiver_events.json")
+    env = load("environment_changes.json")
+
+    timeline = build_unified_timeline(gnss, ptp, inter, sla, recv, env)
+    return jsonify(timeline)
 
 
 
@@ -100,6 +123,7 @@ app.register_blueprint(predictive_api, url_prefix="/api/predictive")
 app.register_blueprint(anomaly_explainer_api, url_prefix="/api/anomaly_explainer")
 app.register_blueprint(env_change_api, url_prefix="/api/environment_change")
 app.register_blueprint(sla_api, url_prefix="/api/sla")
+app.register_blueprint(unified_api, url_prefix="/api/unified_timeline")
 
 
 @app.route("/")
@@ -254,3 +278,7 @@ def environment_change_page():
 @app.route("/sla")
 def sla_page():
     return render_template("sla.html")
+
+@app.route("/unified-timeline")
+def unified_timeline_page():
+    return render_template("unified_timeline.html")
