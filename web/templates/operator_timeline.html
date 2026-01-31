@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/timeline.svg">
+        GNSS Timing Observatory — Operator Timeline
+    </h2>
+    <p>
+        A chronological, annotated timeline of alerts, anomalies, drift events, predictions,
+        operator actions, system actions, and subsystem activity.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Filters</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Event Types</label>
+            <select id="types" multiple style="height:120px;">
+                <option value="ALERT">Alerts</option>
+                <option value="ANOMALY">Anomalies</option>
+                <option value="DRIFT">Drift Events</option>
+                <option value="CONSTELLATION">Constellation Events</option>
+                <option value="INTERFERENCE">Interference</option>
+                <option value="SPOOFING">Spoofing</option>
+                <option value="SERVO">Servo</option>
+                <option value="OSC">Oscillator</option>
+                <option value="DT">Digital Twin</option>
+                <option value="SLA">SLA</option>
+                <option value="SELFTEST">Self‑Tests</option>
+                <option value="SCENARIO">Scenario Runs</option>
+                <option value="REPORT">Reports</option>
+                <option value="ACTION">Operator Actions</option>
+                <option value="SYSTEM">System Actions</option>
+                <option value="API">API Calls</option>
+                <option value="ASSISTANT">Assistant Queries</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Start</label>
+            <input id="start" type="datetime-local">
+            <label style="margin-top:10px;">End</label>
+            <input id="end" type="datetime-local">
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="loadTimeline()">
+        Load Timeline
+    </button>
+</div>
+
+<div class="card">
+    <h2>Timeline</h2>
+    <div id="timeline">Load timeline to begin.</div>
+</div>
+
+<div class="card">
+    <h2>Event Details</h2>
+    <div id="details">Select an event to view details.</div>
+</div>
+
+<script>
+function loadTimeline() {
+    const types = Array.from(document.getElementById('types').selectedOptions)
+        .map(o => o.value);
+
+    const params = {
+        types: types,
+        start: document.getElementById('start').value,
+        end: document.getElementById('end').value
+    };
+
+    fetch('/api/operator_timeline', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        const tDiv = document.getElementById('timeline');
+        tDiv.innerHTML = d.events.length === 0
+            ? "<p>No events found.</p>"
+            : d.events.map(ev => `
+                <div class="alert-row ${severityClass(ev.severity)}" onclick="showEvent(${ev.id})"
+                     style="cursor:pointer;">
+                    <div style="font-weight:600;">${ev.time}</div>
+                    <div>${ev.label}</div>
+                    <div class="alert-meta">${ev.type}</div>
+                </div>
+            `).join('');
+    });
+}
+
+function showEvent(id) {
+    fetch('/api/operator_timeline/event?id=' + id)
+        .then(r => r.json())
+        .then(ev => {
+            document.getElementById('details').innerHTML = `
+                <p><strong>Time:</strong> ${ev.time}</p>
+                <p><strong>Type:</strong> ${ev.type}</p>
+                <p><strong>Label:</strong> ${ev.label}</p>
+                <p><strong>Description:</strong> ${ev.description}</p>
+                <p><strong>Subsystem:</strong> ${ev.subsystem}</p>
+                <p><strong>Notes:</strong> ${ev.notes}</p>
+            `;
+        });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+</script>
+
+{% endblock %}
