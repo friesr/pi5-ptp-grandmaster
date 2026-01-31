@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/archive.svg">
+        GNSS Timing Observatory — Global Knowledge Archive
+    </h2>
+    <p>
+        A permanent, searchable archive of global timing events, storyboards, replays, forecasts,
+        correlations, and intelligence. Cross‑linked, queryable, and explorable.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Search</h2>
+
+    <input id="query" type="text" placeholder="Search events, storyboards, anomalies, nodes…"
+           style="width:100%;">
+
+    <button class="save-button" style="margin-top:20px;" onclick="runSearch()">
+        Search Archive
+    </button>
+</div>
+
+<div class="card">
+    <h2>Search Results</h2>
+    <div id="results">Enter a query to begin.</div>
+</div>
+
+<div class="card">
+    <h2>Entry Details</h2>
+    <div id="details">Select an entry to view details.</div>
+</div>
+
+<div class="card">
+    <h2>Cross‑Links</h2>
+    <div id="links">No entry selected.</div>
+</div>
+
+<div class="card">
+    <h2>Export Entry</h2>
+    <button class="save-button" onclick="exportEntry()">Export</button>
+    <div id="export-status" style="margin-top:10px;"></div>
+</div>
+
+<script>
+let currentEntry = null;
+
+function runSearch() {
+    const q = document.getElementById('query').value;
+
+    fetch('/api/archive/search', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({query: q})
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('results').innerHTML =
+            d.results.length === 0
+                ? "<p>No results found.</p>"
+                : d.results.map(e => `
+                    <div class="alert-row alert-minor" style="cursor:pointer;"
+                         onclick="loadEntry('${e.id}')">
+                        <div style="font-weight:600;">${e.title}</div>
+                        <div>${e.type}</div>
+                        <div class="alert-meta">${e.time}</div>
+                    </div>
+                `).join('');
+    });
+}
+
+function loadEntry(id) {
+    fetch('/api/archive/get?id=' + id)
+        .then(r => r.json())
+        .then(e => {
+            currentEntry = e;
+
+            document.getElementById('details').innerHTML = `
+                <p><strong>Title:</strong> ${e.title}</p>
+                <p><strong>Type:</strong> ${e.type}</p>
+                <p><strong>Time:</strong> ${e.time}</p>
+                <p><strong>Summary:</strong> ${e.summary}</p>
+                <pre>${JSON.stringify(e.data, null, 2)}</pre>
+            `;
+
+            document.getElementById('links').innerHTML =
+                e.links.length === 0
+                    ? "<p>No cross‑links.</p>"
+                    : e.links.map(l => `
+                        <div class="alert-row alert-minor">
+                            <div style="font-weight:600;">${l.label}</div>
+                            <div>${l.type}</div>
+                            <div class="alert-meta">${l.time}</div>
+                        </div>
+                    `).join('');
+        });
+}
+
+function exportEntry() {
+    if (!currentEntry) {
+        document.getElementById('export-status').innerHTML = "<p>No entry selected.</p>";
+        return;
+    }
+
+    fetch('/api/archive/export', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(currentEntry)
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('export-status').innerHTML = `
+            <p><strong>${d.status}</strong>: ${d.notes}</p>
+        `;
+    });
+}
+</script>
+
+{% endblock %}
