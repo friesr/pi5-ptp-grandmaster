@@ -1,34 +1,87 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>GNSS Signal History</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
+{% extends "base.html" %}
+{% block content %}
 
-<body>
-    <div class="nav">
-        <a href="/">Dashboard</a>
-        <a href="/validation">Validation</a>
-        <a href="/config">Configuration</a>
-        <a href="/satellites">Satellites</a>
-        <a href="/history">History</a>
-        <a href="/gnss-history">GNSS SNR History</a>
+<!-- GNSS History Overview -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        GNSS History Overview
+    </h2>
+    <p>
+        Historical GNSS lock, visibility, SNR, geometry, and constellation performance.
+        This dashboard provides a detailed look at satellite behavior and signal quality over time.
+    </p>
+</div>
+
+<!-- Lock / Visible Satellites -->
+<div style="display:flex; gap:20px;">
+
+    <div class="card" style="flex:1;">
+        <h2>Locked Satellites</h2>
+        <div id="locked"></div>
+        <div id="locked-spark"></div>
     </div>
 
-    <h1>GNSS SNR History</h1>
-
-    <div class="card">
-        <h2>Select Date</h2>
-        <select id="day-select"></select>
-        <button onclick="loadGNSSHistory()">Load</button>
+    <div class="card" style="flex:1;">
+        <h2>Visible Satellites</h2>
+        <div id="visible"></div>
+        <div id="visible-spark"></div>
     </div>
 
-    <div class="card">
-        <h2>SNR Over Time (per PRN)</h2>
-        <div id="snr-history-chart" style="height:400px;"></div>
-    </div>
+</div>
 
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="/static/js/gnss_history.js"></script>
-</body>
-</html>
+<!-- Constellation Breakdown -->
+<div class="card" style="margin-top:20px;">
+    <h2>Constellation Breakdown</h2>
+    <div id="constellations"></div>
+</div>
+
+<!-- SNR Trend -->
+<div class="card" style="margin-top:20px;">
+    <h2>SNR Trend</h2>
+    <div id="snr"></div>
+    <div id="snr-spark"></div>
+</div>
+
+<!-- Geometry (DOP) -->
+<div class="card" style="margin-top:20px;">
+    <h2>Geometry (DOP)</h2>
+    <div id="dop"></div>
+    <div id="dop-spark"></div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadGNSS() {
+    fetch('/api/gnss_history')
+        .then(r => r.json())
+        .then(d => {
+
+            // Locked
+            document.getElementById('locked').innerHTML =
+                `<span class="badge ${d.locked > 0 ? 'badge-ok' : 'badge-bad'}">
+                    ${d.locked} locked
+                 </span>`;
+            renderSparkline("locked-spark", d.locked_history || [], "minimal");
+
+            // Visible
+            document.getElementById('visible').innerHTML =
+                `<span class="badge badge-info">${d.visible} visible</span>`;
+            renderSparkline("visible-spark", d.visible_history || [], "minimal");
+
+            // Constellations
+            const c = d.constellations || {};
+            document.getElementById('constellations').innerHTML = `
+                <div style="display:flex; gap:20px;">
+                    <div><img class="card-icon" src="/static/icons/desktop/gnss.svg"> GPS: ${c.gps || 0}</div>
+                    <div><img class="card-icon" src="/static/icons/desktop/gnss.svg"> GLONASS: ${c.glonass || 0}</div>
+                    <div><img class="card-icon" src="/static/icons/desktop/gnss.svg"> Galileo: ${c.galileo || 0}</div>
+                    <div><img class="card-icon" src="/static/icons/desktop/gnss.svg"> BeiDou: ${c.beidou || 0}</div>
+                </div>
+            `;
+
+            // SNR
+            document.getElementById('snr').innerHTML =
+                `<span class="badge badge-info">Avg SNR: ${d.snr_avg}</span>`;
+            renderSparkline
