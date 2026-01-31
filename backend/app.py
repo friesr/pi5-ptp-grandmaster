@@ -396,6 +396,10 @@ def outage_forecast_page():
 def sla_forecast_page():
     return render_template("sla_forecast.html")
 
+@app.route("/sla-root-cause")
+def sla_root_cause_page():
+    return render_template("sla_root_cause.html")
+
 
 # -------------------------------------------------------------------
 # Entry point
