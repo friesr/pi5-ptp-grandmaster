@@ -165,5 +165,30 @@ function updateServo() {
 setInterval(updateServo, 10000);
 updateServo();
 
+function updateAlerts() {
+    fetch("/api/alerts/current")
+        .then(r => r.json())
+        .then(alerts => {
+            const ul = document.getElementById("alerts-list");
+            ul.innerHTML = "";
+
+            if (alerts.length === 0) {
+                const li = document.createElement("li");
+                li.textContent = "No active alerts";
+                ul.appendChild(li);
+                return;
+            }
+
+            alerts.forEach(a => {
+                const li = document.createElement("li");
+                li.textContent = `[${a.severity.toUpperCase()}] ${a.message}`;
+                ul.appendChild(li);
+            });
+        });
+}
+
+setInterval(updateAlerts, 10000);
+updateAlerts();
+
 document.getElementById("nas-block").innerText =
     JSON.stringify(data.storage.nas_health, null, 2);
