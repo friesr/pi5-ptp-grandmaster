@@ -340,6 +340,10 @@ def multi_receiver_page():
 def constellation_performance_page():
     return render_template("constellation_performance.html")
 
+@app.route("/multipath-3d")
+def multipath_3d_page():
+    return render_template("multipath_3d.html")
+
 
 # -------------------------------------------------------------------
 # Entry point
