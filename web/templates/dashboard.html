@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Unified Dashboard Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        Unified Dashboard
+    </h2>
+    <p>
+        A consolidated, real‑time view of GNSS, PTP, timing confidence, interference, SLA status,
+        and system health. This is the primary operational overview for the observatory.
+    </p>
+</div>
+
+<!-- Row 1: GNSS + PTP -->
+<div style="display:flex; gap:20px;">
+
+    <!-- GNSS -->
+    <div class="card" style="flex:1;">
+        <h2>
+            <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+            GNSS Status
+        </h2>
+        <div id="gnss-lock"></div>
+        <div id="gnss-spark"></div>
+    </div>
+
+    <!-- PTP -->
+    <div class="card" style="flex:1;">
+        <h2>
+            <img class="card-icon" src="/static/icons/desktop/ptp.svg">
+            PTP Timing
+        </h2>
+        <div id="ptp-offset"></div>
+        <div id="ptp-jitter"></div>
+        <div id="ptp-spark"></div>
+    </div>
+
+</div>
+
+<!-- Row 2: Confidence + Interference -->
+<div style="display:flex; gap:20px; margin-top:20px;">
+
+    <!-- Timing Confidence -->
+    <div class="card" style="flex:1;">
+        <h2>
+            <img class="card-icon" src="/static/icons/desktop/health.svg">
+            Timing Confidence
+        </h2>
+        <div id="confidence"></div>
+        <div id="confidence-spark"></div>
+    </div>
+
+    <!-- Interference -->
+    <div class="card" style="flex:1;">
+        <h2>
+            <img class="card-icon" src="/static/icons/desktop/alerts.svg">
+            Interference
+        </h2>
+        <div id="interference"></div>
+        <div id="interference-heat"></div>
+    </div>
+
+</div>
+
+<!-- Row 3: SLA + System Health -->
+<div style="display:flex; gap:20px; margin-top:20px;">
+
+    <!-- SLA -->
+    <div class="card" style="flex:1;">
+        <h2>
+            <img class="card-icon" src="/static/icons/desktop/alerts.svg">
+            SLA Violations
+        </h2>
+        <div id="sla"></div>
+    </div>
+
+    <!-- System Health -->
+    <div class="card" style="flex:1;">
+        <h2>
+            <img class="card-icon" src="/static/icons/desktop/health.svg">
+            System Health
+        </h2>
+        <div id="cpu"></div>
+        <div id="memory"></div>
+        <div id="disk"></div>
+    </div>
+
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadDashboard() {
+    fetch('/api/mobile_snapshot')
+        .then(r => r.json())
+        .then(d => {
+
+            // GNSS
+            const locked = d.gnss.locked;
+            document.getElementById('gnss-lock').innerHTML =
+                `<span class="badge ${locked > 0 ? 'badge-ok' : 'badge-bad'}">
+                    ${locked > 0 ? 'LOCKED' : 'NO LOCK'} (${locked})
+                 </span>`;
+            renderSparkline("gnss-spark", d.gnss.history || [], d.prefs.sparkline);
+
+            // PTP
+            document.getElementById('ptp-offset').innerHTML =
+                `<span class="badge ${Math.abs(d.ptp.offset) > 500 ? 'badge-bad
