@@ -55,4 +55,52 @@
 <!-- Drift Trend -->
 <div class="card">
     <h2>Clock Drift Trend</h2>
-    
+    <div id="drift-spark"></div>
+</div>
+
+<!-- Frequency Error Trend -->
+<div class="card">
+    <h2>Frequency Error Trend</h2>
+    <div id="freq-spark"></div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadSatelliteList() {
+    fetch('/api/gnss/satellite_list')
+        .then(r => r.json())
+        .then(d => {
+            const sel = document.getElementById('sat-select');
+            sel.innerHTML = "";
+
+            d.satellites.forEach(s => {
+                sel.innerHTML += `<option value="${s.prn}">${s.prn} (${s.constellation})</option>`;
+            });
+
+            loadClockData();
+        });
+}
+
+function loadClockData() {
+    const prn = document.getElementById('sat-select').value;
+    if (!prn) return;
+
+    fetch(`/api/gnss/clock_stability?prn=${prn}`)
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('drift').innerText = d.clock_drift + " ns/s";
+            document.getElementById('freq').innerText = d.frequency_error + " ppb";
+            document.getElementById('stability').innerText = d.stability_class;
+
+            renderSparkline("adev-spark", d.allan_deviation || [], "minimal");
+            renderSparkline("drift-spark", d.drift_trend || [], "minimal");
+            renderSparkline("freq-spark", d.freq_trend || [], "minimal");
+        });
+}
+
+loadSatelliteList();
+setInterval(loadClockData, 5000);
+</script>
+
+{% endblock %}
