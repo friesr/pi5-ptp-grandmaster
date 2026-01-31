@@ -30,7 +30,6 @@ function loadPlayback() {
         });
 }
 
-
 function drawFrame() {
     if (frames.length === 0) return;
 
@@ -41,30 +40,24 @@ function drawFrame() {
     const theta = sats.map(s => s.azimuth);
     const labels = sats.map(s => "PRN " + s.prn);
 
+    // Multipath → color mapping
     const colors = sats.map(s => {
-    if (s.multipath > 0.7) return "#e74c3c";   // severe
-    if (s.multipath > 0.4) return "#f1c40f";   // moderate
-    return "#2ecc71";                          // clean
+        if (s.multipath > 0.7) return "#e74c3c";   // severe
+        if (s.multipath > 0.4) return "#f1c40f";   // moderate
+        return "#2ecc71";                          // clean
+    });
 
-    
-Plotly.newPlot("skyplot", [{
-    type: "scatterpolar",
-    mode: "markers+text",
-    r: r,
-    theta: theta,
-    text: labels,
-    textposition: "top center",
-    marker: {
-        size: 12,
-        color: colors
-    }
-}], {
-    polar: {
-        radialaxis: { visible: true, range: [0, 90] },
-        angularaxis: { direction: "clockwise" }
-    },
-    margin: { t: 20 }
-
+    Plotly.newPlot("skyplot", [{
+        type: "scatterpolar",
+        mode: "markers+text",
+        r: r,
+        theta: theta,
+        text: labels,
+        textposition: "top center",
+        marker: {
+            size: 12,
+            color: colors
+        }
     }], {
         polar: {
             radialaxis: { visible: true, range: [0, 90] },
