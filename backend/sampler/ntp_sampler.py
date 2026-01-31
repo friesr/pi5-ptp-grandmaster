@@ -1,14 +1,34 @@
-import random
+import subprocess
 import time
+import random
 
 def sample_ntp():
-    # Simulated NTP offset and delay
-    offset_ms = random.uniform(-2.0, 2.0)
-    delay_ms = random.uniform(5.0, 25.0)
+    try:
+        out = subprocess.check_output(["chronyc", "tracking"], text=True)
+        offset = None
+        delay = None
 
-    return {
-        "timestamp": time.time(),
-        "server": "pool.ntp.org",
-        "offset_ms": round(offset_ms, 3),
-        "delay_ms": round(delay_ms, 3)
-    }
+        for line in out.splitlines():
+            if "Last offset" in line:
+                offset = float(line.split(":")[1].split()[0]) * 1000  # ms
+            if "Root delay" in line:
+                delay = float(line.split(":")[1].split()[0]) * 1000  # ms
+
+        if offset is None:
+            raise Exception("chrony output incomplete")
+
+        return {
+            "timestamp": time.time(),
+            "server": "chrony",
+            "offset_ms": round(offset, 3),
+            "delay_ms": round(delay, 3) if delay else None
+        }
+
+    except Exception:
+        # fallback simulation
+        return {
+            "timestamp": time.time(),
+            "server": "simulated",
+            "offset_ms": round(random.uniform(-2.0, 2.0), 3),
+            "delay_ms": round(random.uniform(5.0, 25.0), 3)
+        }
