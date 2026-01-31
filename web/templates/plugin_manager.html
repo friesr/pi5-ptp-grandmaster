@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/plugin.svg">
+        GNSS Timing Observatory — Plugin System
+    </h2>
+    <p>
+        Install, enable, disable, inspect, and manage modular plugins that extend the observatory
+        with new analytics, visualizations, diagnostics, and UI components.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Installed Plugins</h2>
+    <div id="plugin-list">Loading…</div>
+</div>
+
+<div class="card">
+    <h2>Upload Plugin</h2>
+
+    <input id="plugin-file" type="file" accept=".zip,.tgz,.tar.gz">
+    <button class="save-button" style="margin-top:20px;" onclick="uploadPlugin()">
+        Upload Plugin
+    </button>
+
+    <div id="upload-status" style="margin-top:10px;"></div>
+</div>
+
+<div class="card">
+    <h2>Plugin Details</h2>
+    <div id="details">Select a plugin to view details.</div>
+</div>
+
+<script>
+function loadPlugins() {
+    fetch('/api/plugins/list')
+        .then(r => r.json())
+        .then(d => {
+            const div = document.getElementById('plugin-list');
+            div.innerHTML = d.plugins.map(p => `
+                <div class="alert-row alert-minor" onclick="showPlugin('${p.id}')"
+                     style="cursor:pointer;">
+                    <div style="font-weight:600;">${p.name}</div>
+                    <div>${p.version}</div>
+                    <div class="alert-meta">${p.enabled ? "Enabled" : "Disabled"}</div>
+                </div>
+            `).join('');
+        });
+}
+
+function showPlugin(id) {
+    fetch('/api/plugins/get?id=' + id)
+        .then(r => r.json())
+        .then(p => {
+            document.getElementById('details').innerHTML = `
+                <p><strong>Name:</strong> ${p.name}</p>
+                <p><strong>Version:</strong> ${p.version}</p>
+                <p><strong>Description:</strong> ${p.description}</p>
+                <p><strong>Author:</strong> ${p.author}</p>
+                <p><strong>Subsystems Added:</strong> ${p.subsystems.join(", ")}</p>
+                <p><strong>API Endpoints:</strong> ${p.endpoints.join(", ")}</p>
+                <p><strong>Status:</strong> ${p.enabled ? "Enabled" : "Disabled"}</p>
+
+                <button class="save-button" onclick="togglePlugin('${p.id}')">
+                    ${p.enabled ? "Disable" : "Enable"} Plugin
+                </button>
+            `;
+        });
+}
+
+function togglePlugin(id) {
+    fetch('/api/plugins/toggle', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({id})
+    })
+    .then(r => r.json())
+    .then(() => {
+        loadPlugins();
+        document.getElementById('details').innerHTML = "<p>Plugin updated.</p>";
+    });
+}
+
+function uploadPlugin() {
+    const file = document.getElementById('plugin-file').files[0];
+    if (!file) return;
+
+    const form = new FormData();
+    form.append("file", file);
+
+    fetch('/api/plugins/upload', {
+        method: "POST",
+        body: form
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('upload-status').innerHTML = `
+            <p><strong>${d.status}</strong>: ${d.notes}</p>
+        `;
+        loadPlugins();
+    });
+}
+
+loadPlugins();
+</script>
+
+{% endblock %}
