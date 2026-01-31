@@ -72,6 +72,8 @@ from backend.api.clock_stability import clock_api
 from backend.api.satellite_aging import satellite_aging_api
 from backend.api.digital_twin import digital_twin_api
 from backend.api.scenario_list import scenario_list_api
+from backend.api.scenario_save import scenario_save_api
+
 
 
 
@@ -177,6 +179,8 @@ app.register_blueprint(clock_api, url_prefix="/api/clock_stability")
 app.register_blueprint(satellite_aging_api, url_prefix="/api/satellite_aging")
 app.register_blueprint(digital_twin_api, url_prefix="/api/digital_twin")
 app.register_blueprint(scenario_list_api, url_prefix="/api/gnss_history")
+app.register_blueprint(scenario_save_api, url_prefix="/api/scenario")
+
 
 
 
@@ -418,6 +422,10 @@ def timing_confidence2_page():
 @app.route("/digital-twin")
 def digital_twin_page():
     return render_template("digital_twin.html")
+
+@app.route("/scenario-designer")
+def scenario_designer_page():
+    return render_template("scenario_designer.html")
 
 
 # -------------------------------------------------------------------
