@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/replay.svg">
+        GNSS Timing Observatory — Global Replay Engine
+    </h2>
+    <p>
+        Replay global timing events across all federated nodes with synchronized timelines,
+        overlays, and predictive vs. actual comparisons.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Replay Parameters</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Start Time</label>
+            <input id="start" type="datetime-local">
+        </div>
+
+        <div class="flex-1">
+            <label>End Time</label>
+            <input id="end" type="datetime-local">
+        </div>
+
+        <div class="flex-1">
+            <label>Layers</label>
+            <select id="layers" multiple style="height:120px;">
+                <option value="DRIFT">Drift</option>
+                <option value="CONFIDENCE">Confidence</option>
+                <option value="CONSTELLATION">Constellation Health</option>
+                <option value="ANOMALIES">Anomalies</option>
+                <option value="THREATS">Interference/Spoofing</option>
+                <option value="DT">Digital Twin Divergence</option>
+                <option value="PREDICTIONS">ML Predictions</option>
+                <option value="ACTIONS">Autonomous Actions</option>
+                <option value="FEDERATION">Federation Intelligence</option>
+                <option value="CORRELATION">Global Correlation</option>
+                <option value="RISK">Risk Windows</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="loadReplay()">
+        Load Replay
+    </button>
+</div>
+
+<div class="card">
+    <h2>Global Replay Map</h2>
+    <div id="map" style="height:500px; background:#111;">Loading…</div>
+</div>
+
+<div class="card">
+    <h2>Timeline</h2>
+    <input id="scrubber" type="range" min="0" max="1000" value="0" style="width:100%;" oninput="scrub()">
+    <div id="time-label" style="margin-top:10px;">--</div>
+</div>
+
+<div class="card">
+    <h2>Event Details</h2>
+    <div id="details">Scrub through the timeline to view events.</div>
+</div>
+
+<script>
+let map = null;
+let markers = [];
+let replayData = null;
+
+function initMap() {
+    map = L.map('map').setView([20, 0], 2);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 6,
+        minZoom: 2
+    }).addTo(map);
+}
+
+function loadReplay() {
+    const params = {
+        start: document.getElementById('start').value,
+        end: document.getElementById('end').value,
+        layers: Array.from(document.getElementById('layers').selectedOptions).map(o => o.value)
+    };
+
+    fetch('/api/global_replay/load', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        replayData = d;
+        document.getElementById('scrubber').value = 0;
+        scrub();
+    });
+}
+
+function scrub() {
+    if (!replayData) return;
+
+    const scrubVal = parseInt(document.getElementById('scrubber').value);
+    const idx = Math.floor((scrubVal / 1000) * (replayData.frames.length - 1));
+    const frame = replayData.frames[idx];
+
+    document.getElementById('time-label').innerText = frame.time;
+
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    frame.nodes.forEach(n => {
+        const marker = L.circleMarker([n.lat, n.lon], {
+            radius: 10,
+            color: n.color,
+            fillColor: n.color,
+            fillOpacity: 0.8
+        }).addTo(map);
+
+        markers.push(marker);
+    });
+
+    document.getElementById('details').innerHTML = `
+        <pre>${JSON.stringify(frame.events, null, 2)}</pre>
+    `;
+}
+
+setTimeout(initMap, 100);
+</script>
+
+{% endblock %}
