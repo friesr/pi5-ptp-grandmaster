@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multipath Heatmap</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/multipath-heatmap">Multipath Heatmap</a>
+    </div>
+
+    <h1>GNSS Multipath Heatmap</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadHeatmap()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Heatmap</h2>
+        <div id="heatmap" style="height:500px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/multipath_heatmap.js"></script>
+</body>
+</html>
