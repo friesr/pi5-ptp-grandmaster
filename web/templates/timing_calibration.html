@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        GNSS Timing Calibration Engine
+    </h2>
+    <p>
+        Estimate and correct systematic timing biases across satellites, constellations, hardware,
+        multipath, oscillator, and environmental factors.
+    </p>
+</div>
+
+<!-- Controls -->
+<div class="card">
+    <h2>Calibration Parameters</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Calibration Window (minutes)</label>
+            <input id="window" type="number" min="5" max="1440" value="60">
+        </div>
+
+        <div class="flex-1">
+            <label>Apply Corrections</label>
+            <select id="apply">
+                <option value="NO">No</option>
+                <option value="YES">Yes</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="runCalibration()">
+        Run Calibration
+    </button>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Calibration Summary</h2>
+    <div id="summary">Run calibration to generate results.</div>
+</div>
+
+<!-- Bias Breakdown -->
+<div class="card">
+    <h2>Bias Breakdown</h2>
+    <div id="bias-bars">Loading…</div>
+</div>
+
+<!-- Trend -->
+<div class="card">
+    <h2>Bias Trend</h2>
+    <div id="trend-spark"></div>
+</div>
+
+<!-- Component Table -->
+<div class="card">
+    <h2>Component Biases</h2>
+    <table id="comp-table" style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="text-align:left; border-bottom:1px solid var(--border);">
+                <th>Component</th>
+                <th>Bias (ns)</th>
+                <th>Percent</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody id="comp-body"></tbody>
+    </table>
+</div>
+
+<!-- Corrections -->
+<div class="card">
+    <h2>Applied Corrections</h2>
+    <div id="corrections">No corrections applied.</div>
+</div>
+
+<!-- Anomalies -->
+<div class="card">
+    <h2>Detected Calibration Anomalies</h2>
+    <div id="anomalies">No anomalies detected.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function runCalibration() {
+    const params = {
+        window: parseInt(document.getElementById('window').value),
+        apply: document.getElementById('apply').value
+    };
+
+    fetch('/api/timing/calibration', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        // Summary
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Total Bias:</strong> ${d.total} ns</p>
+            <p><strong>Dominant Source:</strong> ${d.dominant}</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        // Bias bars
+        const bars = d.bars || [];
+        const bDiv = document.getElementById('bias-bars');
+
+        if (bars.length === 0) {
+            bDiv.innerHTML = "<p>No bias data.</p>";
+        } else {
+            bDiv.innerHTML = bars.map(b => `
+                <div style="margin-bottom:8px;">
+                    <div style="font-weight:600;">${b.label}</div>
+                    <div style="height:12px; background:var(--accent); width:${b.percent}%;"></div>
+                    <div class="alert-meta">${b.value} ns (${b.percent}%)</div>
+                </div>
+            `).join('');
+        }
+
+        // Trend
+        renderSparkline("trend-spark", d.trend || [], "minimal");
+
+        // Component table
+        const comps = d.components || [];
+        const tbody = document.getElementById('comp-body');
+        tbody.innerHTML = "";
+
+        comps.forEach(c => {
+            tbody.innerHTML += `
+                <tr style="border-bottom:1px solid var(--border);">
+                    <td>${c.name}</td>
+                    <td>${c.value}</td>
+                    <td>${c.percent}%</td>
+                    <td>${c.notes}</td>
+                </tr>
+            `;
+        });
+
+        // Corrections
+        const corr = d.corrections || [];
+        const cDiv = document.getElementById('corrections');
+
+        if (corr.length === 0) {
+            cDiv.innerHTML = "<p>No corrections applied.</p>";
+        } else {
+            cDiv.innerHTML = corr.map(c => `
+                <div class="alert-row alert-minor">
+                    <div style="font-weight:600;">${c.component}</div>
+                    <div>${c.action}</div>
+                </div>
+            `).join('');
+        }
+
+        // Anomalies
+        const anomalies = d.anomalies || [];
+        const aDiv = document.getElementById('anomalies');
+
+        if (anomalies.length === 0) {
+            aDiv.innerHTML = "<p>No anomalies detected.</p>";
+        } else {
+            aDiv.innerHTML = anomalies.map(a => `
+                <div class="alert-row ${severityClass(a.severity)}">
+                    <div style="font-weight:600;">${a.title}</div>
+                    <div>${a.description}</div>
+                    <div class="alert-meta">${a.time}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+</script>
+
+{% endblock %}
