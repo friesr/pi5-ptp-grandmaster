@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Constellation Drift</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/constellation-drift">Constellation Drift</a>
+    </div>
+
+    <h1>GNSS Constellation Drift Model</h1>
+
+    <div class="card">
+        <h2>Drift Overview</h2>
+        <div id="drift-chart" style="height:500px;"></div>
+    </div>
+
+    <div class="card">
+        <h2>Raw Data</h2>
+        <pre id="drift-details" style="height:300px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/constellation_drift.js"></script>
+</body>
+</html>
