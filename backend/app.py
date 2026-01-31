@@ -35,6 +35,7 @@ from backend.api.gnss_ptp_correlation import gnss_ptp_corr_api
 from backend.api.prn_health import prn_health_api
 from backend.api.constellation_drift import constellation_drift_api
 from backend.api.interference_detector import interference_api
+from backend.api.timing_accuracy import timing_accuracy_api
 
 
 
@@ -82,6 +83,7 @@ app.register_blueprint(gnss_ptp_corr_api, url_prefix="/api/gnss_ptp_corr")
 app.register_blueprint(prn_health_api, url_prefix="/api/prn_health")
 app.register_blueprint(constellation_drift_api, url_prefix="/api/constellation_drift")
 app.register_blueprint(interference_api, url_prefix="/api/interference")
+app.register_blueprint(timing_accuracy_api, url_prefix="/api/timing_accuracy")
 
 
 
@@ -197,3 +199,8 @@ def constellation_drift_page():
 def interference_page():
     return render_template("interference.html")
 
+
+
+@app.route("/timing-accuracy")
+def timing_accuracy_page():
+    return render_template("timing_accuracy.html")
