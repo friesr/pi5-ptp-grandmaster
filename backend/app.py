@@ -356,6 +356,10 @@ def spoofing_page():
 def prn_fingerprint_page():
     return render_template("prn_fingerprint.html")
 
+@app.route("/orbit-phase")
+def orbit_phase_page():
+    return render_template("orbit_phase.html")
+
 
 # -------------------------------------------------------------------
 # Entry point
