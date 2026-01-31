@@ -30,6 +30,7 @@ from backend.api.snr_waterfall import snr_waterfall_api
 from backend.api.geometry_timeline import geometry_timeline_api
 from backend.api.ptp_events import ptp_events_api
 from backend.api.skyplot_density import skyplot_density_api
+from backend.api.signal_quality import signal_quality_api
 
 
 
@@ -72,6 +73,7 @@ app.register_blueprint(snr_waterfall_api, url_prefix="/api/snr_waterfall")
 app.register_blueprint(geometry_timeline_api, url_prefix="/api/geometry_timeline")
 app.register_blueprint(ptp_events_api, url_prefix="/api/ptp_events")
 app.register_blueprint(skyplot_density_api, url_prefix="/api/skyplot_density")
+app.register_blueprint(signal_quality_api, url_prefix="/api/signal_quality")
 
 
 @app.route("/")
@@ -165,4 +167,8 @@ def ptp_events_page():
 @app.route("/skyplot-density")
 def skyplot_density_page():
     return render_template("skyplot_density.html")
+
+@app.route("/signal-quality")
+def signal_quality_page():
+    return render_template("signal_quality.html")
 
