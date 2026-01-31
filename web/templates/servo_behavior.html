@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        Timing Servo Behavior Analyzer
+    </h2>
+    <p>
+        Analyze holdover, recovery, loop dynamics, bandwidth behavior, and stability of the timing
+        servo. Visualizes real‑time and historical loop performance.
+    </p>
+</div>
+
+<!-- Current State -->
+<div class="card">
+    <h2>Current Servo State</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <h3>State</h3>
+            <div id="state" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Loop Bandwidth</h3>
+            <div id="bandwidth" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Damping Ratio</h3>
+            <div id="damping" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>GNSS Weight</h3>
+            <div id="gnss_weight" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Oscillator Weight</h3>
+            <div id="osc_weight" class="badge badge-info"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Loop Response -->
+<div class="card">
+    <h2>Loop Response</h2>
+    <p>
+        Shows how the servo responds to timing disturbances, GNSS dropouts, and oscillator drift.
+    </p>
+    <div id="response-spark"></div>
+</div>
+
+<!-- Holdover Analysis -->
+<div class="card">
+    <h2>Holdover Behavior</h2>
+    <div id="holdover">Loading…</div>
+</div>
+
+<!-- Recovery Analysis -->
+<div class="card">
+    <h2>Recovery Behavior</h2>
+    <div id="recovery">Loading…</div>
+</div>
+
+<!-- Events -->
+<div class="card">
+    <h2>Servo Events</h2>
+    <div id="events">No events yet.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadServo() {
+    fetch('/api/timing/servo')
+        .then(r => r.json())
+        .then(d => {
+            // Current state
+            document.getElementById('state').innerText = d.state;
+            document.getElementById('bandwidth').innerText = d.bandwidth + " Hz";
+            document.getElementById('damping').innerText = d.damping;
+            document.getElementById('gnss_weight').innerText = d.gnss_weight + "%";
+            document.getElementById('osc_weight').innerText = d.osc_weight + "%";
+
+            // Loop response
+            renderSparkline("response-spark", d.loop_response || [], "minimal");
+
+            // Holdover
+            document.getElementById('holdover').innerHTML = `
+                <p><strong>Last Holdover:</strong> ${d.holdover.last}</p>
+                <p><strong>Duration:</strong> ${d.holdover.duration}</p>
+                <p><strong>Drift During Holdover:</strong> ${d.holdover.drift}</p>
+                <p><strong>Reason:</strong> ${d.holdover.reason}</p>
+            `;
+
+            // Recovery
+            document.getElementById('recovery').innerHTML = `
+                <p><strong>Last Recovery:</strong> ${d.recovery.last}</p>
+                <p><strong>Settling Time:</strong> ${d.recovery.settling}</p>
+                <p><strong>Overshoot:</strong> ${d.recovery.overshoot}</p>
+                <p><strong>Stability:</strong> ${d.recovery.stability}</p>
+            `;
+
+            // Events
+            const events = d.events || [];
+            const eDiv = document.getElementById('events');
+
+            if (events.length === 0) {
+                eDiv.innerHTML = "<p>No servo events detected.</p>";
+            } else {
+                eDiv.innerHTML = events.map(ev => `
+                    <div class="alert-row ${severityClass(ev.severity)}">
+                        <div style="font-weight:600;">${ev.title}</div>
+                        <div>${ev.description}</div>
+                        <div class="alert-meta">${ev.time}</div>
+                    </div>
+                `).join('');
+            }
+        });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+setInterval(loadServo, 5000);
+loadServo();
+</script>
+
+{% endblock %}
