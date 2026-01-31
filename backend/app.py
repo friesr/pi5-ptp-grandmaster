@@ -210,9 +210,17 @@ def anomaly_explanations_page():
 def anomaly_ml_page():
     return render_template("anomaly_ml.html")
 
+@app.route("/antenna-siting")
+def antenna_siting_page():
+    return render_template("antenna_siting.html")
+
 @app.route("/backup")
 def backup_page():
     return render_template("backup.html")
+
+@app.route("/clock-stability")
+def clock_stability_page():
+    return render_template("clock_stability.html")
 
 @app.route("/config")
 def config_page():
@@ -221,6 +229,10 @@ def config_page():
 @app.route("/constellation-drift")
 def constellation_drift_page():
     return render_template("constellation_drift.html")
+
+@app.route("/constellation-forecast")
+def constellation_forecast_page():
+    return render_template("constellation_forecast.html")
 
 @app.route("/constellation-performance")
 def constellation_performance_page():
@@ -274,6 +286,10 @@ def digital_twin_optimize_page():
 def digital_twin_replay_page():
     return render_template("digital_twin_replay.html")
 
+@app.route("/digital-twin-replay-sync")
+def digital_twin_replay_sync_page():
+    return render_template("digital_twin_replay_sync.html")
+
 @app.route("/digital-twin-report")
 def digital_twin_report_page():
     return render_template("digital_twin_report.html")
@@ -285,6 +301,14 @@ def digital_twin_risk_curves_page():
 @app.route("/dop")
 def dop_page():
     return render_template("dop.html")
+
+@app.route("/drift")
+def drift_page():
+    return render_template("drift.html")
+
+@app.route("/eclipse")
+def eclipse_page():
+    return render_template("eclipse.html")
 
 @app.route("/environment")
 def environment_page():
@@ -314,6 +338,10 @@ def gnss_outages_page():
 def gnss_ptp_corr_page():
     return render_template("gnss_ptp_corr.html")
 
+@app.route("/history")
+def history_page():
+    return render_template("history.html")
+
 @app.route("/interference")
 def interference_page():
     return render_template("interference.html")
@@ -326,13 +354,29 @@ def mission_control_page():
 def multi_receiver_page():
     return render_template("multi_receiver.html")
 
+@app.route("/multipath-3d")
+def multipath_3d_page():
+    return render_template("multipath_3d.html")
+
 @app.route("/multipath-heatmap")
 def multipath_heatmap_page():
     return render_template("multipath_heatmap.html")
 
+@app.route("/orbit-phase")
+def orbit_phase_page():
+    return render_template("orbit_phase.html")
+
+@app.route("/outage-forecast")
+def outage_forecast_page():
+    return render_template("outage_forecast.html")
+
 @app.route("/predictive-maintenance")
 def predictive_maintenance_page():
     return render_template("predictive_maintenance.html")
+
+@app.route("/prn-fingerprint")
+def prn_fingerprint_page():
+    return render_template("prn_fingerprint.html")
 
 @app.route("/prn-health")
 def prn_health_page():
@@ -354,9 +398,21 @@ def ptp_profile_page():
 def receiver_health_page():
     return render_template("receiver_health.html")
 
+@app.route("/replay-sync-bus")
+def replay_sync_bus_page():
+    return render_template("replay_sync_bus.html")
+
 @app.route("/report")
 def report_page():
     return render_template("report.html")
+
+@app.route("/resilience-advisor")
+def resilience_advisor_page():
+    return render_template("resilience_advisor.html")
+
+@app.route("/satellite-aging")
+def satellite_aging_page():
+    return render_template("satellite_aging.html")
 
 @app.route("/satellites")
 def satellites():
@@ -394,9 +450,21 @@ def skyplot_playback_page():
 def sla_page():
     return render_template("sla.html")
 
+@app.route("/sla-forecast")
+def sla_forecast_page():
+    return render_template("sla_forecast.html")
+
+@app.route("/sla-root-cause")
+def sla_root_cause_page():
+    return render_template("sla_root_cause.html")
+
 @app.route("/snr-waterfall")
 def snr_waterfall_page():
     return render_template("snr_waterfall.html")
+
+@app.route("/spoofing")
+def spoofing_page():
+    return render_template("spoofing.html")
 
 @app.route("/stability")
 def stability_page():
@@ -418,6 +486,10 @@ def timing_accuracy_page():
 def timing_confidence_page():
     return render_template("timing_confidence.html")
 
+@app.route("/timing-confidence2")
+def timing_confidence2_page():
+    return render_template("timing_confidence2.html")
+
 @app.route("/unified-timeline")
 def unified_timeline_page():
     return render_template("unified_timeline.html")
@@ -425,10 +497,6 @@ def unified_timeline_page():
 @app.route("/validation")
 def validation_page():
     return render_template("validation.html")
-
-@app.route("/drift")
-def drift_page():
-    return render_template("drift.html")
 
 # ------------------------------------------------------------
 # App Runner
