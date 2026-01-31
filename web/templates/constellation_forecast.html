@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Constellation Forecast</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/constellation-forecast">Constellation Forecast</a>
+    </div>
+
+    <h1>GNSS Constellation Health Forecast</h1>
+
+    <div class="card">
+        <h2>Forecast Table</h2>
+        <div id="forecast-table"></div>
+    </div>
+
+    <div class="card">
+        <h2>Forecast Health Scores</h2>
+        <div id="forecast-chart" style="height:400px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/constellation_forecast.js"></script>
+</body>
+</html>
