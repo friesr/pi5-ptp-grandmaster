@@ -33,6 +33,7 @@ from backend.api.skyplot_density import skyplot_density_api
 from backend.api.signal_quality import signal_quality_api
 from backend.api.gnss_ptp_correlation import gnss_ptp_corr_api
 from backend.api.prn_health import prn_health_api
+from backend.api.constellation_drift import constellation_drift_api
 
 
 
@@ -78,6 +79,7 @@ app.register_blueprint(skyplot_density_api, url_prefix="/api/skyplot_density")
 app.register_blueprint(signal_quality_api, url_prefix="/api/signal_quality")
 app.register_blueprint(gnss_ptp_corr_api, url_prefix="/api/gnss_ptp_corr")
 app.register_blueprint(prn_health_api, url_prefix="/api/prn_health")
+app.register_blueprint(constellation_drift_api, url_prefix="/api/constellation_drift")
 
 
 @app.route("/")
@@ -183,4 +185,8 @@ def gnss_ptp_corr_page():
 @app.route("/prn-health")
 def prn_health_page():
     return render_template("prn_health.html")
+
+@app.route("/constellation-drift")
+def constellation_drift_page():
+    return render_template("constellation_drift.html")
 
