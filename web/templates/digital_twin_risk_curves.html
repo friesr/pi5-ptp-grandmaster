@@ -1,49 +1,136 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Risk Curves</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
+{% extends "base.html" %}
+{% block content %}
 
-<body>
-
-<div class="nav">
-    <a href="/">Dashboard</a>
-    <a href="/digital-twin">Digital Twin</a>
-    <a href="/digital-twin-monte-carlo">Monte Carlo</a>
-    <a href="/digital-twin-risk-curves">Risk Curves</a>
-</div>
-
-<h1>GNSS Timing Risk Curves</h1>
-
+<!-- Risk Curves Header -->
 <div class="card">
-    <h2>Select Monte Carlo Config</h2>
-    <select id="rc-select"></select>
-    <button onclick="runRisk()">Generate Risk Curves</button>
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        Digital Twin — Risk Curves & Outage Probability
+    </h2>
+    <p>
+        Visualize timing drift probability, outage likelihood, SLA violation risk, and multi‑factor
+        timing instability curves. This tool provides long‑horizon risk forecasting based on
+        constellation health, interference, PTP noise, and system conditions.
+    </p>
 </div>
 
+<!-- Parameter Controls -->
 <div class="card">
-    <h2>PDF (Probability Density Function)</h2>
-    <div id="pdf-chart" style="height:400px;"></div>
+    <h2>Risk Model Parameters</h2>
+
+    <div style="display:flex; gap:40px;">
+
+        <div style="flex:1;">
+            <label>Forecast Horizon (minutes)</label><br>
+            <input id="horizon" type="number" min="1" max="1440" value="120"><br><br>
+
+            <label>GNSS Degradation (%)</label><br>
+            <input id="gnss_deg" type="number" min="0" max="100" value="10"><br><br>
+        </div>
+
+        <div style="flex:1;">
+            <label>Interference Severity (%)</label><br>
+            <input id="int_deg" type="number" min="0" max="100" value="5"><br><br>
+
+            <label>PTP Noise (ns RMS)</label><br>
+            <input id="ptp_noise" type="number" min="0" max="1000" value="50"><br><br>
+        </div>
+
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="runRiskModel()">
+        Generate Risk Curves
+    </button>
 </div>
 
+<!-- Risk Curves Output -->
 <div class="card">
-    <h2>CDF (Cumulative Distribution Function)</h2>
-    <div id="cdf-chart" style="height:400px;"></div>
+    <h2>Risk Curves</h2>
+    <div id="status">Waiting for model…</div>
+
+    <div style="display:flex; gap:20px; margin-top:20px;">
+
+        <div style="flex:1;">
+            <h3>Timing Drift Probability</h3>
+            <div id="drift"></div>
+            <div id="drift-spark"></div>
+        </div>
+
+        <div style="flex:1;">
+            <h3>Outage Probability</h3>
+            <div id="outage"></div>
+            <div id="outage-spark"></div>
+        </div>
+
+    </div>
+
+    <div style="display:flex; gap:20px; margin-top:20px;">
+
+        <div style="flex:1;">
+            <h3>SLA Violation Probability</h3>
+            <div id="sla"></div>
+            <div id="sla-spark"></div>
+        </div>
+
+        <div style="flex:1;">
+            <h3>Composite Risk Score</h3>
+            <div id="risk"></div>
+            <div id="risk-spark"></div>
+        </div>
+
+    </div>
 </div>
 
-<div class="card">
-    <h2>Percentiles</h2>
-    <pre id="percentiles"></pre>
-</div>
+<script src="/static/js/mobile_viz.js"></script>
 
-<div class="card">
-    <h2>Exceedance Probabilities</h2>
-    <pre id="exceedance"></pre>
-</div>
+<script>
+function runRiskModel() {
+    const params = {
+        horizon: parseInt(document.getElementById('horizon').value),
+        gnss_deg: parseFloat(document.getElementById('gnss_deg').value),
+        int_deg: parseFloat(document.getElementById('int_deg').value),
+        ptp_noise: parseFloat(document.getElementById('ptp_noise').value)
+    };
 
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script src="/static/js/digital_twin_risk_curves.js"></script>
+    document.getElementById('status').innerHTML =
+        `<span class="badge badge-info">Generating risk curves…</span>`;
 
-</body>
-</html>
+    fetch('/api/digital_twin/risk_curves', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+
+        // Drift
+        document.getElementById('drift').innerHTML =
+            `<span class="badge badge-info">Mean Drift: ${d.drift.mean} ns</span>`;
+        renderSparkline("drift-spark", d.drift.curve || [], "minimal");
+
+        // Outage Probability
+        document.getElementById('outage').innerHTML =
+            `<span class="badge ${d.outage.p > 0.2 ? 'badge-bad' : d.outage.p > 0.05 ? 'badge-warn' : 'badge-ok'}">
+                ${(d.outage.p * 100).toFixed(2)}%
+             </span>`;
+        renderSparkline("outage-spark", d.outage.curve || [], "minimal");
+
+        // SLA Probability
+        document.getElementById('sla').innerHTML =
+            `<span class="badge ${d.sla.p > 0.1 ? 'badge-bad' : d.sla.p > 0.02 ? 'badge-warn' : 'badge-ok'}">
+                ${(d.sla.p * 100).toFixed(2)}%
+             </span>`;
+        renderSparkline("sla-spark", d.sla.curve || [], "minimal");
+
+        // Composite Risk
+        document.getElementById('risk').innerHTML =
+            `<span class="badge badge-info">${d.risk.score}</span>`;
+        renderSparkline("risk-spark", d.risk.curve || [], "minimal");
+
+        document.getElementById('status').innerHTML =
+            `<span class="badge badge-ok">Risk curves generated</span>`;
+    });
+}
+</script>
+
+{% endblock %}
