@@ -1,23 +1,127 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Timing Confidence</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
+{% extends "base.html" %}
+{% block content %}
 
-<body>
-    <div class="nav">
-        <a href="/">Dashboard</a>
-        <a href="/timing-confidence">Timing Confidence</a>
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        Unified Timing Confidence
+    </h2>
+    <p>
+        A single timing confidence score derived from GNSS, PTP, geometry, multipath, stability,
+        interference, and forecasted risk. Updated in real time.
+    </p>
+</div>
+
+<!-- Score -->
+<div class="card">
+    <h2>Timing Confidence Score</h2>
+
+    <div style="font-size:48px; font-weight:700; margin-bottom:10px;" id="score">
+        --
     </div>
 
-    <h1>GNSS Timing Confidence Score</h1>
+    <div id="score-badge" class="badge badge-info">
+        Calculating…
+    </div>
+</div>
 
-    <div class="card">
-        <h2>Score</h2>
-        <div id="confidence-score" style="font-size:48px; font-weight:bold;"></div>
+<!-- Component Breakdown -->
+<div class="card">
+    <h2>Component Breakdown</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <h3>GNSS</h3>
+            <div id="gnss" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>PTP</h3>
+            <div id="ptp" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Geometry</h3>
+            <div id="geom" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Multipath</h3>
+            <div id="mp" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Clock Stability</h3>
+            <div id="clk" class="badge badge-info"></div>
+        </div>
     </div>
 
-    <script src="/static/js/timing_confidence.js"></script>
-</body>
-</html>
+    <div class="flex-row" style="margin-top:20px;">
+        <div class="flex-1">
+            <h3>Interference</h3>
+            <div id="int" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Forecast Risk</h3>
+            <div id="risk" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Historical Drift</h3>
+            <div id="hist" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Servo State</h3>
+            <div id="servo" class="badge badge-info"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Trend -->
+<div class="card">
+    <h2>Confidence Trend</h2>
+    <div id="trend-spark"></div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadConfidence() {
+    fetch('/api/timing/confidence')
+        .then(r => r.json())
+        .then(d => {
+            // Score
+            document.getElementById('score').innerText = d.score;
+
+            const badge = document.getElementById('score-badge');
+            badge.innerText = d.label;
+
+            badge.className =
+                d.score >= 90 ? "badge badge-ok" :
+                d.score >= 70 ? "badge badge-warn" :
+                                "badge badge-bad";
+
+            // Components
+            document.getElementById('gnss').innerText = d.components.gnss;
+            document.getElementById('ptp').innerText = d.components.ptp;
+            document.getElementById('geom').innerText = d.components.geometry;
+            document.getElementById('mp').innerText = d.components.multipath;
+            document.getElementById('clk').innerText = d.components.clock;
+            document.getElementById('int').innerText = d.components.interference;
+            document.getElementById('risk').innerText = d.components.forecast;
+            document.getElementById('hist').innerText = d.components.history;
+            document.getElementById('servo').innerText = d.components.servo;
+
+            // Trend
+            renderSparkline("trend-spark", d.trend || [], "minimal");
+        });
+}
+
+setInterval(loadConfidence, 5000);
+loadConfidence();
+</script>
+
+{% endblock %}
