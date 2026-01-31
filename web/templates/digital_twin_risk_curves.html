@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Risk Curves</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/digital-twin">Digital Twin</a>
+    <a href="/digital-twin-monte-carlo">Monte Carlo</a>
+    <a href="/digital-twin-risk-curves">Risk Curves</a>
+</div>
+
+<h1>GNSS Timing Risk Curves</h1>
+
+<div class="card">
+    <h2>Select Monte Carlo Config</h2>
+    <select id="rc-select"></select>
+    <button onclick="runRisk()">Generate Risk Curves</button>
+</div>
+
+<div class="card">
+    <h2>PDF (Probability Density Function)</h2>
+    <div id="pdf-chart" style="height:400px;"></div>
+</div>
+
+<div class="card">
+    <h2>CDF (Cumulative Distribution Function)</h2>
+    <div id="cdf-chart" style="height:400px;"></div>
+</div>
+
+<div class="card">
+    <h2>Percentiles</h2>
+    <pre id="percentiles"></pre>
+</div>
+
+<div class="card">
+    <h2>Exceedance Probabilities</h2>
+    <pre id="exceedance"></pre>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="/static/js/digital_twin_risk_curves.js"></script>
+
+</body>
+</html>
