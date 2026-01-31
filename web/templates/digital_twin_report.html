@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Digital Twin Report</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/digital-twin">Digital Twin</a>
+    <a href="/digital-twin-report">Report Generator</a>
+</div>
+
+<h1>Digital Twin Report Generator</h1>
+
+<div class="card">
+    <h2>Select Scenario</h2>
+    <select id="scenario-select"></select>
+    <button onclick="generateReport()">Generate Report</button>
+</div>
+
+<div class="card">
+    <h2>Report</h2>
+    <pre id="report-output" style="height:500px; overflow-y:auto;"></pre>
+</div>
+
+<script src="/static/js/digital_twin_report.js"></script>
+
+</body>
+</html>
