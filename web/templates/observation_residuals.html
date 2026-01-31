@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        GNSS Observation Residual Analyzer
+    </h2>
+    <p>
+        Analyze pseudorange, carrier‑phase, and Doppler residuals to identify modeling errors,
+        multipath, interference, and constellation‑specific biases.
+    </p>
+</div>
+
+<!-- Satellite Selector -->
+<div class="card">
+    <h2>Select Satellite</h2>
+    <select id="sat-select" onchange="loadResiduals()">
+        <option value="">Loading…</option>
+    </select>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Residual Summary</h2>
+    <div id="summary">Loading…</div>
+</div>
+
+<!-- Residual Plots -->
+<div class="card">
+    <h2>Pseudorange Residuals</h2>
+    <div id="pr-spark"></div>
+</div>
+
+<div class="card">
+    <h2>Carrier‑Phase Residuals</h2>
+    <div id="cp-spark"></div>
+</div>
+
+<div class="card">
+    <h2>Doppler Residuals</h2>
+    <div id="dop-spark"></div>
+</div>
+
+<!-- Residual Histogram -->
+<div class="card">
+    <h2>Residual Histogram</h2>
+    <div id="histogram">Loading…</div>
+</div>
+
+<!-- Anomalies -->
+<div class="card">
+    <h2>Detected Residual Anomalies</h2>
+    <div id="anomalies">No anomalies detected.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadSatelliteList() {
+    fetch('/api/gnss/satellite_list')
+        .then(r => r.json())
+        .then(d => {
+            const sel = document.getElementById('sat-select');
+            sel.innerHTML = "";
+
+            d.satellites.forEach(s => {
+                sel.innerHTML += `<option value="${s.prn}">${s.prn} (${s.constellation})</option>`;
+            });
+
+            loadResiduals();
+        });
+}
+
+function loadResiduals() {
+    const prn = document.getElementById('sat-select').value;
+    if (!prn) return;
+
+    fetch(`/api/gnss/residuals?prn=${prn}`)
+        .then(r => r.json())
+        .then(d => {
+            // Summary
+            document.getElementById('summary').innerHTML = `
+                <p><strong>Mean PR Residual:</strong> ${d.mean_pr} m</p>
+                <p><strong>Mean CP Residual:</strong> ${d.mean_cp} cycles</p>
+                <p><strong>Mean Doppler Residual:</strong> ${d.mean_dop} Hz</p>
+                <p><strong>Notes:</strong> ${d.notes}</p>
+            `;
+
+            // Trends
+            renderSparkline("pr-spark", d.pr_trend || [], "minimal");
+            renderSparkline("cp-spark", d.cp_trend || [], "minimal");
+            renderSparkline("dop-spark", d.dop_trend || [], "minimal");
+
+            // Histogram
+            const hist = d.histogram || [];
+            const hDiv = document.getElementById('histogram');
+
+            if (hist.length === 0) {
+                hDiv.innerHTML = "<p>No histogram data.</p>";
+            } else {
+                hDiv.innerHTML = hist.map(bin => `
+                    <div style="display:flex; align-items:center; margin-bottom:4px;">
+                        <div style="width:80px;">${bin.range}</div>
+                        <div style="height:12px; background:var(--accent); width:${bin.count}px;"></div>
+                    </div>
+                `).join('');
+            }
+
+            // Anomalies
+            const anomalies = d.anomalies || [];
+            const aDiv = document.getElementById('anomalies');
+
+            if (anomalies.length === 0) {
+                aDiv.innerHTML = "<p>No anomalies detected.</p>";
+            } else {
+                aDiv.innerHTML = anomalies.map(a => `
+                    <div class="alert-row ${severityClass(a.severity)}">
+                        <div style="font-weight:600;">${a.title}</div>
+                        <div>${a.description}</div>
+                        <div class="alert-meta">${a.time}</div>
+                    </div>
+                `).join('');
+            }
+        });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+loadSatelliteList();
+setInterval(loadResiduals, 5000);
+</script>
+
+{% endblock %}
