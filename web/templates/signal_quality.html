@@ -1,30 +1,132 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Signal Quality</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
+{% extends "base.html" %}
+{% block content %}
 
-<body>
-    <div class="nav">
-        <a href="/">Dashboard</a>
-        <a href="/signal-quality">Signal Quality</a>
-    </div>
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        GNSS Signal Quality Dashboard
+    </h2>
+    <p>
+        Real‑time visualization of CN0, tracking loop stability, lock status, correlator behavior,
+        and signal integrity across all constellations.
+    </p>
+</div>
 
-    <h1>GNSS Signal Quality Classification</h1>
+<!-- Summary -->
+<div class="card">
+    <h2>Signal Quality Summary</h2>
+    <div id="summary">Loading…</div>
+</div>
 
-    <div class="card">
-        <h2>Select Date</h2>
-        <select id="day-select"></select>
-        <button onclick="loadSignalQuality()">Load</button>
-    </div>
+<!-- Per‑Satellite Table -->
+<div class="card">
+    <h2>Per‑Satellite Signal Metrics</h2>
+    <table id="sig-table" style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="text-align:left; border-bottom:1px solid var(--border);">
+                <th>PRN</th>
+                <th>Constellation</th>
+                <th>CN0 (dB‑Hz)</th>
+                <th>Lock</th>
+                <th>Tracking Jitter</th>
+                <th>Correlator Spacing</th>
+                <th>Cycle Slips</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="sig-body"></tbody>
+    </table>
+</div>
 
-    <div class="card">
-        <h2>Signal State Timeline</h2>
-        <div id="quality-chart" style="height:600px;"></div>
-    </div>
+<!-- CN0 Trend -->
+<div class="card">
+    <h2>CN0 Trend</h2>
+    <div id="cn0-spark"></div>
+</div>
 
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="/static/js/signal_quality.js"></script>
-</body>
-</html>
+<!-- Tracking Loop Stability -->
+<div class="card">
+    <h2>Tracking Loop Stability</h2>
+    <div id="loop-spark"></div>
+</div>
+
+<!-- Lock Events -->
+<div class="card">
+    <h2>Lock Events</h2>
+    <div id="events">No events yet.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadSignalQuality() {
+    fetch('/api/gnss/signal_quality')
+        .then(r => r.json())
+        .then(d => {
+            // Summary
+            document.getElementById('summary').innerHTML = `
+                <p><strong>Average CN0:</strong> ${d.avg_cn0} dB‑Hz</p>
+                <p><strong>Lock Stability:</strong> ${d.lock_stability}%</p>
+                <p><strong>Tracking Health:</strong> ${d.tracking_health}</p>
+                <p><strong>Notes:</strong> ${d.notes}</p>
+            `;
+
+            // Table
+            const sats = d.satellites || [];
+            const tbody = document.getElementById('sig-body');
+            tbody.innerHTML = "";
+
+            sats.forEach(s => {
+                const statusBadge =
+                    s.status === "OK" ? `<span class="badge badge-ok">OK</span>` :
+                    s.status === "WARN" ? `<span class="badge badge-warn">WARN</span>` :
+                    `<span class="badge badge-bad">BAD</span>`;
+
+                tbody.innerHTML += `
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td>${s.prn}</td>
+                        <td>${s.constellation}</td>
+                        <td>${s.cn0}</td>
+                        <td>${s.lock ? "Yes" : "No"}</td>
+                        <td>${s.jitter}</td>
+                        <td>${s.spacing}</td>
+                        <td>${s.cycle_slips}</td>
+                        <td>${statusBadge}</td>
+                    </tr>
+                `;
+            });
+
+            // Trends
+            renderSparkline("cn0-spark", d.cn0_trend || [], "minimal");
+            renderSparkline("loop-spark", d.loop_stability_trend || [], "minimal");
+
+            // Events
+            const events = d.events || [];
+            const eDiv = document.getElementById('events');
+
+            if (events.length === 0) {
+                eDiv.innerHTML = "<p>No lock events detected.</p>";
+            } else {
+                eDiv.innerHTML = events.map(ev => `
+                    <div class="alert-row ${severityClass(ev.severity)}">
+                        <div style="font-weight:600;">${ev.title}</div>
+                        <div>${ev.description}</div>
+                        <div class="alert-meta">${ev.time}</div>
+                    </div>
+                `).join('');
+            }
+        });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+setInterval(loadSignalQuality, 5000);
+loadSignalQuality();
+</script>
+
+{% endblock %}
