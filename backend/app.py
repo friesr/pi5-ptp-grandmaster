@@ -18,6 +18,7 @@ from backend.api.ptp_profile import ptp_profile_api
 from backend.api.prn_lifetime import prn_lifetime_api
 from backend.api.skyplot_playback import skyplot_playback_api
 from backend.api.service_control import service_control_api
+from backend.api.alert_rules import alert_rules_api
 
 
 
@@ -48,6 +49,7 @@ app.register_blueprint(ptp_profile_api, url_prefix="/api/ptp_profile")
 app.register_blueprint(prn_lifetime_api, url_prefix="/api/prn_lifetime")
 app.register_blueprint(skyplot_playback_api, url_prefix="/api/skyplot_playback")
 app.register_blueprint(service_control_api, url_prefix="/api/services")
+app.register_blueprint(alert_rules_api, url_prefix="/api/alert_rules")
 
 
 
@@ -95,3 +97,8 @@ def skyplot_playback_page():
 @app.route("/services")
 def services_page():
     return render_template("services.html")
+
+
+@app.route("/alert-rules")
+def alert_rules_page():
+    return render_template("alert_rules.html")
