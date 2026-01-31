@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/robot.svg">
+        GNSS Timing Observatory — Autonomous Operations Engine
+    </h2>
+    <p>
+        Automated decision‑making engine that uses ML predictions, rules, thresholds, and Digital
+        Twin forecasts to protect timing stability and optimize system performance.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Autonomy Settings</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Autonomy Level</label>
+            <select id="level">
+                <option value="MONITOR">Monitor Only</option>
+                <option value="ASSIST">Assist Mode</option>
+                <option value="PARTIAL">Partial Autonomy</option>
+                <option value="FULL">Full Autonomy</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Risk Tolerance</label>
+            <select id="risk">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Action Logging</label>
+            <select id="logging">
+                <option value="ALL">Log All Actions</option>
+                <option value="CRITICAL">Critical Only</option>
+                <option value="NONE">No Logging</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="saveSettings()">
+        Save Settings
+    </button>
+</div>
+
+<div class="card">
+    <h2>Current Autonomous Actions</h2>
+    <div id="actions">Loading…</div>
+</div>
+
+<div class="card">
+    <h2>Decision Log</h2>
+    <div id="log">Loading…</div>
+</div>
+
+<div class="card">
+    <h2>Manual Override</h2>
+    <button class="save-button" onclick="overrideAutonomy()">Pause Autonomy</button>
+    <div id="override-status" style="margin-top:10px;"></div>
+</div>
+
+<script>
+function loadAutonomy() {
+    fetch('/api/autonomy/status')
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('actions').innerHTML =
+                d.actions.length === 0
+                    ? "<p>No active autonomous actions.</p>"
+                    : d.actions.map(a => `
+                        <div class="alert-row ${severityClass(a.severity)}">
+                            <div style="font-weight:600;">${a.title}</div>
+                            <div>${a.description}</div>
+                            <div class="alert-meta">${a.time}</div>
+                        </div>
+                    `).join('');
+
+            document.getElementById('log').innerHTML =
+                d.log.length === 0
+                    ? "<p>No decisions logged.</p>"
+                    : d.log.map(l => `
+                        <div class="alert-row alert-minor">
+                            <div style="font-weight:600;">${l.time}</div>
+                            <div>${l.action}</div>
+                            <div class="alert-meta">${l.reason}</div>
+                        </div>
+                    `).join('');
+        });
+}
+
+function saveSettings() {
+    const params = {
+        level: document.getElementById('level').value,
+        risk: document.getElementById('risk').value,
+        logging: document.getElementById('logging').value
+    };
+
+    fetch('/api/autonomy/settings', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('override-status').innerHTML = `
+            <p><strong>${d.status}</strong>: ${d.notes}</p>
+        `;
+    });
+}
+
+function overrideAutonomy() {
+    fetch('/api/autonomy/override', { method: "POST" })
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('override-status').innerHTML = `
+                <p><strong>${d.status}</strong>: ${d.notes}</p>
+            `;
+        });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+setInterval(loadAutonomy, 5000);
+loadAutonomy();
+</script>
+
+{% endblock %}
