@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/alerts.svg">
+        Timing Drift Root‑Cause Engine
+    </h2>
+    <p>
+        Automatically analyzes GNSS, PTP, oscillator, geometry, multipath, interference, and
+        environmental data to identify the most likely sources of timing drift.
+    </p>
+</div>
+
+<!-- Time Range -->
+<div class="card">
+    <h2>Analysis Window</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Start</label>
+            <input id="start" type="datetime-local">
+        </div>
+
+        <div class="flex-1">
+            <label>End</label>
+            <input id="end" type="datetime-local">
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="runDriftAnalysis()">
+        Analyze Drift
+    </button>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Primary Root Cause</h2>
+    <div id="primary-cause">Run analysis to identify drift source.</div>
+</div>
+
+<!-- Ranked Causes -->
+<div class="card">
+    <h2>Ranked Contributing Factors</h2>
+    <div id="ranked-list">No data yet.</div>
+</div>
+
+<!-- Drift Trend -->
+<div class="card">
+    <h2>Drift Trend</h2>
+    <div id="drift-spark"></div>
+</div>
+
+<!-- Evidence -->
+<div class="card">
+    <h2>Evidence</h2>
+    <div id="evidence">No evidence yet.</div>
+</div>
+
+<!-- Recommendations -->
+<div class="card">
+    <h2>Recommended Actions</h2>
+    <div id="recommendations">No recommendations yet.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function runDriftAnalysis() {
+    const params = {
+        start: document.getElementById('start').value,
+        end: document.getElementById('end').value
+    };
+
+    fetch('/api/timing/drift_root_cause', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        // Primary cause
+        document.getElementById('primary-cause').innerHTML = `
+            <p><strong>${d.primary_cause}</strong></p>
+            <p>Confidence: ${d.confidence}%</p>
+            <p>${d.summary}</p>
+        `;
+
+        // Ranked list
+        const ranked = d.ranked || [];
+        const rDiv = document.getElementById('ranked-list');
+
+        if (ranked.length === 0) {
+            rDiv.innerHTML = "<p>No contributing factors detected.</p>";
+        } else {
+            rDiv.innerHTML = ranked.map(f => `
+                <div class="alert-row alert-minor">
+                    <div style="font-weight:600;">${f.label}</div>
+                    <div>Weight: ${f.weight}%</div>
+                    <div class="alert-meta">${f.reason}</div>
+                </div>
+            `).join('');
+        }
+
+        // Drift trend
+        renderSparkline("drift-spark", d.drift_trend || [], "minimal");
+
+        // Evidence
+        const evidence = d.evidence || [];
+        const eDiv = document.getElementById('evidence');
+
+        if (evidence.length === 0) {
+            eDiv.innerHTML = "<p>No evidence available.</p>";
+        } else {
+            eDiv.innerHTML = evidence.map(ev => `
+                <div class="alert-row alert-minor">
+                    <div style="font-weight:600;">${ev.title}</div>
+                    <div>${ev.detail}</div>
+                </div>
+            `).join('');
+        }
+
+        // Recommendations
+        const recs = d.recommendations || [];
+        const recDiv = document.getElementById('recommendations');
+
+        if (recs.length === 0) {
+            recDiv.innerHTML = "<p>No recommendations.</p>";
+        } else {
+            recDiv.innerHTML = recs.map(r => `
+                <div class="alert-row alert-major">
+                    <div style="font-weight:600;">${r.title}</div>
+                    <div>${r.action}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+</script>
+
+{% endblock %}
