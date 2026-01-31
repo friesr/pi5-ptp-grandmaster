@@ -1,38 +1,101 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>System Health</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
+{% extends "base.html" %}
+{% block content %}
 
-<body>
-    <div class="nav">
-        <a href="/">Dashboard</a>
-        <a href="/validation">Validation</a>
-        <a href="/config">Configuration</a>
-        <a href="/satellites">Satellites</a>
-        <a href="/history">History</a>
-        <a href="/gnss-history">GNSS SNR History</a>
-        <a href="/system-health">System Health</a>
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/health.svg">
+        System Health Overview
+    </h2>
+    <p>
+        Real‑time status of CPU, memory, disk usage, service health, and receiver diagnostics.
+        This dashboard provides a quick operational snapshot of the observatory’s hardware and software.
+    </p>
+</div>
+
+<!-- CPU / Memory / Disk -->
+<div style="display:flex; gap:20px;">
+
+    <div class="card" style="flex:1;">
+        <h2>CPU Usage</h2>
+        <div id="cpu"></div>
+        <div id="cpu-spark"></div>
     </div>
 
-    <h1>System Health</h1>
-
-    <div class="card">
-        <h2>System Metrics</h2>
-        <pre id="system-block">Loading...</pre>
+    <div class="card" style="flex:1;">
+        <h2>Memory Usage</h2>
+        <div id="memory"></div>
+        <div id="memory-spark"></div>
     </div>
 
-    <div class="card">
-        <h2>Service Status</h2>
-        <ul id="service-list"></ul>
+    <div class="card" style="flex:1;">
+        <h2>Disk Usage</h2>
+        <div id="disk"></div>
+        <div id="disk-spark"></div>
     </div>
 
-    <div class="card">
-        <h2>Network Status</h2>
-        <ul id="network-list"></ul>
-    </div>
+</div>
 
-    <script src="/static/js/system_health.js"></script>
-</body>
-</html>
+<!-- Services -->
+<div class="card" style="margin-top:20px;">
+    <h2>Service Status</h2>
+    <div id="services"></div>
+</div>
+
+<!-- Receiver Health -->
+<div class="card" style="margin-top:20px;">
+    <h2>Receiver Health</h2>
+    <div id="receiver"></div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadSystemHealth() {
+    fetch('/api/system_health')
+        .then(r => r.json())
+        .then(d => {
+            // CPU
+            document.getElementById('cpu').innerHTML =
+                `<span class="badge ${d.cpu > 85 ? 'badge-bad' : d.cpu > 60 ? 'badge-warn' : 'badge-ok'}">
+                    ${d.cpu}% used
+                 </span>`;
+            renderSparkline("cpu-spark", d.cpu_history || [], "minimal");
+
+            // Memory
+            document.getElementById('memory').innerHTML =
+                `<span class="badge ${d.memory > 85 ? 'badge-bad' : d.memory > 60 ? 'badge-warn' : 'badge-ok'}">
+                    ${d.memory}% used
+                 </span>`;
+            renderSparkline("memory-spark", d.memory_history || [], "minimal");
+
+            // Disk
+            document.getElementById('disk').innerHTML =
+                `<span class="badge ${d.disk > 85 ? 'badge-bad' : d.disk > 60 ? 'badge-warn' : 'badge-ok'}">
+                    ${d.disk}% used
+                 </span>`;
+            renderSparkline("disk-spark", d.disk_history || [], "minimal");
+
+            // Services
+            const svcHtml = d.services.map(s => `
+                <div style="margin-bottom:8px;">
+                    <span class="badge ${s.status === 'running' ? 'badge-ok' : 'badge-bad'}">
+                        ${s.name}: ${s.status}
+                    </span>
+                </div>
+            `).join('');
+            document.getElementById('services').innerHTML = svcHtml;
+
+            // Receiver Health
+            document.getElementById('receiver').innerHTML =
+                `<span class="badge ${d.receiver.status === 'OK' ? 'badge-ok' : 'badge-bad'}">
+                    ${d.receiver.status}
+                 </span>
+                 <div style="margin-top:10px;">${d.receiver.message}</div>`;
+        });
+}
+
+setInterval(loadSystemHealth, 10000);
+loadSystemHealth();
+</script>
+
+{% endblock %}
