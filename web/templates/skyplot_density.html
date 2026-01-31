@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Skyplot Density</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/skyplot-density">Skyplot Density</a>
+    </div>
+
+    <h1>GNSS Skyplot Density Map</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadDensity()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Density Map</h2>
+        <div id="density-chart" style="height:500px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/skyplot_density.js"></script>
+</body>
+</html>
