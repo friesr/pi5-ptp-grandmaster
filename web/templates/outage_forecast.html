@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Outage Forecast</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/outage-forecast">Outage Forecast</a>
+    </div>
+
+    <h1>GNSS Outage Probability Forecast</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadOutage()">Predict</button>
+    </div>
+
+    <div class="card">
+        <h2>Prediction</h2>
+        <pre id="outage-output" style="height:400px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="/static/js/outage_forecast.js"></script>
+</body>
+</html>
