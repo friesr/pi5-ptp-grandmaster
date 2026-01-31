@@ -38,6 +38,7 @@ from backend.api.interference_detector import interference_api
 from backend.api.timing_accuracy import timing_accuracy_api
 from backend.api.anomaly_clustering import anomaly_cluster_api
 from backend.api.receiver_health import receiver_health_api
+from backend.api.environment_fingerprint import environment_api
 
 
 
@@ -88,6 +89,7 @@ app.register_blueprint(interference_api, url_prefix="/api/interference")
 app.register_blueprint(timing_accuracy_api, url_prefix="/api/timing_accuracy")
 app.register_blueprint(anomaly_cluster_api, url_prefix="/api/anomaly_clusters")
 app.register_blueprint(receiver_health_api, url_prefix="/api/receiver_health")
+app.register_blueprint(environment_api, url_prefix="/api/environment")
 
 
 
@@ -216,3 +218,7 @@ def anomaly_clusters_page():
 @app.route("/receiver-health")
 def receiver_health_page():
     return render_template("receiver_health.html")
+
+@app.route("/environment")
+def environment_page():
+    return render_template("environment_fingerprint.html")
