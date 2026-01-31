@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        GNSS Constellation Health Matrix
+    </h2>
+    <p>
+        A grid view of per‑satellite health across all constellations, integrating signal quality,
+        ephemeris integrity, spoofing risk, interference exposure, tracking stability, and
+        measurement consistency.
+    </p>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Constellation Summary</h2>
+    <div id="summary">Loading…</div>
+</div>
+
+<!-- Matrix -->
+<div class="card">
+    <h2>Satellite Health Matrix</h2>
+    <div id="matrix" style="display:grid; grid-template-columns:repeat(8, 1fr); gap:10px;">
+        Loading…
+    </div>
+</div>
+
+<!-- Legend -->
+<div class="card">
+    <h2>Legend</h2>
+    <p><span class="badge badge-ok">OK</span> Healthy</p>
+    <p><span class="badge badge-warn">WARN</span> Degraded</p>
+    <p><span class="badge badge-bad">BAD</span> Unhealthy</p>
+</div>
+
+<!-- Constellation Trends -->
+<div class="card">
+    <h2>Constellation Health Trends</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <h3>GPS</h3>
+            <div id="gps-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Galileo</h3>
+            <div id="gal-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>BeiDou</h3>
+            <div id="bds-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>GLONASS</h3>
+            <div id="glo-spark"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Anomalies -->
+<div class="card">
+    <h2>Detected Constellation Anomalies</h2>
+    <div id="anomalies">No anomalies detected.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadMatrix() {
+    fetch('/api/gnss/constellation_matrix')
+        .then(r => r.json())
+        .then(d => {
+            // Summary
+            document.getElementById('summary').innerHTML = `
+                <p><strong>GPS:</strong> ${d.summary.gps}</p>
+                <p><strong>Galileo:</strong> ${d.summary.galileo}</p>
+                <p><strong>BeiDou:</strong> ${d.summary.beidou}</p>
+                <p><strong>GLONASS:</strong> ${d.summary.glonass}</p>
+                <p><strong>Notes:</strong> ${d.summary.notes}</p>
+            `;
+
+            // Matrix
+            const mDiv = document.getElementById('matrix');
+            mDiv.innerHTML = "";
+
+            d.satellites.forEach(s => {
+                const cls =
+                    s.status === "OK" ? "badge badge-ok" :
+                    s.status === "WARN" ? "badge badge-warn" :
+                                          "badge badge-bad";
+
+                mDiv.innerHTML += `
+                    <div class="card" style="padding:10px; text-align:center;">
+                        <div style="font-weight:600;">${s.prn}</div>
+                        <div>${s.constellation}</div>
+                        <div class="${cls}" style="margin-top:8px;">${s.status}</div>
+                    </div>
+                `;
+            });
+
+            // Trends
+            renderSparkline("gps-spark", d.trends.gps || [], "minimal");
+            renderSparkline("gal-spark", d.trends.galileo || [], "minimal");
+            renderSparkline("bds-spark", d.trends.beidou || [], "minimal");
+            renderSparkline("glo-spark", d.trends.glonass || [], "minimal");
+
+            // Anomalies
+            const anomalies = d.anomalies || [];
+            const aDiv = document.getElementById('anomalies');
+
+            if (anomalies.length === 0) {
+                aDiv.innerHTML = "<p>No anomalies detected.</p>";
+            } else {
+                aDiv.innerHTML = anomalies.map(a => `
+                    <div class="alert-row ${severityClass(a.severity)}">
+                        <div style="font-weight:600;">${a.title}</div>
+                        <div>${a.description}</div>
+                        <div class="alert-meta">${a.time}</div>
+                    </div>
+                `).join('');
+            }
+        });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+setInterval(loadMatrix, 5000);
+loadMatrix();
+</script>
+
+{% endblock %}
