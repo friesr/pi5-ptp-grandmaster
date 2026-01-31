@@ -1,55 +1,112 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Mission Control</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
+{% extends "base.html" %}
+{% block content %}
 
-<body>
+<!-- Mission Control Overview -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        Mission Control Overview
+    </h2>
+    <p>
+        Real‑time operational status of GNSS, PTP, timing confidence, interference, and SLA health.
+        This page provides a consolidated view for monitoring timing stability and diagnosing issues quickly.
+    </p>
+</div>
 
-    <div class="nav">
-        <a href="/">Dashboard</a>
-        <a href="/mission-control">Mission Control</a>
+<!-- GNSS + PTP Row -->
+<div style="display:flex; gap:20px;">
+
+    <!-- GNSS Status -->
+    <div class="card" style="flex:1;">
+        <h2>
+            <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+            GNSS Lock Status
+        </h2>
+        <div id="gnss-lock"></div>
+        <div id="gnss-spark"></div>
     </div>
 
-    <h1>GNSS Timing Mission Control</h1>
-
-    <div class="grid">
-
-        <div class="card wide">
-            <h2>Top-Level Health</h2>
-            <div id="health-summary"></div>
-        </div>
-
-        <div class="card">
-            <h2>Timing Confidence</h2>
-            <div id="confidence-chart" style="height:200px;"></div>
-        </div>
-
-        <div class="card">
-            <h2>Timing Error</h2>
-            <div id="error-chart" style="height:200px;"></div>
-        </div>
-
-        <div class="card">
-            <h2>Interference</h2>
-            <div id="interference-chart" style="height:200px;"></div>
-        </div>
-
-        <div class="card">
-            <h2>GNSS Availability</h2>
-            <div id="availability-chart" style="height:200px;"></div>
-        </div>
-
-        <div class="card wide">
-            <h2>Recent Events</h2>
-            <pre id="event-feed" style="height:300px; overflow-y:auto;"></pre>
-        </div>
-
+    <!-- PTP Status -->
+    <div class="card" style="flex:1;">
+        <h2>
+            <img class="card-icon" src="/static/icons/desktop/ptp.svg">
+            PTP Servo State
+        </h2>
+        <div id="ptp-servo"></div>
+        <div id="ptp-spark"></div>
     </div>
 
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="/static/js/mission_control.js"></script>
+</div>
 
-</body>
-</html>
+<!-- Confidence + Interference Row -->
+<div style="display:flex; gap:20px; margin-top:20px;">
+
+    <!-- Timing Confidence -->
+    <div class="card" style="flex:1;">
+        <h2>
+            <img class="card-icon" src="/static/icons/desktop/health.svg">
+            Timing Confidence
+        </h2>
+        <div id="confidence"></div>
+        <div id="confidence-spark"></div>
+    </div>
+
+    <!-- Interference -->
+    <div class="card" style="flex:1;">
+        <h2>
+            <img class="card-icon" src="/static/icons/desktop/alerts.svg">
+            Interference Level
+        </h2>
+        <div id="interference"></div>
+        <div id="interference-heat"></div>
+    </div>
+
+</div>
+
+<!-- SLA -->
+<div class="card" style="margin-top:20px;">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/alerts.svg">
+        SLA Violations
+    </h2>
+    <div id="sla"></div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card" style="margin-top:20px;">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/config.svg">
+        Quick Actions
+    </h2>
+    <button class="save-button" onclick="callAction('/api/services/restart_gnss')">Restart GNSS</button>
+    <button class="save-button" onclick="callAction('/api/services/restart_ptp')">Restart PTP</button>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadMission() {
+    fetch('/api/mobile_snapshot')
+        .then(r => r.json())
+        .then(d => {
+
+            // GNSS
+            const locked = d.gnss.locked;
+            document.getElementById('gnss-lock').innerHTML =
+                `<span class="badge ${locked > 0 ? 'badge-ok' : 'badge-bad'}">
+                    ${locked > 0 ? 'LOCKED' : 'NO LOCK'} (${locked})
+                 </span>`;
+            renderSparkline("gnss-spark", d.gnss.history || [], d.prefs.sparkline);
+
+            // PTP
+            const servo = d.ptp.servo_state || 'UNKNOWN';
+            document.getElementById('ptp-servo').innerHTML =
+                `<span class="badge ${servo === 'LOCKED' ? 'badge-ok' : 'badge-warn'}">
+                    ${servo}
+                 </span>`;
+            renderSparkline("ptp-spark", d.ptp.offset_history || [], d.prefs.sparkline);
+
+            // Confidence
+            document.getElementById('confidence').innerHTML =
+                `<span class="badge badge-info">Score: ${d.confidence.score}</span>`;
+            render
