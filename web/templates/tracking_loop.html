@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        GNSS Tracking Loop Deep‑Dive
+    </h2>
+    <p>
+        Visualize discriminator curves, correlator outputs, loop filter states, and tracking loop
+        stability for each satellite and signal.
+    </p>
+</div>
+
+<!-- Satellite Selector -->
+<div class="card">
+    <h2>Select Satellite</h2>
+    <select id="sat-select" onchange="loadLoopData()">
+        <option value="">Loading…</option>
+    </select>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Loop Summary</h2>
+    <div id="summary">Loading…</div>
+</div>
+
+<!-- Discriminator Curve -->
+<div class="card">
+    <h2>Discriminator Curve</h2>
+    <div id="disc-spark"></div>
+</div>
+
+<!-- Correlator Outputs -->
+<div class="card">
+    <h2>Correlator Outputs (Early / Prompt / Late)</h2>
+    <div id="corr-spark"></div>
+</div>
+
+<!-- Loop Filter State -->
+<div class="card">
+    <h2>Loop Filter State</h2>
+    <div id="filter-spark"></div>
+</div>
+
+<!-- Tracking Jitter -->
+<div class="card">
+    <h2>Tracking Jitter</h2>
+    <div id="jitter-spark"></div>
+</div>
+
+<!-- Events -->
+<div class="card">
+    <h2>Tracking Loop Events</h2>
+    <div id="events">No events yet.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadSatelliteList() {
+    fetch('/api/gnss/satellite_list')
+        .then(r => r.json())
+        .then(d => {
+            const sel = document.getElementById('sat-select');
+            sel.innerHTML = "";
+
+            d.satellites.forEach(s => {
+                sel.innerHTML += `<option value="${s.prn}">${s.prn} (${s.constellation})</option>`;
+            });
+
+            loadLoopData();
+        });
+}
+
+function loadLoopData() {
+    const prn = document.getElementById('sat-select').value;
+    if (!prn) return;
+
+    fetch(`/api/gnss/tracking_loop?prn=${prn}`)
+        .then(r => r.json())
+        .then(d => {
+            // Summary
+            document.getElementById('summary').innerHTML = `
+                <p><strong>Loop Type:</strong> ${d.loop_type}</p>
+                <p><strong>Bandwidth:</strong> ${d.bandwidth} Hz</p>
+                <p><strong>Damping:</strong> ${d.damping}</p>
+                <p><strong>Lock Status:</strong> ${d.lock ? "Locked" : "Unlocked"}</p>
+                <p><strong>Notes:</strong> ${d.notes}</p>
+            `;
+
+            // Plots
+            renderSparkline("disc-spark", d.discriminator || [], "minimal");
+            renderSparkline("corr-spark", d.correlator || [], "minimal");
+            renderSparkline("filter-spark", d.filter_state || [], "minimal");
+            renderSparkline("jitter-spark", d.jitter || [], "minimal");
+
+            // Events
+            const events = d.events || [];
+            const eDiv = document.getElementById('events');
+
+            if (events.length === 0) {
+                eDiv.innerHTML = "<p>No tracking loop events detected.</p>";
+            } else {
+                eDiv.innerHTML = events.map(ev => `
+                    <div class="alert-row ${severityClass(ev.severity)}">
+                        <div style="font-weight:600;">${ev.title}</div>
+                        <div>${ev.description}</div>
+                        <div class="alert-meta">${ev.time}</div>
+                    </div>
+                `).join('');
+            }
+        });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+loadSatelliteList();
+setInterval(loadLoopData, 5000);
+</script>
+
+{% endblock %}
