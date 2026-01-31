@@ -392,6 +392,10 @@ def constellation_forecast_page():
 def outage_forecast_page():
     return render_template("outage_forecast.html")
 
+@app.route("/sla-forecast")
+def sla_forecast_page():
+    return render_template("sla_forecast.html")
+
 
 # -------------------------------------------------------------------
 # Entry point
