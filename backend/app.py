@@ -71,3 +71,7 @@ def gnss_history_page():
 def system_health_page():
     return render_template("system_health.html")
 
+@app.route("/ptp-profile")
+def ptp_profile_page():
+    return render_template("ptp_profile.html")
+
