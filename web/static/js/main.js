@@ -107,3 +107,6 @@ function updateDrift() {
 
 setInterval(updateDrift, 30000);
 updateDrift();
+
+document.getElementById("nas-block").innerText =
+    JSON.stringify(data.storage.nas_health, null, 2);
