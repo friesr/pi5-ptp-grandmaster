@@ -1,269 +1,77 @@
-<!DOCTYPE html>
-<html>
-    
-<script>
-if (window.matchMedia("(max-width: 768px)").matches) {
-    window.location.href = "/mobile";
-}
-</script>
-    
-<head>
-    <title>GNSS Timing Observatory</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
-        }
-        h1 {
-            margin-bottom: 10px;
-        }
-        h2 {
-            margin-top: 40px;
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 5px;
-        }
-        .section {
-            margin-top: 20px;
-        }
-        .link-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 12px;
-            margin-top: 10px;
-        }
-        .link-card {
-            background: #f5f5f5;
-            padding: 14px;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-        }
-        .link-card a {
-            font-weight: bold;
-            text-decoration: none;
-            color: #0044aa;
-        }
-        .link-card p {
-            margin: 6px 0 0 0;
-            font-size: 0.9em;
-            color: #444;
-        }
-    </style>
-</head>
+{% extends "base.html" %}
+{% block content %}
 
-<body>
-
-<h1>GNSS Timing Observatory</h1>
-<p>Welcome to your unified control center. Choose a module to begin.</p>
-
-<!-- ========================================================= -->
-<!-- CORE SYSTEM -->
-<!-- ========================================================= -->
-<h2>Core System</h2>
-<div class="link-grid">
-
-    <div class="link-card">
-        <a href="/system-health">System Health</a>
-        <p>Live CPU, memory, disk, service status.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/config">Configuration</a>
-        <p>System settings, thresholds, and parameters.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/services">Service Control</a>
-        <p>Start/stop GNSS/PTP services.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/backup">Backup & Restore</a>
-        <p>Export/import system state.</p>
-    </div>
-
+<!-- Welcome Card -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        Welcome to the GNSS Timing Observatory
+    </h2>
+    <p>
+        This is your unified desktop dashboard. Use the navigation on the left to explore GNSS analytics,
+        PTP timing, Digital Twin tools, system health, alerts, and configuration.
+    </p>
 </div>
 
-<!-- ========================================================= -->
-<!-- GNSS ANALYTICS -->
-<!-- ========================================================= -->
-<h2>GNSS Analytics</h2>
-<div class="link-grid">
-
-    <div class="link-card">
-        <a href="/gnss-history">GNSS History</a>
-        <p>Daily GNSS logs and playback.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/skyplot-playback">Skyplot Playback</a>
-        <p>Satellite sky positions over time.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/dop">DOP Metrics</a>
-        <p>GDOP/PDOP/HDOP/VDOP analysis.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/snr-waterfall">SNR Waterfall</a>
-        <p>Signal strength over time.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/multipath-heatmap">Multipath Heatmap</a>
-        <p>Spatial multipath visualization.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/constellation-performance">Constellation Performance</a>
-        <p>GPS/Galileo/GLONASS/BeiDou metrics.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/prn-health">PRN Health</a>
-        <p>Per‑satellite health and lifetime.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/geometry-timeline">Geometry Timeline</a>
-        <p>Satellite geometry over time.</p>
-    </div>
-
+<!-- GNSS Overview -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        GNSS Overview
+    </h2>
+    <p>
+        Access GNSS history, outages, multipath analysis, constellation performance, skyplot playback,
+        and satellite health tools. These pages provide deep visibility into signal quality, geometry,
+        and constellation behavior.
+    </p>
 </div>
 
-<!-- ========================================================= -->
-<!-- PTP & TIMING -->
-<!-- ========================================================= -->
-<h2>PTP & Timing</h2>
-<div class="link-grid">
-
-    <div class="link-card">
-        <a href="/ptp-profile">PTP Profile</a>
-        <p>PTP configuration and status.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/ptp-events">PTP Events</a>
-        <p>Servo events, steps, and anomalies.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/servo-history">Servo History</a>
-        <p>PTP servo loop behavior.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/timing-accuracy">Timing Accuracy</a>
-        <p>Offset, jitter, and stability metrics.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/allan">Allan Deviation</a>
-        <p>Frequency stability analysis.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/drift">Drift Analysis</a>
-        <p>Oscillator drift and temperature effects.</p>
-    </div>
-
+<!-- PTP Overview -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/ptp.svg">
+        PTP Timing Overview
+    </h2>
+    <p>
+        Monitor PTP offset, jitter, servo state, timing accuracy, event logs, and stability predictors.
+        These tools help diagnose timing drift, servo anomalies, and synchronization issues.
+    </p>
 </div>
 
-<!-- ========================================================= -->
-<!-- HEALTH & DIAGNOSTICS -->
-<!-- ========================================================= -->
-<h2>Health & Diagnostics</h2>
-<div class="link-grid">
-
-    <div class="link-card">
-        <a href="/receiver-health">Receiver Health</a>
-        <p>Tracking, SNR, lock stability.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/environment">Environment Fingerprint</a>
-        <p>RF environment and interference.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/interference">Interference Detector</a>
-        <p>Jamming and RF anomalies.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/anomaly-clusters">Anomaly Clusters</a>
-        <p>ML‑based anomaly grouping.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/anomaly-explanations">Anomaly Explanations</a>
-        <p>Root‑cause explanations.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/environment-change">Environment Change</a>
-        <p>RF environment shifts.</p>
-    </div>
-
+<!-- System Health -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/health.svg">
+        System Health
+    </h2>
+    <p>
+        Review CPU, memory, disk usage, service status, and receiver health. This section provides
+        operational insight into the hardware and software components powering the observatory.
+    </p>
 </div>
 
-<!-- ========================================================= -->
-<!-- DIGITAL TWIN & SIMULATION SUITE -->
-<!-- ========================================================= -->
-<h2>Digital Twin & Simulation Suite</h2>
-<div class="link-grid">
+<!-- Alerts -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/alerts.svg">
+        Alerts & Notifications
+    </h2>
+    <p>
+        View SLA violations, interference detections, GNSS outages, PTP servo events, and anomaly
+        classifications. The alerts system helps you quickly identify and respond to timing risks.
+    </p>
+</div>
 
-    <div class="link-card">
-        <a href="/digital-twin">Digital Twin</a>
-        <p>Run a single simulation.</p>
-    </div>
+<!-- Configuration -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/config.svg">
+        Configuration & Tools
+    </h2>
+    <p>
+        Manage system configuration, export data, adjust alert rules, and access advanced Digital Twin
+        simulation tools. This section provides full control over observatory behavior and analytics.
+    </p>
+</div>
 
-    <div class="link-card">
-        <a href="/scenario-designer">Scenario Designer</a>
-        <p>Build simulation scenarios visually.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/scenario-library">Scenario Library</a>
-        <p>Curated real‑world scenarios.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/digital-twin-batch">Batch Runner</a>
-        <p>Run all scenarios automatically.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/digital-twin-report">Report Generator</a>
-        <p>Structured simulation reports.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/sensitivity">Sensitivity Analyzer</a>
-        <p>Parameter sweeps and tuning.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/digital-twin-optimize">Optimization Engine</a>
-        <p>Automatic best‑parameter search.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/digital-twin-evolve">Scenario Evolution</a>
-        <p>Genetic algorithm worst‑case discovery.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/digital-twin-monte-carlo">Monte Carlo Engine</a>
-        <p>Randomized scenario sampling.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/digital-twin-risk-curves">Risk Curves</a>
-        <p>PDF/CDF/percentile analysis.</p>
-    </div>
-
-    <div class="link-card">
-        <a href="/digital-twin-replay">Replay Studio</a>
-        <p>Interactive timeline playback
+{% endblock %}
