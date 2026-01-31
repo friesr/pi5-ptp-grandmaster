@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clock Stability Analyzer</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/clock-stability">Clock Stability</a>
+    </div>
+
+    <h1>GNSS Clock Stability Analyzer</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadClock()">Analyze</button>
+    </div>
+
+    <div class="card">
+        <h2>Results</h2>
+        <pre id="clock-output" style="height:400px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="/static/js/clock_stability.js"></script>
+</body>
+</html>
