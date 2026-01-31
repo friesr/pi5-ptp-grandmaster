@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Replay Sync Studio</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/digital-twin">Digital Twin</a>
+    <a href="/digital-twin-replay-sync">Replay Sync</a>
+</div>
+
+<h1>GNSS Timing Replay Sync Studio</h1>
+
+<div class="card">
+    <h2>Select Scenario</h2>
+    <select id="scenario-select"></select>
+    <button onclick="loadReplayAndTimeline()">Load</button>
+</div>
+
+<div class="card">
+    <h2>Replay</h2>
+    <div id="replay-chart" style="height:300px;"></div>
+</div>
+
+<div class="card">
+    <h2>Event Timeline</h2>
+    <div id="timeline-chart" style="height:300px;"></div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="/static/js/replay_sync_bus.js"></script>
+<script src="/static/js/digital_twin_replay.js"></script>
+<script src="/static/js/digital_twin_event_timeline.js"></script>
+<script src="/static/js/digital_twin_replay_sync.js"></script>
+
+</body>
+</html>
