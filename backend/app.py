@@ -344,6 +344,10 @@ def constellation_performance_page():
 def multipath_3d_page():
     return render_template("multipath_3d.html")
 
+@app.route("/antenna-siting")
+def antenna_siting_page():
+    return render_template("antenna_siting.html")
+
 
 # -------------------------------------------------------------------
 # Entry point
