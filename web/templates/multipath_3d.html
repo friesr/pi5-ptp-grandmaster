@@ -1,12 +1,130 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>3D Multipath</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <script src="/static/js/multipath_3d.js" defer></script>
-</head>
-<body>
-<h1>3D Multipath Visualization</h1>
-<div id="multipath_3d_container"></div>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        Multipath 3D Viewer
+    </h2>
+    <p>
+        Visualize inferred multipath reflections using satellite geometry, SNR patterns, and
+        elevation/azimuth-dependent signal behavior. This tool provides a 3D spatial model of
+        potential reflection sources around the antenna.
+    </p>
+</div>
+
+<!-- 3D Canvas -->
+<div class="card">
+    <h2>3D Multipath Model</h2>
+    <div id="mp-container" style="width:100%; height:600px; background:var(--bg-card); border-radius:var(--radius);">
+        <canvas id="mp-canvas" style="width:100%; height:100%;"></canvas>
+    </div>
+</div>
+
+<!-- Controls -->
+<div class="card">
+    <h2>Controls</h2>
+
+    <div class="flex-row">
+        <button class="save-button" onclick="resetView()">Reset View</button>
+        <button class="save-button" onclick="toggleGround()">Toggle Ground Plane</button>
+        <button class="save-button" onclick="toggleRays()">Toggle Reflection Rays</button>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+let scene, camera, renderer;
+let groundPlane, raysGroup;
+
+function init3D() {
+    const canvas = document.getElementById("mp-canvas");
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(getComputedStyle(document.body).backgroundColor);
+
+    camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 2000);
+    camera.position.set(0, 200, 400);
+
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+
+    // Lighting
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(200, 300, 200);
+    scene.add(light);
+
+    // Ground plane
+    const planeGeo = new THREE.PlaneGeometry(600, 600);
+    const planeMat = new THREE.MeshPhongMaterial({ color: 0x888888, side: THREE.DoubleSide });
+    groundPlane = new THREE.Mesh(planeGeo, planeMat);
+    groundPlane.rotation.x = -Math.PI / 2;
+    scene.add(groundPlane);
+
+    // Group for reflection rays
+    raysGroup = new THREE.Group();
+    scene.add(raysGroup);
+
+    animate();
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
+
+function resetView() {
+    camera.position.set(0, 200, 400);
+}
+
+function toggleGround() {
+    groundPlane.visible = !groundPlane.visible;
+}
+
+function toggleRays() {
+    raysGroup.visible = !raysGroup.visible;
+}
+
+function loadMultipath() {
+    fetch('/api/gnss/multipath')
+        .then(r => r.json())
+        .then(d => renderMultipath(d.reflections || []));
+}
+
+function renderMultipath(reflections) {
+    raysGroup.clear();
+
+    reflections.forEach(ref => {
+        const material = new THREE.LineBasicMaterial({
+            color: ref.strength > 0.7 ? 0xff0000 :
+                   ref.strength > 0.4 ? 0xffa500 :
+                                        0x00aaff,
+            linewidth: 2
+        });
+
+        const points = [];
+        points.push(new THREE.Vector3(0, 0, 0)); // antenna
+        points.push(new THREE.Vector3(ref.x, ref.y, ref.z)); // reflection point
+
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const line = new THREE.Line(geometry, material);
+
+        raysGroup.add(line);
+    });
+}
+
+window.addEventListener('resize', () => {
+    const canvas = document.getElementById("mp-canvas");
+    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+});
+
+init3D();
+loadMultipath();
+setInterval(loadMultipath, 5000);
+</script>
+
+{% endblock %}
