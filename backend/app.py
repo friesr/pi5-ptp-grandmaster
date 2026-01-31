@@ -384,6 +384,10 @@ def clock_stability_page():
 def satellite_aging_page():
     return render_template("satellite_aging.html")
 
+@app.route("/constellation-forecast")
+def constellation_forecast_page():
+    return render_template("constellation_forecast.html")
+
 
 # -------------------------------------------------------------------
 # Entry point
