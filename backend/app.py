@@ -37,6 +37,7 @@ from backend.api.constellation_drift import constellation_drift_api
 from backend.api.interference_detector import interference_api
 from backend.api.timing_accuracy import timing_accuracy_api
 from backend.api.anomaly_clustering import anomaly_cluster_api
+from backend.api.receiver_health import receiver_health_api
 
 
 
@@ -86,6 +87,7 @@ app.register_blueprint(constellation_drift_api, url_prefix="/api/constellation_d
 app.register_blueprint(interference_api, url_prefix="/api/interference")
 app.register_blueprint(timing_accuracy_api, url_prefix="/api/timing_accuracy")
 app.register_blueprint(anomaly_cluster_api, url_prefix="/api/anomaly_clusters")
+app.register_blueprint(receiver_health_api, url_prefix="/api/receiver_health")
 
 
 
@@ -210,3 +212,7 @@ def timing_accuracy_page():
 @app.route("/anomaly-clusters")
 def anomaly_clusters_page():
     return render_template("anomaly_clusters.html")
+
+@app.route("/receiver-health")
+def receiver_health_page():
+    return render_template("receiver_health.html")
