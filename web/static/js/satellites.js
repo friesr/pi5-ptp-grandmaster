@@ -91,8 +91,32 @@ function updateSatellites() {
             renderSkyplot(sats);
             renderSNRChart(sats);
             renderConstellationChart(sats);
+
+            fetch("/api/multipath/scores")
+                .then(r => r.json())
+                .then(scores => renderMultipathChart(scores));
+
         });
 }
 
 setInterval(updateSatellites, 10000);
 updateSatellites();
+
+
+function renderMultipathChart(scores) {
+    Plotly.newPlot("multipath-chart", [{
+        x: scores.map(s => "PRN " + s.prn),
+        y: scores.map(s => s.multipath_score),
+        type: "bar",
+        marker: {
+            color: scores.map(s => {
+                if (s.multipath_score > 0.7) return "#e74c3c";   // severe
+                if (s.multipath_score > 0.4) return "#f1c40f";   // moderate
+                return "#2ecc71";                                // clean
+            })
+        }
+    }], {
+        margin: { t: 20 },
+        yaxis: { title: "Multipath Score (0 = clean, 1 = severe)" }
+    });
+}
