@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        GNSS Ephemeris Integrity Monitor
+    </h2>
+    <p>
+        Monitors ephemeris age, consistency, orbital divergence, and clock correction validity.
+        Detects stale, inconsistent, or anomalous ephemeris across all constellations.
+    </p>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Integrity Summary</h2>
+    <div id="summary">Loading…</div>
+</div>
+
+<!-- Satellite Table -->
+<div class="card">
+    <h2>Per‑Satellite Ephemeris Status</h2>
+    <table id="eph-table" style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="text-align:left; border-bottom:1px solid var(--border);">
+                <th>PRN</th>
+                <th>Constellation</th>
+                <th>Ephemeris Age (min)</th>
+                <th>Clock Valid</th>
+                <th>Orbit Consistency</th>
+                <th>Divergence (m)</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="eph-body"></tbody>
+    </table>
+</div>
+
+<!-- Divergence Trend -->
+<div class="card">
+    <h2>Orbit Divergence Trend</h2>
+    <div id="div-spark"></div>
+</div>
+
+<!-- Anomalies -->
+<div class="card">
+    <h2>Detected Anomalies</h2>
+    <div id="anomalies">No anomalies detected.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadEphemeris() {
+    fetch('/api/gnss/ephemeris_integrity')
+        .then(r => r.json())
+        .then(d => {
+            // Summary
+            document.getElementById('summary').innerHTML = `
+                <p><strong>Overall Integrity:</strong> ${d.integrity_label}</p>
+                <p><strong>Average Age:</strong> ${d.avg_age} min</p>
+                <p><strong>Max Divergence:</strong> ${d.max_divergence} m</p>
+                <p><strong>Notes:</strong> ${d.notes}</p>
+            `;
+
+            // Table
+            const sats = d.satellites || [];
+            const tbody = document.getElementById('eph-body');
+            tbody.innerHTML = "";
+
+            sats.forEach(s => {
+                const statusBadge =
+                    s.status === "OK" ? `<span class="badge badge-ok">OK</span>` :
+                    s.status === "WARN" ? `<span class="badge badge-warn">WARN</span>` :
+                    `<span class="badge badge-bad">BAD</span>`;
+
+                tbody.innerHTML += `
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td>${s.prn}</td>
+                        <td>${s.constellation}</td>
+                        <td>${s.age}</td>
+                        <td>${s.clock_valid ? "Yes" : "No"}</td>
+                        <td>${s.consistency}</td>
+                        <td>${s.divergence}</td>
+                        <td>${statusBadge}</td>
+                    </tr>
+                `;
+            });
+
+            // Divergence trend
+            renderSparkline("div-spark", d.divergence_trend || [], "minimal");
+
+            // Anomalies
+            const anomalies = d.anomalies || [];
+            const aDiv = document.getElementById('anomalies');
+
+            if (anomalies.length === 0) {
+                aDiv.innerHTML = "<p>No anomalies detected.</p>";
+            } else {
+                aDiv.innerHTML = anomalies.map(a => `
+                    <div class="alert-row ${severityClass(a.severity)}">
+                        <div style="font-weight:600;">${a.title}</div>
+                        <div>${a.description}</div>
+                        <div class="alert-meta">${a.time}</div>
+                    </div>
+                `).join('');
+            }
+        });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+setInterval(loadEphemeris, 5000);
+loadEphemeris();
+</script>
+
+{% endblock %}
