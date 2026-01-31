@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monte Carlo Simulation</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/digital-twin">Digital Twin</a>
+    <a href="/digital-twin-monte-carlo">Monte Carlo</a>
+</div>
+
+<h1>GNSS Timing Monte Carlo Simulation</h1>
+
+<div class="card">
+    <h2>Select Monte Carlo Config</h2>
+    <select id="mc-select"></select>
+    <button onclick="runMC()">Run Simulation</button>
+</div>
+
+<div class="card">
+    <h2>RMS Error Distribution</h2>
+    <div id="mc-chart" style="height:400px;"></div>
+</div>
+
+<div class="card">
+    <h2>Raw Output</h2>
+    <pre id="mc-output" style="height:400px; overflow-y:auto;"></pre>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="/static/js/digital_twin_monte_carlo.js"></script>
+
+</body>
+</html>
