@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        GNSS Timing Reliability Predictor
+    </h2>
+    <p>
+        Predict future timing reliability based on GNSS visibility, geometry, multipath, interference,
+        spoofing risk, servo behavior, oscillator drift, and Digital Twin simulations.
+    </p>
+</div>
+
+<!-- Controls -->
+<div class="card">
+    <h2>Forecast Parameters</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Forecast Horizon (minutes)</label>
+            <input id="horizon" type="number" min="5" max="240" value="60">
+        </div>
+
+        <div class="flex-1">
+            <label>Time Step (seconds)</label>
+            <input id="step" type="number" min="1" max="60" value="10">
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="runForecast()">
+        Run Reliability Forecast
+    </button>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Reliability Summary</h2>
+    <div id="summary">Run forecast to generate reliability summary.</div>
+</div>
+
+<!-- Reliability Score -->
+<div class="card">
+    <h2>Predicted Reliability Score</h2>
+    <div id="score" style="font-size:48px; font-weight:700;">--</div>
+    <div id="score-badge" class="badge badge-info">Waiting…</div>
+</div>
+
+<!-- Trend -->
+<div class="card">
+    <h2>Reliability Trend</h2>
+    <div id="trend-spark"></div>
+</div>
+
+<!-- Component Forecasts -->
+<div class="card">
+    <h2>Component Forecasts</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <h3>GNSS Availability</h3>
+            <div id="gnss-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Geometry (DOP)</h3>
+            <div id="dop-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Multipath Risk</h3>
+            <div id="mp-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Interference Risk</h3>
+            <div id="int-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Spoofing Risk</h3>
+            <div id="spoof-spark"></div>
+        </div>
+    </div>
+
+    <div class="flex-row" style="margin-top:20px;">
+        <div class="flex-1">
+            <h3>Servo Stability</h3>
+            <div id="servo-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Oscillator Drift</h3>
+            <div id="osc-spark"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Digital Twin Error Forecast</h3>
+            <div id="dt-spark"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Risk Windows -->
+<div class="card">
+    <h2>Predicted Risk Windows</h2>
+    <div id="risks">No risk windows yet.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function runForecast() {
+    const params = {
+        horizon: parseInt(document.getElementById('horizon').value),
+        step: parseInt(document.getElementById('step').value)
+    };
+
+    fetch('/api/timing/reliability', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        // Summary
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Overall Outlook:</strong> ${d.outlook}</p>
+            <p><strong>Confidence:</strong> ${d.confidence}%</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        // Score
+        document.getElementById('score').innerText = d.score;
+
+        const badge = document.getElementById('score-badge');
+        badge.innerText = d.label;
+
+        badge.className =
+            d.score >= 90 ? "badge badge-ok" :
+            d.score >= 70 ? "badge badge-warn" :
+                            "badge badge-bad";
+
+        // Trends
+        renderSparkline("trend-spark", d.trend || [], "minimal");
+
+        renderSparkline("gnss-spark", d.gnss || [], "minimal");
+        renderSparkline("dop-spark", d.dop || [], "minimal");
+        renderSparkline("mp-spark", d.multipath || [], "minimal");
+        renderSparkline("int-spark", d.interference || [], "minimal");
+        renderSparkline("spoof-spark", d.spoofing || [], "minimal");
+        renderSparkline("servo-spark", d.servo || [], "minimal");
+        renderSparkline("osc-spark", d.oscillator || [], "minimal");
+        renderSparkline("dt-spark", d.digital_twin || [], "minimal");
+
+        // Risk windows
+        const risks = d.risk_windows || [];
+        const rDiv = document.getElementById('risks');
+
+        if (risks.length === 0) {
+            rDiv.innerHTML = "<p>No predicted risk windows.</p>";
+        } else {
+            rDiv.innerHTML = risks.map(r => `
+                <div class="alert-row ${severityClass(r.severity)}">
+                    <div style="font-weight:600;">${r.label}</div>
+                    <div>${r.start} → ${r.end}</div>
+                    <div class="alert-meta">Reason: ${r.reason}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+</script>
+
+{% endblock %}
