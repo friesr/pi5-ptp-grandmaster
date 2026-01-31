@@ -1,0 +1,9 @@
+{
+  "scenario_name": "base_scenario.json",
+  "sweep": {
+    "kp": [0.5, 0.8, 1.0, 1.2],
+    "ki": [0.01, 0.02, 0.05],
+    "interference_severity": [0.5, 1.0, 2.0],
+    "outage_duration": [0, 300, 600, 1200]
+  }
+}
