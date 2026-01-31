@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Scenario Library Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        Digital Twin — Scenario Library
+    </h2>
+    <p>
+        Browse, preview, load, rename, and delete saved scenarios. Scenarios can be used with Replay,
+        Multi‑Replay, Monte Carlo, and other Digital Twin tools.
+    </p>
+</div>
+
+<!-- Scenario List -->
+<div class="card">
+    <h2>Saved Scenarios</h2>
+    <div id="scenario-list">Loading…</div>
+</div>
+
+<!-- Scenario Preview -->
+<div class="card">
+    <h2>Scenario Preview</h2>
+    <div id="preview">Select a scenario to preview it.</div>
+</div>
+
+<!-- Actions -->
+<div class="card">
+    <h2>Actions</h2>
+
+    <div style="display:flex; gap:20px; align-items:center;">
+        <button class="save-button" onclick="loadScenario()">Load Scenario</button>
+        <button class="save-button" onclick="renameScenario()">Rename</button>
+        <button class="save-button" onclick="deleteScenario()">Delete</button>
+    </div>
+
+    <div style="margin-top:20px;">
+        <label>New Name</label><br>
+        <input id="new_name" type="text" placeholder="Enter new scenario name">
+    </div>
+</div>
+
+<script>
+let selectedScenario = null;
+let scenarios = [];
+
+function loadScenarioList() {
+    fetch('/api/digital_twin/scenario/list')
+        .then(r => r.json())
+        .then(list => {
+            scenarios = list;
+
+            if (!list || list.length === 0) {
+                document.getElementById('scenario-list').innerHTML =
+                    '<p>No saved scenarios.</p>';
+                return;
+            }
+
+            const html = list.map(s => `
+                <div class="alert-row alert-minor"
+                     style="cursor:pointer;"
+                     onclick="selectScenario('${s.name}')">
+                    <div style="font-weight:600;">${s.name}</div>
+                    <div class="alert-meta">${s.time}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('scenario-list').innerHTML = html;
+        });
+}
+
+function selectScenario(name) {
+    selectedScenario = scenarios.find(s => s.name === name);
+
+    if (!selectedScenario) return;
+
+    const s = selectedScenario.scenario;
+
+    document.getElementById('preview').innerHTML = `
+        <div style="display:flex; gap:20px;">
+
+            <div style="flex:1;">
+                <h3>GNSS</h3>
+                <span class="badge ${s.gnss.locked > 0 ? 'badge-ok' : 'badge-bad'}">
+                    ${s.gnss.locked} locked
+                </span><br>
+                <span class="badge badge-info">${s.gnss.visible} visible</span><br>
+                <span class="badge badge-info">SNR: ${s.gnss.snr}</span>
+            </div>
+
+            <div style="flex:1;">
+                <h3>PTP</h3>
+                <span class="badge ${Math.abs(s.ptp.offset) > 500 ? 'badge-bad' : Math.abs(s.ptp.offset) > 200 ? 'badge-warn' : 'badge-ok'}">
+                    Offset: ${s.ptp.offset} ns
+                </span><br>
+                <span class="badge ${s.ptp.jitter > 200 ? 'badge-bad' : s.ptp.jitter > 100 ? 'badge-warn' : 'badge-ok'}">
+                    Jitter: ${s.ptp.jitter} ns
+                </span><br>
+                <span class="badge badge-info">${s.ptp.servo}</span>
+            </div>
+
+            <div style="flex:1;">
+                <h3>Interference</h3>
+                <span class="badge ${s.interference.level === 'LOW' ? 'badge-ok' : 'badge-bad'}">
+                    Level: ${s.interference.level}
+                </span><br>
+                <span class="badge badge-info">Severity: ${s.interference.severity}%</span>
+            </div>
+
+        </div>
+    `;
+}
+
+function loadScenario() {
+    if (!selectedScenario) {
+        alert("Select a scenario first");
+        return;
+    }
+
+    fetch('/api/digital_twin/scenario/load', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ name: selectedScenario.name })
+    }).then(() => alert("Scenario loaded"));
+}
+
+function renameScenario() {
+    if (!selectedScenario) {
+        alert("Select a scenario first");
+        return;
+    }
+
+    const newName = document.getElementById('new_name').value;
+    if (!newName) {
+        alert("Enter a new name");
+        return;
+    }
+
+    fetch('/api/digital_twin/scenario/rename', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ old_name: selectedScenario.name, new_name: newName })
+    }).then(() => {
+        alert("Scenario renamed");
+        loadScenarioList();
+    });
+}
+
+function deleteScenario() {
+    if (!selectedScenario) {
+        alert("Select a scenario first");
+        return;
+    }
+
+    fetch('/api/digital_twin/scenario/delete', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ name: selectedScenario.name })
+    }).then(() => {
+        alert("Scenario deleted");
+        selectedScenario = null;
+        loadScenarioList();
+        document.getElementById('preview').innerHTML = "Select a scenario to preview it.";
+    });
+}
+
+loadScenarioList();
+</script>
+
+{% endblock %}
