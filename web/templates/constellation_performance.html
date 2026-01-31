@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Constellation Performance</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/constellation-performance">Constellation Performance</a>
+    </div>
+
+    <h1>GNSS Constellation Performance Analytics</h1>
+
+    <div class="card">
+        <h2>Performance Table</h2>
+        <div id="perf-table"></div>
+    </div>
+
+    <div class="card">
+        <h2>Health Scores</h2>
+        <div id="health-chart" style="height:400px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/constellation_performance.js"></script>
+</body>
+</html>
