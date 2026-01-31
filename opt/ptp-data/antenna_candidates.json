@@ -1,0 +1,6 @@
+[
+  { "name": "roof_center", "x": 0, "y": 0, "z": 5 },
+  { "name": "roof_edge_north", "x": 0, "y": 10, "z": 5 },
+  { "name": "roof_edge_south", "x": 0, "y": -10, "z": 5 },
+  { "name": "mast_top", "x": 2, "y": 2, "z": 8 }
+]
