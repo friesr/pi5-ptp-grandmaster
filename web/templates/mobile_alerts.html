@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mobile Alerts</title>
+    <link rel="stylesheet" href="/static/css/mobile.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+<header>Alerts</header>
+
+<div class="card">
+    <h2>Recent Alerts</h2>
+    <div id="alerts-list">Loading...</div>
+</div>
+
+<div class="bottom-nav">
+    <button class="nav-button" onclick="location.href='/mobile'">Dashboard</button>
+    <button class="nav-button" onclick="location.href='/mobile-mission'">Mission</button>
+    <button class="nav-button" onclick="location.href='/mobile-alerts'">Alerts</button>
+    <button class="nav-button" onclick="location.href='/preferences'">Prefs</button>
+</div>
+
+<script>
+function loadAlerts() {
+    fetch('/api/alerts')
+        .then(r => r.json())
+        .then(d => {
+            if (!d || d.length === 0) {
+                document.getElementById('alerts-list').innerText = 'No recent alerts.';
+                return;
+            }
+            const html = d.slice(0, 50).map(a => {
+                const cls = a.severity === 'CRITICAL' ? 'alert-critical'
+                          : a.severity === 'MAJOR' ? 'alert-major'
+                          : 'alert-minor';
+                return `<div class="alert-row ${cls}">
+                            <div>${a.type} — ${a.message}</div>
+                            <div class="alert-meta">${a.severity} • ${a.time}</div>
+                        </div>`;
+            }).join('');
+            document.getElementById('alerts-list').innerHTML = html;
+        });
+}
+
+setInterval(loadAlerts, 15000);
+loadAlerts();
+</script>
+
+</body>
+</html>
