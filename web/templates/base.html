@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/css/desktop.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="nav-item" onclick="location.href='/'">
+            <img class="nav-icon" src="/static/icons/desktop/dashboard.svg"> Dashboard
+        </div>
+        <div class="nav-item" onclick="location.href='/gnss-history'">
+            <img class="nav-icon" src="/static/icons/desktop/gnss.svg"> GNSS
+        </div>
+        <div class="nav-item" onclick="location.href='/ptp-profile'">
+            <img class="nav-icon" src="/static/icons/desktop/ptp.svg"> PTP
+        </div>
+        <div class="nav-item" onclick="location.href='/system-health'">
+            <img class="nav-icon" src="/static/icons/desktop/health.svg"> System Health
+        </div>
+        <div class="nav-item" onclick="location.href='/alerts'">
+            <img class="nav-icon" src="/static/icons/desktop/alerts.svg"> Alerts
+        </div>
+        <div class="nav-item" onclick="location.href='/config'">
+            <img class="nav-icon" src="/static/icons/desktop/config.svg"> Config
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div style="flex:1; display:flex; flex-direction:column;">
+        <div class="header">{{ title }}</div>
+        <div class="main">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
