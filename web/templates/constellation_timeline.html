@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Constellation Timeline</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/constellation-timeline">Constellation Timeline</a>
+    </div>
+
+    <h1>GNSS Constellation Availability Timeline</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadTimeline()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Timeline</h2>
+        <div id="timeline-chart" style="height:500px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/constellation_timeline.js"></script>
+</body>
+</html>
