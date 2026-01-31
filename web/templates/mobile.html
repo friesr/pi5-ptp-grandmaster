@@ -2,134 +2,93 @@
 <html>
 <head>
     <title>Mobile Dashboard</title>
-
-    <!-- Mobile Styles -->
     <link rel="stylesheet" href="/static/css/mobile.css">
-
-    <!-- Viewport for proper scaling -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
 
-    <!-- Sticky Header -->
-    <header>Mobile Dashboard</header>
+<header>Mobile Dashboard</header>
 
-    <!-- System Health -->
-    <div class="card">
-        <h2><img class="icon" src="/static/icons/health.svg"> System Health</h2>
-        <div id="sys-health">Loading...</div>
+<div class="card">
+    <h2><img class="icon" src="/static/icons/health.svg"> System Health</h2>
+    <div id="sys"></div>
+</div>
+
+<div class="card">
+    <h2><img class="icon" src="/static/icons/gnss.svg"> GNSS Status</h2>
+    <div id="gnss"></div>
+</div>
+
+<div class="card">
+    <h2><img class="icon" src="/static/icons/ptp.svg"> PTP Timing</h2>
+    <div id="ptp"></div>
+</div>
+
+<div class="card">
+    <h2><img class="icon" src="/static/icons/confidence.svg"> Timing Confidence</h2>
+    <div id="confidence"></div>
+</div>
+
+<div class="card">
+    <h2><img class="icon" src="/static/icons/interference.svg"> Interference</h2>
+    <div id="interference"></div>
+</div>
+
+<div class="card">
+    <h2><img class="icon" src="/static/icons/sla.svg"> SLA Violations</h2>
+    <div id="sla"></div>
+</div>
+
+<div class="card">
+    <h2 onclick="toggleTools()" style="cursor:pointer;">More Tools ▼</h2>
+    <div id="more-tools" style="display:none;">
+        <button class="nav-button" onclick="location.href='/preferences'">Preferences</button>
+        <button class="nav-button" onclick="location.href='/mobile-mission'">Mission Control</button>
+        <button class="nav-button" onclick="location.href='/mobile-alerts'">Alerts</button>
     </div>
+</div>
 
-    <!-- GNSS Status -->
-    <div class="card">
-        <h2><img class="icon" src="/static/icons/gnss.svg"> GNSS Status</h2>
-        <div id="gnss-status">Loading...</div>
-    </div>
+<div class="bottom-nav">
+    <button class="nav-button" onclick="location.href='/mobile'">Dashboard</button>
+    <button class="nav-button" onclick="location.href='/mobile-mission'">Mission</button>
+    <button class="nav-button" onclick="location.href='/mobile-alerts'">Alerts</button>
+    <button class="nav-button" onclick="location.href='/preferences'">Prefs</button>
+</div>
 
-    <!-- PTP Timing -->
-    <div class="card">
-        <h2><img class="icon" src="/static/icons/ptp.svg"> PTP Timing</h2>
-        <div id="ptp-timing">Loading...</div>
-    </div>
+<script>
+function fetchSnapshot() {
+    fetch('/api/mobile_snapshot')
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('sys').innerText =
+                `CPU: ${d.system.cpu}% | RAM: ${d.system.memory}% | Disk: ${d.system.disk}%`;
 
-    <!-- Timing Confidence -->
-    <div class="card">
-        <h2><img class="icon" src="/static/icons/confidence.svg"> Timing Confidence</h2>
-        <div id="timing-confidence">Loading...</div>
-    </div>
+            document.getElementById('gnss').innerText =
+                `Locked: ${d.gnss.locked} | Visible: ${d.gnss.visible}`;
 
-    <!-- Interference -->
-    <div class="card">
-        <h2><img class="icon" src="/static/icons/interference.svg"> Interference</h2>
-        <div id="interference">Loading...</div>
-    </div>
+            document.getElementById('ptp').innerText =
+                `Offset: ${d.ptp.offset} ns | Jitter: ${d.ptp.jitter}`;
 
-    <!-- SLA Violations -->
-    <div class="card">
-        <h2><img class="icon" src="/static/icons/sla.svg"> SLA Violations</h2>
-        <div id="sla-violations">Loading...</div>
-    </div>
+            document.getElementById('confidence').innerText =
+                `Score: ${d.confidence.score}`;
 
-    <!-- More Tools (Collapsible) -->
-    <div class="card">
-        <h2 onclick="toggleTools()" style="cursor:pointer;">
-            More Tools ▼
-        </h2>
-        <div id="more-tools" style="display:none; margin-top:10px;">
-            <button class="nav-button" onclick="location.href='/skyplot-playback'">Skyplot Playback</button>
-            <button class="nav-button" onclick="location.href='/multipath-heatmap'">Multipath Heatmap</button>
-            <button class="nav-button" onclick="location.href='/prn-health'">PRN Health</button>
-            <button class="nav-button" onclick="location.href='/drift'">Drift Analysis</button>
-            <button class="nav-button" onclick="location.href='/constellation-timeline'">Constellation Timeline</button>
-            <button class="nav-button" onclick="location.href='/digital-twin-replay'">Replay Studio</button>
-        </div>
-    </div>
+            document.getElementById('interference').innerText =
+                `Level: ${d.interference.level}`;
 
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-        <button class="nav-button" onclick="location.href='/'">Home</button>
-        <button class="nav-button" onclick="location.href='/gnss-history'">GNSS</button>
-        <button class="nav-button" onclick="location.href='/ptp-profile'">PTP</button>
-        <button class="nav-button" onclick="location.href='/digital-twin'">Twin</button>
-        <button class="nav-button" onclick="location.href='/config'">Config</button>
-    </div>
+            document.getElementById('sla').innerText =
+                `Today: ${d.sla.count}`;
+        });
+}
 
-    <!-- Auto-refresh script -->
-    <script>
-        function fetchData() {
-            fetch('/api/system_health')
-                .then(r => r.json())
-                .then(d => {
-                    document.getElementById('sys-health').innerText =
-                        `CPU: ${d.cpu}% | RAM: ${d.memory}% | Disk: ${d.disk}%`;
-                });
+function toggleTools() {
+    const t = document.getElementById('more-tools');
+    t.style.display = t.style.display === "none" ? "block" : "none";
+}
 
-            fetch('/api/gnss_history')
-                .then(r => r.json())
-                .then(d => {
-                    document.getElementById('gnss-status').innerText =
-                        `Locked: ${d.locked} | Visible: ${d.visible}`;
-                });
-
-            fetch('/api/ptp_profile')
-                .then(r => r.json())
-                .then(d => {
-                    document.getElementById('ptp-timing').innerText =
-                        `Offset: ${d.offset} ns | Jitter: ${d.jitter}`;
-                });
-
-            fetch('/api/timing_confidence')
-                .then(r => r.json())
-                .then(d => {
-                    document.getElementById('timing-confidence').innerText =
-                        `Score: ${d.score}`;
-                });
-
-            fetch('/api/interference')
-                .then(r => r.json())
-                .then(d => {
-                    document.getElementById('interference').innerText =
-                        `Level: ${d.level}`;
-                });
-
-            fetch('/api/sla')
-                .then(r => r.json())
-                .then(d => {
-                    document.getElementById('sla-violations').innerText =
-                        `Today: ${d.count}`;
-                });
-        }
-
-        function toggleTools() {
-            const tools = document.getElementById('more-tools');
-            tools.style.display = tools.style.display === "none" ? "block" : "none";
-        }
-
-        // Refresh every 10 seconds
-        setInterval(fetchData, 10000);
-        fetchData();
-    </script>
+setInterval(fetchSnapshot, 10000);
+fetchSnapshot();
+</script>
 
 </body>
 </html>
