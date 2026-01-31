@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/snapshot.svg">
+        GNSS Timing Observatory — State Snapshot Engine
+    </h2>
+    <p>
+        Capture a complete point‑in‑time snapshot of the observatory: metrics, health, predictions,
+        anomalies, configuration, and subsystem states.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Create Snapshot</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Snapshot Name</label>
+            <input id="name" type="text" placeholder="e.g., Pre‑storm baseline">
+        </div>
+
+        <div class="flex-1">
+            <label>Include Digital Twin State</label>
+            <select id="include_dt">
+                <option value="YES">Yes</option>
+                <option value="NO">No</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Include Raw Metrics</label>
+            <select id="include_raw">
+                <option value="YES">Yes</option>
+                <option value="NO">No</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="createSnapshot()">
+        Capture Snapshot
+    </button>
+</div>
+
+<div class="card">
+    <h2>Snapshot Summary</h2>
+    <div id="summary">Create a snapshot to see results.</div>
+</div>
+
+<div class="card">
+    <h2>Snapshot Contents</h2>
+    <div id="contents">No snapshot yet.</div>
+</div>
+
+<div class="card">
+    <h2>Compare Snapshots</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Snapshot A</label>
+            <select id="snapA"></select>
+        </div>
+
+        <div class="flex-1">
+            <label>Snapshot B</label>
+            <select id="snapB"></select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="compareSnapshots()">
+        Compare
+    </button>
+
+    <div id="comparison" style="margin-top:20px;">No comparison yet.</div>
+</div>
+
+<script>
+function refreshSnapshotList() {
+    fetch('/api/snapshot/list')
+        .then(r => r.json())
+        .then(d => {
+            const A = document.getElementById('snapA');
+            const B = document.getElementById('snapB');
+
+            A.innerHTML = "";
+            B.innerHTML = "";
+
+            d.snapshots.forEach(s => {
+                A.innerHTML += `<option value="${s.id}">${s.label}</option>`;
+                B.innerHTML += `<option value="${s.id}">${s.label}</option>`;
+            });
+        });
+}
+
+function createSnapshot() {
+    const params = {
+        name: document.getElementById('name').value,
+        include_dt: document.getElementById('include_dt').value,
+        include_raw: document.getElementById('include_raw').value
+    };
+
+    fetch('/api/snapshot/create', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Snapshot:</strong> ${d.label}</p>
+            <p><strong>Time:</strong> ${d.time}</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        document.getElementById('contents').innerHTML = `
+            <pre>${JSON.stringify(d.contents, null, 2)}</pre>
+        `;
+
+        refreshSnapshotList();
+    });
+}
+
+function compareSnapshots() {
+    const params = {
+        A: document.getElementById('snapA').value,
+        B: document.getElementById('snapB').value
+    };
+
+    fetch('/api/snapshot/compare', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('comparison').innerHTML = `
+            <h3>Differences</h3>
+            <pre>${JSON.stringify(d.diff, null, 2)}</pre>
+        `;
+    });
+}
+
+refreshSnapshotList();
+</script>
+
+{% endblock %}
