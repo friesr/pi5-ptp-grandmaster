@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scenario Designer</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/digital-twin">Digital Twin</a>
+    <a href="/scenario-designer">Scenario Designer</a>
+</div>
+
+<h1>Digital Twin Scenario Designer</h1>
+
+<div class="card">
+    <h2>Scenario Name</h2>
+    <input id="scenario-name" type="text" placeholder="my_scenario">
+</div>
+
+<div class="card">
+    <h2>Base Day</h2>
+    <select id="base-day"></select>
+</div>
+
+<div class="card">
+    <h2>Perturbations</h2>
+
+    <h3>GNSS Outage</h3>
+    Start: <input id="outage-start" type="number">  
+    Duration: <input id="outage-duration" type="number">
+
+    <h3>Interference</h3>
+    Severity: <input id="int-severity" type="number" step="0.1">  
+    Start: <input id="int-start" type="number">  
+    Duration: <input id="int-duration" type="number">
+
+    <h3>Spoofing</h3>
+    Start: <input id="sp-start" type="number">  
+    Duration: <input id="sp-duration" type="number">
+
+    <h3>Multipath Boost</h3>
+    Factor: <input id="mp-factor" type="number" step="0.1">
+
+    <h3>Constellation Failure</h3>
+    Constellation: <input id="cf-const" type="text">  
+    Start: <input id="cf-start" type="number">  
+    Duration: <input id="cf-duration" type="number">
+
+    <h3>Receiver Health Drop</h3>
+    Score: <input id="rh-score" type="number">
+</div>
+
+<div class="card">
+    <h2>Servo Adjustments</h2>
+    Kp: <input id="kp" type="number" step="0.1">  
+    Ki: <input id="ki" type="number" step="0.01">
+</div>
+
+<div class="card">
+    <button onclick="saveScenario()">Save Scenario</button>
+</div>
+
+<div class="card">
+    <h2>Preview JSON</h2>
+    <pre id="preview" style="height:300px; overflow-y:auto;"></pre>
+</div>
+
+<script src="/static/js/scenario_designer.js"></script>
+
+</body>
+</html>
