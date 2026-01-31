@@ -77,6 +77,8 @@ from backend.api.digital_twin_batch import digital_twin_batch_api
 from backend.api.digital_twin_report import digital_twin_report_api
 from backend.api.sensitivity import sensitivity_api
 from backend.api.digital_twin_optimize import digital_twin_optimize_api
+from backend.api.digital_twin_evolve import digital_twin_evolve_api
+
 
 
 
@@ -190,6 +192,7 @@ app.register_blueprint(digital_twin_batch_api, url_prefix="/api/digital_twin_bat
 app.register_blueprint(digital_twin_report_api, url_prefix="/api/digital_twin_report")
 app.register_blueprint(sensitivity_api, url_prefix="/api/sensitivity")
 app.register_blueprint(digital_twin_optimize_api, url_prefix="/api/digital_twin_optimize")
+app.register_blueprint(digital_twin_evolve_api, url_prefix="/api/digital_twin_evolve")
 
 
 
@@ -455,6 +458,10 @@ def sensitivity_page():
 @app.route("/digital-twin-optimize")
 def digital_twin_optimize_page():
     return render_template("digital_twin_optimize.html")
+
+@app.route("/digital-twin-evolve")
+def digital_twin_evolve_page():
+    return render_template("digital_twin_evolve.html")
 
 
 # -------------------------------------------------------------------
