@@ -1,0 +1,16 @@
+{
+  "scenario_name": "string",
+  "base_day": "YYYY-MM-DD",
+  "perturbations": {
+    "gnss_outage": { "start": 3600, "duration": 600 },
+    "interference": { "severity": 2.0, "start": 1800, "duration": 900 },
+    "spoofing": { "start": 4000, "duration": 300 },
+    "multipath_boost": { "factor": 1.5 },
+    "constellation_failure": { "constellation": "GPS", "start": 2000, "duration": 1200 },
+    "receiver_health_drop": { "score": 50 }
+  },
+  "servo_adjustments": {
+    "kp": 0.8,
+    "ki": 0.02
+  }
+}
