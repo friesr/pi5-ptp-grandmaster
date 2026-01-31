@@ -352,6 +352,10 @@ def antenna_siting_page():
 def spoofing_page():
     return render_template("spoofing.html")
 
+@app.route("/prn-fingerprint")
+def prn_fingerprint_page():
+    return render_template("prn_fingerprint.html")
+
 
 # -------------------------------------------------------------------
 # Entry point
