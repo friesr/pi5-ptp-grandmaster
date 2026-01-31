@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DOP Metrics</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+<h1>DOP Metrics</h1>
+<p>GDOP / PDOP / HDOP / VDOP over time.</p>
+
+<div id="dop_chart" style="height: 500px;"></div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+async function loadDOP() {
+    const res = await fetch("/api/dop");
+    const data = await res.json();
+
+    Plotly.newPlot("dop_chart", data.traces, data.layout);
+}
+
+loadDOP();
+setInterval(loadDOP, 10000);
+</script>
+
+</body>
+</html>
