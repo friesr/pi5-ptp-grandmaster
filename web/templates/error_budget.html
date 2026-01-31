@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
+        GNSS Bias & Error Budget Dashboard
+    </h2>
+    <p>
+        Break down total timing error into satellite, atmospheric, multipath, tracking, oscillator,
+        and geometry components. Updated in real time.
+    </p>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Error Budget Summary</h2>
+    <div id="summary">Loading…</div>
+</div>
+
+<!-- Error Budget Bars -->
+<div class="card">
+    <h2>Error Budget Breakdown</h2>
+    <div id="bars">Loading…</div>
+</div>
+
+<!-- Trend -->
+<div class="card">
+    <h2>Error Budget Trend</h2>
+    <div id="trend-spark"></div>
+</div>
+
+<!-- Component Table -->
+<div class="card">
+    <h2>Component Details</h2>
+    <table id="comp-table" style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="text-align:left; border-bottom:1px solid var(--border);">
+                <th>Component</th>
+                <th>Magnitude (ns)</th>
+                <th>Percent</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody id="comp-body"></tbody>
+    </table>
+</div>
+
+<!-- Anomalies -->
+<div class="card">
+    <h2>Detected Bias Anomalies</h2>
+    <div id="anomalies">No anomalies detected.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function loadErrorBudget() {
+    fetch('/api/gnss/error_budget')
+        .then(r => r.json())
+        .then(d => {
+            // Summary
+            document.getElementById('summary').innerHTML = `
+                <p><strong>Total Error:</strong> ${d.total} ns</p>
+                <p><strong>Dominant Source:</strong> ${d.dominant}</p>
+                <p><strong>Notes:</strong> ${d.notes}</p>
+            `;
+
+            // Bars
+            const bars = d.bars || [];
+            const bDiv = document.getElementById('bars');
+
+            if (bars.length === 0) {
+                bDiv.innerHTML = "<p>No error budget data.</p>";
+            } else {
+                bDiv.innerHTML = bars.map(b => `
+                    <div style="margin-bottom:8px;">
+                        <div style="font-weight:600;">${b.label}</div>
+                        <div style="height:12px; background:var(--accent); width:${b.percent}%;"></div>
+                        <div class="alert-meta">${b.value} ns (${b.percent}%)</div>
+                    </div>
+                `).join('');
+            }
+
+            // Trend
+            renderSparkline("trend-spark", d.trend || [], "minimal");
+
+            // Component table
+            const comps = d.components || [];
+            const tbody = document.getElementById('comp-body');
+            tbody.innerHTML = "";
+
+            comps.forEach(c => {
+                tbody.innerHTML += `
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td>${c.name}</td>
+                        <td>${c.value}</td>
+                        <td>${c.percent}%</td>
+                        <td>${c.notes}</td>
+                    </tr>
+                `;
+            });
+
+            // Anomalies
+            const anomalies = d.anomalies || [];
+            const aDiv = document.getElementById('anomalies');
+
+            if (anomalies.length === 0) {
+                aDiv.innerHTML = "<p>No anomalies detected.</p>";
+            } else {
+                aDiv.innerHTML = anomalies.map(a => `
+                    <div class="alert-row ${severityClass(a.severity)}">
+                        <div style="font-weight:600;">${a.title}</div>
+                        <div>${a.description}</div>
+                        <div class="alert-meta">${a.time}</div>
+                    </div>
+                `).join('');
+            }
+        });
+}
+
+function severityClass(s) {
+    return s === "CRITICAL" ? "alert-critical" :
+           s === "MAJOR"    ? "alert-major" :
+                              "alert-minor";
+}
+
+setInterval(loadErrorBudget, 5000);
+loadErrorBudget();
+</script>
+
+{% endblock %}
