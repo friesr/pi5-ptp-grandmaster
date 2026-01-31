@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/assistant.svg">
+        GNSS Timing Observatory — AI Assistant Panel
+    </h2>
+    <p>
+        A context‑aware assistant that explains metrics, interprets anomalies, summarizes subsystem
+        outputs, and guides operators through investigations.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Ask the Observatory</h2>
+
+    <textarea id="query" placeholder="Ask about drift, confidence, anomalies, satellites, predictions…" 
+              style="width:100%; height:120px;"></textarea>
+
+    <button class="save-button" style="margin-top:20px;" onclick="askAssistant()">
+        Ask
+    </button>
+</div>
+
+<div class="card">
+    <h2>Response</h2>
+    <div id="response">Ask a question to begin.</div>
+</div>
+
+<div class="card">
+    <h2>Relevant Subsystems</h2>
+    <div id="links">No query yet.</div>
+</div>
+
+<div class="card">
+    <h2>Suggested Actions</h2>
+    <div id="actions">No suggestions yet.</div>
+</div>
+
+<script>
+function askAssistant() {
+    const q = document.getElementById('query').value;
+
+    fetch('/api/assistant/query', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({query: q})
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('response').innerHTML = `
+            <p>${d.answer}</p>
+        `;
+
+        const links = d.links || [];
+        document.getElementById('links').innerHTML =
+            links.length === 0
+                ? "<p>No subsystem links.</p>"
+                : links.map(l => `
+                    <div class="alert-row alert-minor">
+                        <div style="font-weight:600;">${l.label}</div>
+                        <div><a href="${l.url}">${l.url}</a></div>
+                    </div>
+                `).join('');
+
+        const actions = d.actions || [];
+        document.getElementById('actions').innerHTML =
+            actions.length === 0
+                ? "<p>No suggested actions.</p>"
+                : actions.map(a => `
+                    <div class="alert-row alert-major">
+                        <div style="font-weight:600;">${a.title}</div>
+                        <div>${a.action}</div>
+                    </div>
+                `).join('');
+    });
+}
+</script>
+
+{% endblock %}
