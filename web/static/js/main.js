@@ -82,3 +82,28 @@ function updateAdev() {
 
 setInterval(updateAdev, 30000);
 updateAdev();
+
+
+function updateDrift() {
+    fetch("/api/drift/model")
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                return;
+            }
+
+            Plotly.newPlot("drift-chart", [{
+                x: data.future_times_sec,
+                y: data.future_predictions_ns,
+                mode: "lines+markers",
+                line: { color: "#4be27a" }
+            }], {
+                xaxis: { title: "Seconds into Future" },
+                yaxis: { title: "Predicted Offset (ns)" },
+                margin: { t: 20 }
+            });
+        });
+}
+
+setInterval(updateDrift, 30000);
+updateDrift();
