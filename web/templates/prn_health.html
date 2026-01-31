@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PRN Health</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/prn-health">PRN Health</a>
+    </div>
+
+    <h1>GNSS PRN Health Tracker</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadPRNHealth()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Health Scores</h2>
+        <div id="health-chart" style="height:500px;"></div>
+    </div>
+
+    <div class="card">
+        <h2>Details</h2>
+        <pre id="health-details" style="height:300px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/prn_health.js"></script>
+</body>
+</html>
