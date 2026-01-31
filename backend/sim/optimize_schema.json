@@ -1,0 +1,10 @@
+{
+  "scenario_name": "base_scenario.json",
+  "search_space": {
+    "kp": { "min": 0.5, "max": 1.5, "steps": 5 },
+    "ki": { "min": 0.01, "max": 0.05, "steps": 5 },
+    "interference_mitigation": [0, 1],
+    "spoofing_threshold": [20, 40, 60]
+  },
+  "objective": "minimize_rms_error"
+}
