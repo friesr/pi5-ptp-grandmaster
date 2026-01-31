@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GNSS Fade Events</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/gnss-fade-events">GNSS Fade Events</a>
+    </div>
+
+    <h1>GNSS Fade-In / Fade-Out Events</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadFadeEvents()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Event Timeline</h2>
+        <div id="fade-chart" style="height:500px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/gnss_fade_events.js"></script>
+</body>
+</html>
