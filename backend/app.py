@@ -73,6 +73,8 @@ from backend.api.satellite_aging import satellite_aging_api
 from backend.api.digital_twin import digital_twin_api
 from backend.api.scenario_list import scenario_list_api
 from backend.api.scenario_save import scenario_save_api
+from backend.api.digital_twin_batch import digital_twin_batch_api
+
 
 
 
@@ -180,6 +182,8 @@ app.register_blueprint(satellite_aging_api, url_prefix="/api/satellite_aging")
 app.register_blueprint(digital_twin_api, url_prefix="/api/digital_twin")
 app.register_blueprint(scenario_list_api, url_prefix="/api/gnss_history")
 app.register_blueprint(scenario_save_api, url_prefix="/api/scenario")
+app.register_blueprint(digital_twin_batch_api, url_prefix="/api/digital_twin_batch")
+
 
 
 
@@ -426,6 +430,10 @@ def digital_twin_page():
 @app.route("/scenario-designer")
 def scenario_designer_page():
     return render_template("scenario_designer.html")
+
+@app.route("/digital-twin-batch")
+def digital_twin_batch_page():
+    return render_template("digital_twin_batch.html")
 
 
 # -------------------------------------------------------------------
