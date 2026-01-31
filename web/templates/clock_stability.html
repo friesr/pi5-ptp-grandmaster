@@ -1,30 +1,58 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Clock Stability Analyzer</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
+{% extends "base.html" %}
+{% block content %}
 
-<body>
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
+        GNSS Clock Stability Analyzer
+    </h2>
+    <p>
+        Analyze per‑satellite clock stability using Allan deviation, drift rate, and frequency error.
+        Updated in real time from the GNSS receiver and timing engine.
+    </p>
+</div>
 
-    <div class="nav">
-        <a href="/">Dashboard</a>
-        <a href="/clock-stability">Clock Stability</a>
+<!-- Satellite Selector -->
+<div class="card">
+    <h2>Select Satellite</h2>
+    <select id="sat-select" onchange="loadClockData()">
+        <option value="">Loading…</option>
+    </select>
+</div>
+
+<!-- Current Metrics -->
+<div class="card">
+    <h2>Current Clock Metrics</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <h3>Clock Drift</h3>
+            <div id="drift" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Frequency Error</h3>
+            <div id="freq" class="badge badge-info"></div>
+        </div>
+
+        <div class="flex-1">
+            <h3>Stability Class</h3>
+            <div id="stability" class="badge badge-info"></div>
+        </div>
     </div>
+</div>
 
-    <h1>GNSS Clock Stability Analyzer</h1>
+<!-- Allan Deviation Plot -->
+<div class="card">
+    <h2>Allan Deviation</h2>
+    <p>
+        Shows short‑term and long‑term stability. Lower values indicate a more stable satellite clock.
+    </p>
+    <div id="adev-spark"></div>
+</div>
 
-    <div class="card">
-        <h2>Select Date</h2>
-        <select id="day-select"></select>
-        <button onclick="loadClock()">Analyze</button>
-    </div>
-
-    <div class="card">
-        <h2>Results</h2>
-        <pre id="clock-output" style="height:400px; overflow-y:auto;"></pre>
-    </div>
-
-    <script src="/static/js/clock_stability.js"></script>
-</body>
-</html>
+<!-- Drift Trend -->
+<div class="card">
+    <h2>Clock Drift Trend</h2>
+    
