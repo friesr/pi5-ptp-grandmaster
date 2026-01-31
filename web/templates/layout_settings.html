@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/config.svg">
+        Layout & Display Settings
+    </h2>
+    <p>
+        Customize density, card size, grid width, sidebar behavior, and visual preferences.
+        Settings are saved automatically and applied system‑wide.
+    </p>
+</div>
+
+<!-- Density -->
+<div class="card">
+    <h2>Density</h2>
+    <select id="density" onchange="saveLayout()">
+        <option value="comfortable">Comfortable</option>
+        <option value="compact">Compact</option>
+        <option value="ultra">Ultra‑Dense</option>
+    </select>
+</div>
+
+<!-- Card Size -->
+<div class="card">
+    <h2>Card Size</h2>
+    <select id="card_size" onchange="saveLayout()">
+        <option value="small">Small</option>
+        <option value="medium">Medium</option>
+        <option value="large">Large</option>
+    </select>
+</div>
+
+<!-- Grid Width -->
+<div class="card">
+    <h2>Grid Width</h2>
+    <select id="grid_width" onchange="saveLayout()">
+        <option value="narrow">Narrow</option>
+        <option value="standard">Standard</option>
+        <option value="wide">Wide</option>
+    </select>
+</div>
+
+<!-- Sidebar -->
+<div class="card">
+    <h2>Sidebar</h2>
+    <select id="sidebar_mode" onchange="saveLayout()">
+        <option value="expanded">Expanded</option>
+        <option value="collapsed">Collapsed</option>
+    </select>
+</div>
+
+<!-- Font Scaling -->
+<div class="card">
+    <h2>Font Size</h2>
+    <select id="font_scale" onchange="saveLayout()">
+        <option value="90">Small</option>
+        <option value="100">Normal</option>
+        <option value="110">Large</option>
+        <option value="120">Extra Large</option>
+    </select>
+</div>
+
+<!-- Animations -->
+<div class="card">
+    <h2>Animations</h2>
+    <select id="animations" onchange="saveLayout()">
+        <option value="on">Enabled</option>
+        <option value="off">Disabled</option>
+    </select>
+</div>
+
+<!-- Theme Override -->
+<div class="card">
+    <h2>Theme Override</h2>
+    <select id="theme_override" onchange="saveLayout()">
+        <option value="system">Follow System</option>
+        <option value="light">Force Light</option>
+        <option value="dark">Force Dark</option>
+    </select>
+</div>
+
+<!-- Status -->
+<div class="card">
+    <h2>Status</h2>
+    <div id="status">Settings loaded.</div>
+</div>
+
+<script>
+function loadLayout() {
+    fetch('/api/layout_prefs')
+        .then(r => r.json())
+        .then(p => {
+            document.getElementById('density').value = p.density || 'comfortable';
+            document.getElementById('card_size').value = p.card_size || 'medium';
+            document.getElementById('grid_width').value = p.grid_width || 'standard';
+            document.getElementById('sidebar_mode').value = p.sidebar_mode || 'expanded';
+            document.getElementById('font_scale').value = p.font_scale || '100';
+            document.getElementById('animations').value = p.animations || 'on';
+            document.getElementById('theme_override').value = p.theme_override || 'system';
+        });
+}
+
+function saveLayout() {
+    const prefs = {
+        density: document.getElementById('density').value,
+        card_size: document.getElementById('card_size').value,
+        grid_width: document.getElementById('grid_width').value,
+        sidebar_mode: document.getElementById('sidebar_mode').value,
+        font_scale: document.getElementById('font_scale').value,
+        animations: document.getElementById('animations').value,
+        theme_override: document.getElementById('theme_override').value
+    };
+
+    fetch('/api/layout_prefs', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(prefs)
+    }).then(() => {
+        document.getElementById('status').innerHTML =
+            `<span class="badge badge-ok">Settings saved</span>`;
+    });
+}
+
+loadLayout();
+</script>
+
+{% endblock %}
