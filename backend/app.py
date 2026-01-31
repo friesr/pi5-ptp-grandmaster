@@ -69,6 +69,8 @@ from backend.analysis.unified_timeline import build_unified_timeline
 from backend.api.eclipse import eclipse_api
 
 from backend.api.clock_stability import clock_api
+from backend.api.satellite_aging import satellite_aging_api
+
 
 
 # -------------------------------------------------------------------
@@ -169,6 +171,7 @@ app.register_blueprint(multi_api,               url_prefix="/api/multi_receiver"
 app.register_blueprint(constellation_perf_api,  url_prefix="/api/constellation_performance")
 app.register_blueprint(eclipse_api, url_prefix="/api/eclipse")
 app.register_blueprint(clock_api, url_prefix="/api/clock_stability")
+app.register_blueprint(satellite_aging_api, url_prefix="/api/satellite_aging")
 
 
 
@@ -376,6 +379,10 @@ def eclipse_page():
 @app.route("/clock-stability")
 def clock_stability_page():
     return render_template("clock_stability.html")
+
+@app.route("/satellite-aging")
+def satellite_aging_page():
+    return render_template("satellite_aging.html")
 
 
 # -------------------------------------------------------------------
