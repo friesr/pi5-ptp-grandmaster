@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Timing Accuracy Estimator</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/timing-accuracy">Timing Accuracy</a>
+    </div>
+
+    <h1>GNSS Timing Accuracy Estimator</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadAccuracy()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Predicted Timing Error</h2>
+        <div id="accuracy-chart" style="height:500px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/timing_accuracy.js"></script>
+</body>
+</html>
