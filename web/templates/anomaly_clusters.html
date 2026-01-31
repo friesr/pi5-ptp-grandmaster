@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Anomaly Clusters</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/anomaly-clusters">Anomaly Clusters</a>
+    </div>
+
+    <h1>GNSS Anomaly Clustering</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadClusters()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>Cluster Timeline</h2>
+        <div id="cluster-chart" style="height:600px;"></div>
+    </div>
+
+    <div class="card">
+        <h2>Cluster Centers</h2>
+        <pre id="cluster-centers" style="height:300px; overflow-y:auto;"></pre>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/anomaly_clusters.js"></script>
+</body>
+</html>
