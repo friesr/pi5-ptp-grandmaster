@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Historical Data Viewer</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/validation">Validation</a>
+        <a href="/config">Configuration</a>
+        <a href="/satellites">Satellites</a>
+        <a href="/history">History</a>
+    </div>
+
+    <h1>Historical Data Viewer</h1>
+
+    <div class="card">
+        <h2>Select Date</h2>
+        <select id="day-select"></select>
+        <button onclick="loadHistory()">Load</button>
+    </div>
+
+    <div class="card">
+        <h2>PTP Offset (ns)</h2>
+        <div id="ptp-history" style="height:300px;"></div>
+    </div>
+
+    <div class="card">
+        <h2>NTP Offset (ms)</h2>
+        <div id="ntp-history" style="height:300px;"></div>
+    </div>
+
+    <div class="card">
+        <h2>GNSS Used vs Visible</h2>
+        <div id="gnss-history" style="height:300px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/history.js"></script>
+</body>
+</html>
