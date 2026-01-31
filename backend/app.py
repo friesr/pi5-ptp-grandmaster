@@ -1,9 +1,17 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, Blueprint, jsonify
+import os
+import json
+
+# Core + system APIs
 from backend.api.status import status_api
 from backend.api.validation import validation_api
 from backend.api.storage import storage_api
 from backend.api.config import config_api
 from backend.api.export import export_api
+from backend.api.service_control import service_control_api
+from backend.api.backup import backup_api
+
+# GNSS / timing analytics APIs
 from backend.api.allan import allan_api
 from backend.api.drift import drift_api
 from backend.api.history import history_api
@@ -17,10 +25,8 @@ from backend.api.system_health import system_health_api
 from backend.api.ptp_profile import ptp_profile_api
 from backend.api.prn_lifetime import prn_lifetime_api
 from backend.api.skyplot_playback import skyplot_playback_api
-from backend.api.service_control import service_control_api
 from backend.api.alert_rules import alert_rules_api
 from backend.api.constellation_score import constellation_score_api
-from backend.api.backup import backup_api
 from backend.api.servo_history import servo_history_api
 from backend.api.gnss_outages import gnss_outages_api
 from backend.api.multipath_heatmap import multipath_heatmap_api
@@ -32,6 +38,8 @@ from backend.api.ptp_events import ptp_events_api
 from backend.api.skyplot_density import skyplot_density_api
 from backend.api.signal_quality import signal_quality_api
 from backend.api.gnss_ptp_correlation import gnss_ptp_corr_api
+
+# Advanced GNSS analytics APIs
 from backend.api.prn_health import prn_health_api
 from backend.api.constellation_drift import constellation_drift_api
 from backend.api.interference_detector import interference_api
@@ -44,16 +52,23 @@ from backend.api.anomaly_explainer import anomaly_explainer_api
 from backend.api.predictive_maintenance import predictive_api
 from backend.api.environment_change import env_change_api
 from backend.api.sla import sla_api
-from flask import Blueprint, jsonify
-import os, json
-
-from backend.analysis.unified_timeline import build_unified_timeline
-from backend.api.report import report_api
 from backend.api.stability_predictor import stability_api
 from backend.api.mission_control import mission_api
 from backend.api.master_summary import master_api
+from backend.api.report import report_api
+
+# New advanced/bonus APIs
+from backend.api.anomaly_ml import anomaly_ml_api
+from backend.api.multi_receiver import multi_api
+from backend.api.constellation_performance import constellation_perf_api
+
+# Unified timeline builder
+from backend.analysis.unified_timeline import build_unified_timeline
 
 
+# -------------------------------------------------------------------
+# Unified timeline API (inline definition)
+# -------------------------------------------------------------------
 
 unified_api = Blueprint("unified_api", __name__)
 
@@ -76,6 +91,9 @@ def load_unified(day):
     return jsonify(timeline)
 
 
+# -------------------------------------------------------------------
+# Flask app
+# -------------------------------------------------------------------
 
 app = Flask(
     __name__,
@@ -83,80 +101,72 @@ app = Flask(
     static_folder="../web/static"
 )
 
+# -------------------------------------------------------------------
 # Register API blueprints
-app.register_blueprint(status_api, url_prefix="/api/status")
-app.register_blueprint(validation_api, url_prefix="/api/validation")
-app.register_blueprint(storage_api, url_prefix="/api/storage")
-app.register_blueprint(config_api, url_prefix="/api/config")
-app.register_blueprint(export_api, url_prefix="/api/export")
-app.register_blueprint(allan_api, url_prefix="/api/allan")
-app.register_blueprint(drift_api, url_prefix="/api/drift")
-app.register_blueprint(history_api, url_prefix="/api/history")
-app.register_blueprint(temp_drift_api, url_prefix="/api/temp_drift")
-app.register_blueprint(ptp_servo_api, url_prefix="/api/ptp_servo")
-app.register_blueprint(alerts_api, url_prefix="/api/alerts")
-app.register_blueprint(multipath_api, url_prefix="/api/multipath")
-app.register_blueprint(gnss_history_api, url_prefix="/api/gnss_history")
-app.register_blueprint(dop_api, url_prefix="/api/dop")
-app.register_blueprint(system_health_api, url_prefix="/api/system_health")
-app.register_blueprint(ptp_profile_api, url_prefix="/api/ptp_profile")
-app.register_blueprint(prn_lifetime_api, url_prefix="/api/prn_lifetime")
-app.register_blueprint(skyplot_playback_api, url_prefix="/api/skyplot_playback")
-app.register_blueprint(service_control_api, url_prefix="/api/services")
-app.register_blueprint(alert_rules_api, url_prefix="/api/alert_rules")
+# -------------------------------------------------------------------
+
+app.register_blueprint(status_api,              url_prefix="/api/status")
+app.register_blueprint(validation_api,          url_prefix="/api/validation")
+app.register_blueprint(storage_api,             url_prefix="/api/storage")
+app.register_blueprint(config_api,              url_prefix="/api/config")
+app.register_blueprint(export_api,              url_prefix="/api/export")
+app.register_blueprint(service_control_api,     url_prefix="/api/services")
+app.register_blueprint(backup_api,              url_prefix="/api/backup")
+
+app.register_blueprint(allan_api,               url_prefix="/api/allan")
+app.register_blueprint(drift_api,               url_prefix="/api/drift")
+app.register_blueprint(history_api,             url_prefix="/api/history")
+app.register_blueprint(temp_drift_api,          url_prefix="/api/temp_drift")
+app.register_blueprint(ptp_servo_api,           url_prefix="/api/ptp_servo")
+app.register_blueprint(alerts_api,              url_prefix="/api/alerts")
+app.register_blueprint(multipath_api,           url_prefix="/api/multipath")
+app.register_blueprint(gnss_history_api,        url_prefix="/api/gnss_history")
+app.register_blueprint(dop_api,                 url_prefix="/api/dop")
+app.register_blueprint(system_health_api,       url_prefix="/api/system_health")
+app.register_blueprint(ptp_profile_api,         url_prefix="/api/ptp_profile")
+app.register_blueprint(prn_lifetime_api,        url_prefix="/api/prn_lifetime")
+app.register_blueprint(skyplot_playback_api,    url_prefix="/api/skyplot_playback")
+app.register_blueprint(alert_rules_api,         url_prefix="/api/alert_rules")
 app.register_blueprint(constellation_score_api, url_prefix="/api/constellation_score")
-app.register_blueprint(backup_api, url_prefix="/api/backup")
-app.register_blueprint(servo_history_api, url_prefix="/api/servo_history")
-app.register_blueprint(gnss_outages_api, url_prefix="/api/gnss_outages")
-app.register_blueprint(multipath_heatmap_api, url_prefix="/api/multipath_heatmap")
+app.register_blueprint(servo_history_api,       url_prefix="/api/servo_history")
+app.register_blueprint(gnss_outages_api,        url_prefix="/api/gnss_outages")
+app.register_blueprint(multipath_heatmap_api,   url_prefix="/api/multipath_heatmap")
 app.register_blueprint(constellation_timeline_api, url_prefix="/api/constellation_timeline")
-app.register_blueprint(fade_events_api, url_prefix="/api/fade_events")
-app.register_blueprint(snr_waterfall_api, url_prefix="/api/snr_waterfall")
-app.register_blueprint(geometry_timeline_api, url_prefix="/api/geometry_timeline")
-app.register_blueprint(ptp_events_api, url_prefix="/api/ptp_events")
-app.register_blueprint(skyplot_density_api, url_prefix="/api/skyplot_density")
-app.register_blueprint(signal_quality_api, url_prefix="/api/signal_quality")
-app.register_blueprint(gnss_ptp_corr_api, url_prefix="/api/gnss_ptp_corr")
-app.register_blueprint(prn_health_api, url_prefix="/api/prn_health")
+app.register_blueprint(fade_events_api,         url_prefix="/api/fade_events")
+app.register_blueprint(snr_waterfall_api,       url_prefix="/api/snr_waterfall")
+app.register_blueprint(geometry_timeline_api,   url_prefix="/api/geometry_timeline")
+app.register_blueprint(ptp_events_api,          url_prefix="/api/ptp_events")
+app.register_blueprint(skyplot_density_api,     url_prefix="/api/skyplot_density")
+app.register_blueprint(signal_quality_api,      url_prefix="/api/signal_quality")
+app.register_blueprint(gnss_ptp_corr_api,       url_prefix="/api/gnss_ptp_corr")
+
+app.register_blueprint(prn_health_api,          url_prefix="/api/prn_health")
 app.register_blueprint(constellation_drift_api, url_prefix="/api/constellation_drift")
-app.register_blueprint(interference_api, url_prefix="/api/interference")
-app.register_blueprint(timing_accuracy_api, url_prefix="/api/timing_accuracy")
-app.register_blueprint(anomaly_cluster_api, url_prefix="/api/anomaly_clusters")
-app.register_blueprint(receiver_health_api, url_prefix="/api/receiver_health")
-app.register_blueprint(environment_api, url_prefix="/api/environment")
-app.register_blueprint(timing_conf_api, url_prefix="/api/timing_confidence")
-app.register_blueprint(predictive_api, url_prefix="/api/predictive")
-app.register_blueprint(anomaly_explainer_api, url_prefix="/api/anomaly_explainer")
-app.register_blueprint(env_change_api, url_prefix="/api/environment_change")
-app.register_blueprint(sla_api, url_prefix="/api/sla")
-app.register_blueprint(unified_api, url_prefix="/api/unified_timeline")
-app.register_blueprint(stability_api, url_prefix="/api/stability")
-app.register_blueprint(report_api, url_prefix="/api/report")
-app.register_blueprint(master_api, url_prefix="/api/master")
+app.register_blueprint(interference_api,        url_prefix="/api/interference")
+app.register_blueprint(timing_accuracy_api,     url_prefix="/api/timing_accuracy")
+app.register_blueprint(anomaly_cluster_api,     url_prefix="/api/anomaly_clusters")
+app.register_blueprint(receiver_health_api,     url_prefix="/api/receiver_health")
+app.register_blueprint(environment_api,         url_prefix="/api/environment")
+app.register_blueprint(timing_conf_api,         url_prefix="/api/timing_confidence")
+app.register_blueprint(predictive_api,          url_prefix="/api/predictive")
+app.register_blueprint(anomaly_explainer_api,   url_prefix="/api/anomaly_explainer")
+app.register_blueprint(env_change_api,          url_prefix="/api/environment_change")
+app.register_blueprint(sla_api,                 url_prefix="/api/sla")
+app.register_blueprint(stability_api,           url_prefix="/api/stability")
+app.register_blueprint(report_api,              url_prefix="/api/report")
+app.register_blueprint(master_api,              url_prefix="/api/master")
+app.register_blueprint(mission_api,             url_prefix="/api/mission")
+app.register_blueprint(unified_api,             url_prefix="/api/unified_timeline")
 
-app.register_blueprint(mission_api, url_prefix="/api/mission")
-
-@app.route("/constellation-performance")
-def constellation_performance_page():
-    return render_template("constellation_performance.html")
-
-@app.route("/multi-receiver")
-def multi_receiver_page():
-    return render_template("multi_receiver.html")
+# New advanced APIs
+app.register_blueprint(anomaly_ml_api,          url_prefix="/api/anomaly_ml")
+app.register_blueprint(multi_api,               url_prefix="/api/multi_receiver")
+app.register_blueprint(constellation_perf_api,  url_prefix="/api/constellation_performance")
 
 
-@app.route("/anomaly-ml")
-def anomaly_ml_page():
-    return render_template("anomaly_ml.html")
-    
-@app.route("/mission-control")
-def mission_control_page():
-    return render_template("mission_control.html")
-
-@app.route("/stability")
-def stability_page():
-    return render_template("stability.html")
-
+# -------------------------------------------------------------------
+# Frontend routes
+# -------------------------------------------------------------------
 
 @app.route("/")
 def index():
@@ -174,9 +184,6 @@ def config_page():
 def satellites():
     return render_template("satellites.html")
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80)
-
 @app.route("/gnss-history")
 def gnss_history_page():
     return render_template("gnss_history.html")
@@ -192,7 +199,7 @@ def ptp_profile_page():
 @app.route("/prn-lifetime")
 def prn_lifetime_page():
     return render_template("prn_lifetime.html")
-    
+
 @app.route("/skyplot-playback")
 def skyplot_playback_page():
     return render_template("skyplot_playback.html")
@@ -200,7 +207,6 @@ def skyplot_playback_page():
 @app.route("/services")
 def services_page():
     return render_template("services.html")
-
 
 @app.route("/alert-rules")
 def alert_rules_page():
@@ -225,7 +231,7 @@ def gnss_outages_page():
 @app.route("/multipath-heatmap")
 def multipath_heatmap_page():
     return render_template("multipath_heatmap.html")
-    
+
 @app.route("/constellation-timeline")
 def constellation_timeline_page():
     return render_template("constellation_timeline.html")
@@ -270,8 +276,6 @@ def constellation_drift_page():
 def interference_page():
     return render_template("interference.html")
 
-
-
 @app.route("/timing-accuracy")
 def timing_accuracy_page():
     return render_template("timing_accuracy.html")
@@ -292,11 +296,9 @@ def environment_page():
 def timing_confidence_page():
     return render_template("timing_confidence.html")
 
-
 @app.route("/anomaly-explanations")
 def anomaly_explanations_page():
     return render_template("anomaly_explanations.html")
-
 
 @app.route("/predictive-maintenance")
 def predictive_maintenance_page():
@@ -305,7 +307,6 @@ def predictive_maintenance_page():
 @app.route("/environment-change")
 def environment_change_page():
     return render_template("environment_change.html")
-
 
 @app.route("/sla")
 def sla_page():
@@ -318,3 +319,31 @@ def unified_timeline_page():
 @app.route("/report")
 def report_page():
     return render_template("report.html")
+
+@app.route("/mission-control")
+def mission_control_page():
+    return render_template("mission_control.html")
+
+@app.route("/stability")
+def stability_page():
+    return render_template("stability.html")
+
+@app.route("/anomaly-ml")
+def anomaly_ml_page():
+    return render_template("anomaly_ml.html")
+
+@app.route("/multi-receiver")
+def multi_receiver_page():
+    return render_template("multi_receiver.html")
+
+@app.route("/constellation-performance")
+def constellation_performance_page():
+    return render_template("constellation_performance.html")
+
+
+# -------------------------------------------------------------------
+# Entry point
+# -------------------------------------------------------------------
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=80)
