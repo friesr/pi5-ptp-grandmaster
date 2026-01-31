@@ -404,6 +404,10 @@ def sla_root_cause_page():
 def resilience_advisor_page():
     return render_template("resilience_advisor.html")
 
+@app.route("/timing-confidence-2")
+def timing_confidence2_page():
+    return render_template("timing_confidence2.html")
+
 
 # -------------------------------------------------------------------
 # Entry point
