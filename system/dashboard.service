@@ -3,9 +3,25 @@ Description=PTP Dashboard Web Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /opt/pi5-ptp-grandmaster/backend/app.py
+Type=simple
 WorkingDirectory=/opt/pi5-ptp-grandmaster/backend
+ExecStart=/usr/bin/python3 app.py
+
+# Restart behavior
 Restart=always
+RestartSec=3
+KillMode=process
+TimeoutStopSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+# Environment (optional)
+Environment="PYTHONUNBUFFERED=1"
+Environment="FLASK_ENV=production"
+
+# Run as root (or create a dedicated user)
 User=root
 
 [Install]
