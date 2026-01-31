@@ -19,4 +19,38 @@
     "logging_enabled": true
 
     "alert_webhook_url": null
+
+
+"alert_rules": {
+    "ptp_offset_high": {
+        "enabled": true,
+        "severity": "critical",
+        "threshold_ns": 1000,
+        "message": "PTP offset exceeds threshold"
+    },
+    "ntp_offset_high": {
+        "enabled": true,
+        "severity": "warning",
+        "threshold_ms": 10,
+        "message": "NTP offset exceeds threshold"
+    },
+    "gnss_used_low": {
+        "enabled": true,
+        "severity": "warning",
+        "threshold": 3,
+        "message": "Few GNSS satellites used"
+    },
+    "storage_local_high": {
+        "enabled": true,
+        "severity": "warning",
+        "threshold_percent": 80,
+        "message": "Local storage above threshold"
+    },
+    "nas_unavailable": {
+        "enabled": true,
+        "severity": "warning",
+        "message": "NAS not mounted or unreachable"
+    }
+}
+    
 }
