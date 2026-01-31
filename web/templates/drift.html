@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Drift Analysis</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+<h1>Drift Analysis</h1>
+<p>Oscillator drift, temperature correlation, and long‑term stability.</p>
+
+<div id="drift_chart" style="height: 500px;"></div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+async function loadDrift() {
+    const res = await fetch("/api/drift");
+    const data = await res.json();
+
+    Plotly.newPlot("drift_chart", data.traces, data.layout);
+}
+
+loadDrift();
+setInterval(loadDrift, 15000);
+</script>
+
+</body>
+</html>
