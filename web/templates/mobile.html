@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mobile Dashboard</title>
+
+    <!-- Mobile Styles -->
+    <link rel="stylesheet" href="/static/css/mobile.css">
+
+    <!-- Viewport for proper scaling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+    <!-- Header -->
+    <h1>Mobile Dashboard</h1>
+
+    <!-- System Health -->
+    <div class="card">
+        <h2>System Health</h2>
+        <div id="sys-health">Loading...</div>
+    </div>
+
+    <!-- GNSS Status -->
+    <div class="card">
+        <h2>GNSS Status</h2>
+        <div id="gnss-status">Loading...</div>
+    </div>
+
+    <!-- PTP Timing -->
+    <div class="card">
+        <h2>PTP Timing</h2>
+        <div id="ptp-timing">Loading...</div>
+    </div>
+
+    <!-- Timing Confidence -->
+    <div class="card">
+        <h2>Timing Confidence</h2>
+        <div id="timing-confidence">Loading...</div>
+    </div>
+
+    <!-- Interference -->
+    <div class="card">
+        <h2>Interference</h2>
+        <div id="interference">Loading...</div>
+    </div>
+
+    <!-- SLA Violations -->
+    <div class="card">
+        <h2>SLA Violations</h2>
+        <div id="sla-violations">Loading...</div>
+    </div>
+
+    <!-- More Tools (Collapsible) -->
+    <div class="card">
+        <h2 onclick="toggleTools()" style="cursor:pointer;">
+            More Tools ▼
+        </h2>
+        <div id="more-tools" style="display:none; margin-top:10px;">
+            <button class="nav-button" onclick="location.href='/skyplot-playback'">Skyplot Playback</button>
+            <button class="nav-button" onclick="location.href='/multipath-heatmap'">Multipath Heatmap</button>
+            <button class="nav-button" onclick="location.href='/prn-health'">PRN Health</button>
+            <button class="nav-button" onclick="location.href='/drift'">Drift Analysis</button>
+            <button class="nav-button" onclick="location.href='/constellation-timeline'">Constellation Timeline</button>
+            <button class="nav-button" onclick="location.href='/digital-twin-replay'">Replay Studio</button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div style="position:fixed; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); padding:10px; display:flex; justify-content:space-around;">
+        <button class="nav-button" onclick="location.href='/'">Home</button>
+        <button class="nav-button" onclick="location.href='/gnss-history'">GNSS</button>
+        <button class="nav-button" onclick="location.href='/ptp-profile'">PTP</button>
+        <button class="nav-button" onclick="location.href='/digital-twin'">Twin</button>
+        <button class="nav-button" onclick="location.href='/config'">Config</button>
+    </div>
+
+    <!-- Auto-refresh script -->
+    <script>
+        function fetchData() {
+            fetch('/api/system_health')
+                .then(r => r.json())
+                .then(d => document.getElementById('sys-health').innerText =
+                    `CPU: ${d.cpu}% | RAM: ${d.memory}% | Disk: ${d.disk}%`);
+
+            fetch('/api/gnss_history')
+                .then(r => r.json())
+                .then(d => document.getElementById('gnss-status').innerText =
+                    `Locked: ${d.locked} | Visible: ${d.visible}`);
+
+            fetch('/api/ptp_profile')
+                .then(r => r.json())
+                .then(d => document.getElementById('ptp-timing').innerText =
+                    `Offset: ${d.offset} ns | Jitter: ${d.jitter}`);
+
+            fetch('/api/timing_confidence')
+                .then(r => r.json())
+                .then(d => document.getElementById('timing-confidence').innerText =
+                    `Score: ${d.score}`);
+
+            fetch('/api/interference')
+                .then(r => r.json())
+                .then(d => document.getElementById('interference').innerText =
+                    `Level: ${d.level}`);
+
+            fetch('/api/sla')
+                .then(r => r.json())
+                .then(d => document.getElementById('sla-violations').innerText =
+                    `Today: ${d.count}`);
+        }
+
+        function toggleTools() {
+            const tools = document.getElementById('more-tools');
+            tools.style.display = tools.style.display === "none" ? "block" : "none";
+        }
+
+        // Refresh every 10 seconds
+        setInterval(fetchData, 10000);
+        fetchData();
+    </script>
+
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
+    <title>Mobile Dashboard</title>
+
+    <!-- Mobile Styles -->
+    <link rel="stylesheet" href="/static/css/mobile.css">
+
+    <!-- Viewport for proper scaling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+    <!-- Header -->
+    <h1>Mobile Dashboard</h1>
+
+    <!-- System Health -->
+    <div class="card">
+        <h2>System Health</h2>
+        <div id="sys-health">Loading...</div>
+    </div>
+
+    <!-- GNSS Status -->
+    <div class="card">
+        <h2>GNSS Status</h2>
+        <div id="gnss-status">Loading...</div>
+    </div>
+
+    <!-- PTP Timing -->
+    <div class="card">
+        <h2>PTP Timing</h2>
+        <div id="ptp-timing">Loading...</div>
+    </div>
+
+    <!-- Timing Confidence -->
+    <div class="card">
+        <h2>Timing Confidence</h2>
+        <div id="timing-confidence">Loading...</div>
+    </div>
+
+    <!-- Interference -->
+    <div class="card">
+        <h2>Interference</h2>
+        <div id="interference">Loading...</div>
+    </div>
+
+    <!-- SLA Violations -->
+    <div class="card">
+        <h2>SLA Violations</h2>
+        <div id="sla-violations">Loading...</div>
+    </div>
+
+    <!-- More Tools (Collapsible) -->
+    <div class="card">
+        <h2 onclick="toggleTools()" style="cursor:pointer;">
+            More Tools ▼
+        </h2>
+        <div id="more-tools" style="display:none; margin-top:10px;">
+            <button class="nav-button" onclick="location.href='/skyplot-playback'">Skyplot Playback</button>
+            <button class="nav-button" onclick="location.href='/multipath-heatmap'">Multipath Heatmap</button>
+            <button class="nav-button" onclick="location.href='/prn-health'">PRN Health</button>
+            <button class="nav-button" onclick="location.href='/drift'">Drift Analysis</button>
+            <button class="nav-button" onclick="location.href='/constellation-timeline'">Constellation Timeline</button>
+            <button class="nav-button" onclick="location.href='/digital-twin-replay'">Replay Studio</button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div style="position:fixed; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); padding:10px; display:flex; justify-content:space-around;">
+        <button class="nav-button" onclick="location.href='/'">Home</button>
+        <button class="nav-button" onclick="location.href='/gnss-history'">GNSS</button>
+        <button class="nav-button" onclick="location.href='/ptp-profile'">PTP</button>
+        <button class="nav-button" onclick="location.href='/digital-twin'">Twin</button>
+        <button class="nav-button" onclick="location.href='/config'">Config</button>
+    </div>
+
+    <!-- Auto-refresh script -->
+    <script>
+        function fetchData() {
+            fetch('/api/system_health')
+                .then(r => r.json())
+                .then(d => document.getElementById('sys-health').innerText =
+                    `CPU: ${d.cpu}% | RAM: ${d.memory}% | Disk: ${d.disk}%`);
+
+            fetch('/api/gnss_history')
+                .then(r => r.json())
+                .then(d => document.getElementById('gnss-status').innerText =
+                    `Locked: ${d.locked} | Visible: ${d.visible}`);
+
+            fetch('/api/ptp_profile')
+                .then(r => r.json())
+                .then(d => document.getElementById('ptp-timing').innerText =
+                    `Offset: ${d.offset} ns | Jitter: ${d.jitter}`);
+
+            fetch('/api/timing_confidence')
+                .then(r => r.json())
+                .then(d => document.getElementById('timing-confidence').innerText =
+                    `Score: ${d.score}`);
+
+            fetch('/api/interference')
+                .then(r => r.json())
+                .then(d => document.getElementById('interference').innerText =
+                    `Level: ${d.level}`);
+
+            fetch('/api/sla')
+                .then(r => r.json())
+                .then(d => document.getElementById('sla-violations').innerText =
+                    `Today: ${d.count}`);
+        }
+
+        function toggleTools() {
+            const tools = document.getElementById('more-tools');
+            tools.style.display = tools.style.display === "none" ? "block" : "none";
+        }
+
+        // Refresh every 10 seconds
+        setInterval(fetchData, 10000);
+        fetchData();
+    </script>
+
+</body>
+</html>
