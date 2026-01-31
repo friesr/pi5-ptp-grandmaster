@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Environment Fingerprint</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/environment">Environment Fingerprint</a>
+    </div>
+
+    <h1>GNSS Environment Fingerprint</h1>
+
+    <div class="card">
+        <h2>Long-Term Metrics</h2>
+        <div id="env-summary"></div>
+    </div>
+
+    <div class="card">
+        <h2>Sky Density (Averaged)</h2>
+        <div id="sky-density" style="height:500px;"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/environment_fingerprint.js"></script>
+</body>
+</html>
