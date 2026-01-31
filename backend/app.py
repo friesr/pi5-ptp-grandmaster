@@ -27,6 +27,7 @@ from backend.api.multipath_heatmap import multipath_heatmap_api
 from backend.api.constellation_timeline import constellation_timeline_api
 from backend.api.fade_events import fade_events_api
 from backend.api.snr_waterfall import snr_waterfall_api
+from backend.api.geometry_timeline import geometry_timeline_api
 
 
 
@@ -66,6 +67,7 @@ app.register_blueprint(multipath_heatmap_api, url_prefix="/api/multipath_heatmap
 app.register_blueprint(constellation_timeline_api, url_prefix="/api/constellation_timeline")
 app.register_blueprint(fade_events_api, url_prefix="/api/fade_events")
 app.register_blueprint(snr_waterfall_api, url_prefix="/api/snr_waterfall")
+app.register_blueprint(geometry_timeline_api, url_prefix="/api/geometry_timeline")
 
 
 @app.route("/")
@@ -147,4 +149,8 @@ def gnss_fade_events_page():
 @app.route("/snr-waterfall")
 def snr_waterfall_page():
     return render_template("snr_waterfall.html")
+
+@app.route("/geometry-timeline")
+def geometry_timeline_page():
+    return render_template("geometry_timeline.html")
 
