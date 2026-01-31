@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="card">
+    <h2>
+        <img class="card-icon" src="/static/icons/desktop/report.svg">
+        GNSS Timing Performance Report Generator
+    </h2>
+    <p>
+        Generate full timing performance reports including metrics, plots, integrity summaries,
+        drift analysis, reliability forecasts, and recommended actions.
+    </p>
+</div>
+
+<!-- Controls -->
+<div class="card">
+    <h2>Report Parameters</h2>
+
+    <div class="flex-row">
+        <div class="flex-1">
+            <label>Start</label>
+            <input id="start" type="datetime-local">
+        </div>
+
+        <div class="flex-1">
+            <label>End</label>
+            <input id="end" type="datetime-local">
+        </div>
+
+        <div class="flex-1">
+            <label>Include Plots</label>
+            <select id="plots">
+                <option value="YES">Yes</option>
+                <option value="NO">No</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label>Include Recommendations</label>
+            <select id="recs">
+                <option value="YES">Yes</option>
+                <option value="NO">No</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-button" style="margin-top:20px;" onclick="generateReport()">
+        Generate Report
+    </button>
+</div>
+
+<!-- Summary -->
+<div class="card">
+    <h2>Report Summary</h2>
+    <div id="summary">Generate a report to see results.</div>
+</div>
+
+<!-- Metrics -->
+<div class="card">
+    <h2>Key Metrics</h2>
+    <div id="metrics">No metrics yet.</div>
+</div>
+
+<!-- Plots -->
+<div class="card">
+    <h2>Plots</h2>
+    <div id="plots-container">No plots yet.</div>
+</div>
+
+<!-- Integrity -->
+<div class="card">
+    <h2>Integrity Summary</h2>
+    <div id="integrity">No integrity data yet.</div>
+</div>
+
+<!-- Drift -->
+<div class="card">
+    <h2>Drift Analysis</h2>
+    <div id="drift">No drift data yet.</div>
+</div>
+
+<!-- Reliability -->
+<div class="card">
+    <h2>Reliability Forecast</h2>
+    <div id="reliability">No forecast yet.</div>
+</div>
+
+<!-- Recommendations -->
+<div class="card">
+    <h2>Recommended Actions</h2>
+    <div id="recommendations">No recommendations yet.</div>
+</div>
+
+<script src="/static/js/mobile_viz.js"></script>
+
+<script>
+function generateReport() {
+    const params = {
+        start: document.getElementById('start').value,
+        end: document.getElementById('end').value,
+        plots: document.getElementById('plots').value,
+        recs: document.getElementById('recs').value
+    };
+
+    fetch('/api/timing/performance_report', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(params)
+    })
+    .then(r => r.json())
+    .then(d => {
+        // Summary
+        document.getElementById('summary').innerHTML = `
+            <p><strong>Report Window:</strong> ${d.window}</p>
+            <p><strong>Overall Status:</strong> ${d.status}</p>
+            <p><strong>Notes:</strong> ${d.notes}</p>
+        `;
+
+        // Metrics
+        const mDiv = document.getElementById('metrics');
+        mDiv.innerHTML = d.metrics.map(m => `
+            <div class="alert-row alert-minor">
+                <div style="font-weight:600;">${m.label}</div>
+                <div>${m.value}</div>
+            </div>
+        `).join('');
+
+        // Plots
+        const pDiv = document.getElementById('plots-container');
+        if (d.plots.length === 0) {
+            pDiv.innerHTML = "<p>No plots included.</p>";
+        } else {
+            pDiv.innerHTML = d.plots.map(p => `
+                <div style="margin-bottom:20px;">
+                    <h3>${p.label}</h3>
+                    <div id="${p.id}"></div>
+                </div>
+            `).join('');
+
+            d.plots.forEach(p => {
+                renderSparkline(p.id, p.data, "minimal");
+            });
+        }
+
+        // Integrity
+        document.getElementById('integrity').innerHTML = `
+            <p><strong>Integrity Score:</strong> ${d.integrity.score}</p>
+            <p><strong>Label:</strong> ${d.integrity.label}</p>
+            <p><strong>Notes:</strong> ${d.integrity.notes}</p>
+        `;
+
+        // Drift
+        document.getElementById('drift').innerHTML = `
+            <p><strong>Max Drift:</strong> ${d.drift.max} ns</p>
+            <p><strong>Mean Drift:</strong> ${d.drift.mean} ns</p>
+            <p><strong>Notes:</strong> ${d.drift.notes}</p>
+        `;
+
+        // Reliability
+        document.getElementById('reliability').innerHTML = `
+            <p><strong>Score:</strong> ${d.reliability.score}</p>
+            <p><strong>Outlook:</strong> ${d.reliability.outlook}</p>
+            <p><strong>Notes:</strong> ${d.reliability.notes}</p>
+        `;
+
+        // Recommendations
+        const rDiv = document.getElementById('recommendations');
+        if (d.recommendations.length === 0) {
+            rDiv.innerHTML = "<p>No recommendations.</p>";
+        } else {
+            rDiv.innerHTML = d.recommendations.map(r => `
+                <div class="alert-row alert-major">
+                    <div style="font-weight:600;">${r.title}</div>
+                    <div>${r.action}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+</script>
+
+{% endblock %}
