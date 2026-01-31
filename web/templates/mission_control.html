@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mission Control</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/mission-control">Mission Control</a>
+    </div>
+
+    <h1>GNSS Timing Mission Control</h1>
+
+    <div class="grid">
+
+        <div class="card wide">
+            <h2>Top-Level Health</h2>
+            <div id="health-summary"></div>
+        </div>
+
+        <div class="card">
+            <h2>Timing Confidence</h2>
+            <div id="confidence-chart" style="height:200px;"></div>
+        </div>
+
+        <div class="card">
+            <h2>Timing Error</h2>
+            <div id="error-chart" style="height:200px;"></div>
+        </div>
+
+        <div class="card">
+            <h2>Interference</h2>
+            <div id="interference-chart" style="height:200px;"></div>
+        </div>
+
+        <div class="card">
+            <h2>GNSS Availability</h2>
+            <div id="availability-chart" style="height:200px;"></div>
+        </div>
+
+        <div class="card wide">
+            <h2>Recent Events</h2>
+            <pre id="event-feed" style="height:300px; overflow-y:auto;"></pre>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/mission_control.js"></script>
+
+</body>
+</html>
