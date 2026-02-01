@@ -1,77 +1,52 @@
 {% extends "base.html" %}
+{% block title %}Observatory Index{% endblock %}
+
 {% block content %}
+<div class="grid">
+    <section class="card">
+        <h2>Core Observatory</h2>
+        <div class="card-links">
+            <a href="{{ url_for('mission_control_page') }}">Mission Control</a>
+            <a href="{{ url_for('system_health_page') }}">System Health</a>
+            <a href="{{ url_for('unified_timeline_page') }}">Unified Timeline</a>
+            <a href="{{ url_for('digital_twin_page') }}">Digital Twin</a>
+        </div>
+    </section>
 
-<!-- Welcome Card -->
-<div class="card">
-    <h2>
-        <img class="card-icon" src="/static/icons/desktop/dashboard.svg">
-        Welcome to the GNSS Timing Observatory
-    </h2>
-    <p>
-        This is your unified desktop dashboard. Use the navigation on the left to explore GNSS analytics,
-        PTP timing, Digital Twin tools, system health, alerts, and configuration.
-    </p>
+    <section class="card">
+        <h2>Global Intelligence</h2>
+        <div class="card-links">
+            <a href="{{ url_for('global_control_room_page') }}">Global Control Room</a>
+            <a href="{{ url_for('global_map_page') }}">Global Map</a>
+            <a href="{{ url_for('federation_page') }}">Federation</a>
+            <a href="{{ url_for('global_event_correlator_page') }}">Global Event Correlator</a>
+            <a href="{{ url_for('global_risk_forecast_page') }}">Global Risk Forecast</a>
+            <a href="{{ url_for('global_replay_page') }}">Global Replay</a>
+            <a href="{{ url_for('global_storyboard_page') }}">Global Storyboard</a>
+            <a href="{{ url_for('global_knowledge_archive_page') }}">Global Knowledge Archive</a>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Configuration & Extensibility</h2>
+        <div class="card-links">
+            <a href="{{ url_for('config_manager_page') }}">Config Manager</a>
+            <a href="{{ url_for('plugin_manager_page') }}">Plugin Manager</a>
+            <a href="{{ url_for('data_lake_page') }}">Data Lake</a>
+            <a href="{{ url_for('ml_engine_page') }}">ML Engine</a>
+            <a href="{{ url_for('autonomous_ops_page') }}">Autonomous Ops</a>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Operator Tools</h2>
+        <div class="card-links">
+            <a href="{{ url_for('api_explorer_page') }}">API Explorer</a>
+            <a href="{{ url_for('knowledge_graph_page') }}">Knowledge Graph</a>
+            <a href="{{ url_for('assistant_panel_page') }}">Assistant Panel</a>
+            <a href="{{ url_for('operator_timeline_page') }}">Operator Timeline</a>
+            <a href="{{ url_for('state_snapshot_page') }}">State Snapshot</a>
+        </div>
+    </section>
 </div>
-
-<!-- GNSS Overview -->
-<div class="card">
-    <h2>
-        <img class="card-icon" src="/static/icons/desktop/gnss.svg">
-        GNSS Overview
-    </h2>
-    <p>
-        Access GNSS history, outages, multipath analysis, constellation performance, skyplot playback,
-        and satellite health tools. These pages provide deep visibility into signal quality, geometry,
-        and constellation behavior.
-    </p>
-</div>
-
-<!-- PTP Overview -->
-<div class="card">
-    <h2>
-        <img class="card-icon" src="/static/icons/desktop/ptp.svg">
-        PTP Timing Overview
-    </h2>
-    <p>
-        Monitor PTP offset, jitter, servo state, timing accuracy, event logs, and stability predictors.
-        These tools help diagnose timing drift, servo anomalies, and synchronization issues.
-    </p>
-</div>
-
-<!-- System Health -->
-<div class="card">
-    <h2>
-        <img class="card-icon" src="/static/icons/desktop/health.svg">
-        System Health
-    </h2>
-    <p>
-        Review CPU, memory, disk usage, service status, and receiver health. This section provides
-        operational insight into the hardware and software components powering the observatory.
-    </p>
-</div>
-
-<!-- Alerts -->
-<div class="card">
-    <h2>
-        <img class="card-icon" src="/static/icons/desktop/alerts.svg">
-        Alerts & Notifications
-    </h2>
-    <p>
-        View SLA violations, interference detections, GNSS outages, PTP servo events, and anomaly
-        classifications. The alerts system helps you quickly identify and respond to timing risks.
-    </p>
-</div>
-
-<!-- Configuration -->
-<div class="card">
-    <h2>
-        <img class="card-icon" src="/static/icons/desktop/config.svg">
-        Configuration & Tools
-    </h2>
-    <p>
-        Manage system configuration, export data, adjust alert rules, and access advanced Digital Twin
-        simulation tools. This section provides full control over observatory behavior and analytics.
-    </p>
-</div>
-
 {% endblock %}
