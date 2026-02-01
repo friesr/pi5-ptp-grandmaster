@@ -19,7 +19,7 @@ and use to initialize all global APIs cleanly.
 """
 from backend.analysis.global_nodes import GlobalNode, GlobalNodeRegistry
 #from backend.analysis.node_model import NodeModel
-from backend.analysis.federation_engine import FederationEngine
+from backend.analysis.global_federation_engine import GlobalFederationEngine
 from backend.analysis.global_intel_engine import GlobalIntelEngine
 from backend.analysis.global_correlation_engine import GlobalCorrelationEngine
 from backend.analysis.global_risk_engine import GlobalRiskEngine
