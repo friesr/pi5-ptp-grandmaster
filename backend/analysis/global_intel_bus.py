@@ -18,7 +18,7 @@ It provides a single integration object that app.py can import
 and use to initialize all global APIs cleanly.
 """
 
-from backend.analysis.global.node_model import NodeModel
+from backend.analysis.node_model import NodeModel
 from backend.analysis.federation_engine import FederationEngine
 from backend.analysis.global_intel_engine import GlobalIntelEngine
 from backend.analysis.global_correlation_engine import GlobalCorrelationEngine
