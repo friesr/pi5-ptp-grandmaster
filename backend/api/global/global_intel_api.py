@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from backend.analysis.global.global_intel_engine import GlobalIntelEngine
+from backend.analysis.global_intel_engine import GlobalIntelEngine
 
 # Injected by app.py at startup
 GLOBAL_NODE_REGISTRY = {}
