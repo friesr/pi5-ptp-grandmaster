@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from backend.analysis.global.global_replay_engine import GlobalReplayEngine
+from backend.analysis.global_replay_engine import GlobalReplayEngine
 
 # Injected by app.py
 GLOBAL_NODE_REGISTRY = {}
