@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from backend.analysis.global.global_correlation_engine import GlobalCorrelationEngine
+from backend.analysis.global_correlation_engine import GlobalCorrelationEngine
 
 # Injected by app.py
 GLOBAL_NODE_REGISTRY = {}
