@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from backend.analysis.global.global_archive_engine import GlobalArchiveEngine
+from backend.analysis.global_archive_engine import GlobalArchiveEngine
 
 # Injected by app.py
 GLOBAL_ARCHIVE_ENGINE = None
