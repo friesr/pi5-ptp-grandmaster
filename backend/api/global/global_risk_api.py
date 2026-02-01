@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from backend.analysis.global.global_risk_engine import GlobalRiskEngine
+from backend.analysis.global_risk_engine import GlobalRiskEngine
 
 # Injected by app.py
 GLOBAL_NODE_REGISTRY = {}
