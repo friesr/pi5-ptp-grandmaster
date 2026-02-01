@@ -4,21 +4,21 @@ from flask_cors import CORS
 # ------------------------------------------------------------
 # Global Intelligence Bus
 # ------------------------------------------------------------
-from backend.analysis.global.global_intel_bus import GlobalIntelBus
+from backend.analysis.global_intel_bus import GlobalIntelBus
 
 # ------------------------------------------------------------
 # Global API Blueprints
 # ------------------------------------------------------------
-from backend.api.global.global_nodes_api import nodes_api
-from backend.api.global.global_intel_api import global_intel_api
-from backend.api.global.global_federation_api import federation_api
-from backend.api.global.global_map_api import global_map_api
-from backend.api.global.global_correlation_api import global_correlation_api
-from backend.api.global.global_risk_api import global_risk_api
-from backend.api.global.global_control_room_api import global_control_room_api
-from backend.api.global.global_replay_api import global_replay_api
-from backend.api.global.global_storyboard_api import global_storyboard_api
-from backend.api.global.global_archive_api import global_archive_api
+from backend.api.global_nodes_api import nodes_api
+from backend.api.global_intel_api import global_intel_api
+from backend.api.global_federation_api import federation_api
+from backend.api.global_map_api import global_map_api
+from backend.api.global_correlation_api import global_correlation_api
+from backend.api.global_risk_api import global_risk_api
+from backend.api.global_control_room_api import global_control_room_api
+from backend.api.global_replay_api import global_replay_api
+from backend.api.global_storyboard_api import global_storyboard_api
+from backend.api.global_archive_api import global_archive_api
 
 
 # ------------------------------------------------------------
