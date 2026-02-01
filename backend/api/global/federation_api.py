@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from backend.analysis.global.federation_engine import FederationEngine
+from backend.analysis.global_federation_engine import GlobalFederationEngine
 
 # Injected by app.py at startup
 GLOBAL_NODE_REGISTRY = {}
