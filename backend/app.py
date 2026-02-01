@@ -1,10 +1,14 @@
 from flask import Flask
 from flask_cors import CORS
 
+# ------------------------------------------------------------
 # Global Intelligence Bus
+# ------------------------------------------------------------
 from backend.analysis.global.global_intel_bus import GlobalIntelBus
-#from backend.analysis.global_intel_bus import GlobalIntelBus
-# Global APIs
+
+# ------------------------------------------------------------
+# Global API Blueprints
+# ------------------------------------------------------------
 from backend.api.global.global_nodes_api import nodes_api
 from backend.api.global.global_intel_api import global_intel_api
 from backend.api.global.global_federation_api import federation_api
@@ -17,6 +21,9 @@ from backend.api.global.global_storyboard_api import global_storyboard_api
 from backend.api.global.global_archive_api import global_archive_api
 
 
+# ------------------------------------------------------------
+# Application Factory
+# ------------------------------------------------------------
 def create_app():
     app = Flask(__name__)
     CORS(app)
@@ -29,6 +36,7 @@ def create_app():
     # ------------------------------------------------------------
     # Inject engines into global APIs
     # ------------------------------------------------------------
+
     # Nodes
     nodes_api.GLOBAL_NODE_REGISTRY = bus.nodes
 
@@ -103,12 +111,15 @@ def create_app():
     def root():
         return {
             "status": "global-intelligence-online",
-            "subsystems": bus.snapshot()
+            "summary": bus.summary()
         }
 
     return app
 
 
+# ------------------------------------------------------------
+# Standalone Execution
+# ------------------------------------------------------------
 if __name__ == "__main__":
     app = create_app()
     app.run(host="0.0.0.0", port=5000, debug=True)
