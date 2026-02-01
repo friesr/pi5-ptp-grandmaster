@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from backend.analysis.global.global_control_room_engine import GlobalControlRoomEngine
+from backend.analysis.global_control_room_engine import GlobalControlRoomEngine
 
 # Injected by app.py
 GLOBAL_NODE_REGISTRY = {}
