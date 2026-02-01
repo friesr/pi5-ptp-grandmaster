@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from backend.analysis.global.global_storyboard_engine import GlobalStoryboardEngine
+from backend.analysis.global_storyboard_engine import GlobalStoryboardEngine
 
 # Injected by app.py
 GLOBAL_NODE_REGISTRY = {}
