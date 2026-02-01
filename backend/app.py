@@ -2,8 +2,8 @@ from flask import Flask
 from flask_cors import CORS
 
 # Global Intelligence Bus
-from backend.analysis.global.global_intel_bus import GlobalIntelBus
-
+#from backend.analysis.global.global_intel_bus import GlobalIntelBus
+from backend.analysis.global_intel_bus import GlobalIntelBus
 # Global APIs
 from backend.api.global.global_nodes_api import nodes_api
 from backend.api.global.global_intel_api import global_intel_api
