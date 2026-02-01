@@ -2,122 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Timing Observatory</title>
-
-    <!-- Responsive -->
+    <title>{% block title %}Timing Observatory{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="/static/css/desktop.css">
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}">
+
+    <!-- Leaflet for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+    {% block extra_head %}{% endblock %}
 </head>
-
 <body>
-
-    <!-- Top Navigation Bar -->
-    <header style="
-        display:flex;
-        align-items:center;
-        padding:14px 20px;
-        background:var(--bg-card);
-        border-bottom:1px solid var(--border);
-        box-shadow:var(--shadow);
-    ">
-        <img src="/static/icons/desktop/dashboard.svg" style="width:26px; margin-right:12px; opacity:0.9;">
-        <h1 style="font-size:20px; margin:0; font-weight:600;">Timing Observatory</h1>
-
-        <!-- Spacer -->
-        <div style="flex:1;"></div>
-
-        <!-- Theme Toggle -->
-        <button id="theme-toggle" class="save-button" style="padding:6px 12px;">
-            Toggle Theme
-        </button>
+    <header class="top-bar">
+        <div class="top-bar-left">
+            <a href="{{ url_for('index') }}" class="brand">Timing Observatory</a>
+        </div>
+        <nav class="top-nav">
+            <a href="{{ url_for('mission_control_page') }}">Mission Control</a>
+            <a href="{{ url_for('global_control_room_page') }}">Global Control Room</a>
+            <a href="{{ url_for('global_map_page') }}">Global Map</a>
+            <a href="{{ url_for('federation_page') }}">Federation</a>
+            <a href="{{ url_for('data_lake_page') }}">Data Lake</a>
+            <a href="{{ url_for('ml_engine_page') }}">ML Engine</a>
+        </nav>
     </header>
 
-    <!-- Sidebar + Content Layout -->
-    <div style="display:flex;">
+    <main class="page-content">
+        {% block content %}{% endblock %}
+    </main>
 
-        <!-- Sidebar -->
-        <nav style="
-            width:240px;
-            min-height:100vh;
-            background:var(--bg-card);
-            border-right:1px solid var(--border);
-            padding:20px;
-            box-shadow:var(--shadow);
-        ">
-            <h3 style="margin-top:0; margin-bottom:14px;">Navigation</h3>
+    <footer class="footer">
+        <span>Timing Observatory · Global Intelligence Layer</span>
+    </footer>
 
-            <ul style="list-style:none; padding:0; margin:0;">
-                <li><a href="/" class="nav-link">Dashboard</a></li>
-                <li><a href="/mission_control" class="nav-link">Mission Control</a></li>
-                <li><a href="/system_health" class="nav-link">System Health</a></li>
-                <li><a href="/gnss_history" class="nav-link">GNSS History</a></li>
-                <li><a href="/ptp_profile" class="nav-link">PTP Profile</a></li>
-                <li><a href="/alerts" class="nav-link">Alerts</a></li>
-                <li><a href="/timeline" class="nav-link">Timeline</a></li>
+    <!-- Core JS -->
+    <script src="{{ url_for('static', filename='js/mobile_viz.js') }}"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-                <hr style="margin:16px 0; border-color:var(--border);">
-
-                <li><a href="/digital_twin/replay" class="nav-link">Replay Studio</a></li>
-                <li><a href="/digital_twin/multireplay" class="nav-link">Multi‑Replay</a></li>
-                <li><a href="/digital_twin/montecarlo" class="nav-link">Monte Carlo</a></li>
-                <li><a href="/digital_twin/scenario_designer" class="nav-link">Scenario Designer</a></li>
-                <li><a href="/digital_twin/scenario_library" class="nav-link">Scenario Library</a></li>
-                <li><a href="/digital_twin/risk_curves" class="nav-link">Risk Curves</a></li>
-
-                <hr style="margin:16px 0; border-color:var(--border);">
-
-                <li><a href="/quick_actions" class="nav-link">Quick Actions</a></li>
-                <li><a href="/data_export" class="nav-link">Data Export</a></li>
-                <li><a href="/preferences" class="nav-link">Preferences</a></li>
-            </ul>
-        </nav>
-
-        <!-- Main Content -->
-        <main>
-            {% block content %}
-            {% endblock %}
-        </main>
-
-    </div>
-
-    <!-- Theme Engine -->
-    <script>
-    function applyTheme(theme) {
-        if (theme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-        }
-    }
-
-    function loadTheme() {
-        fetch('/api/mobile_prefs')
-            .then(r => r.json())
-            .then(p => {
-                const theme = p.theme || 'light';
-                applyTheme(theme);
-            });
-    }
-
-    function saveTheme(theme) {
-        fetch('/api/mobile_prefs', {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ theme })
-        });
-    }
-
-    document.getElementById('theme-toggle').onclick = () => {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const newTheme = isDark ? 'light' : 'dark';
-        applyTheme(newTheme);
-        saveTheme(newTheme);
-    };
-
-    loadTheme();
-    </script>
-
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>
