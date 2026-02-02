@@ -1,8 +1,5 @@
-
 <template>
-  <div class="page">
-    <NavBar />
-
+  <DefaultLayout>
     <TimeCard
       :time="intel.time_now"
       :uncertainty="intel.uncertainty_95_ns"
@@ -12,14 +9,14 @@
     <SatelliteSummary :satellites="map.satellites" />
 
     <SystemHealthMini :health="health" />
-  </div>
+  </DefaultLayout>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { api } from '../api/index.js'
 
-import NavBar from '../components/NavBar.vue'
+import DefaultLayout from '../layouts/DefaultLayout.vue'
 import TimeCard from '../components/TimeCard.vue'
 import SatelliteSummary from '../components/SatelliteSummary.vue'
 import SystemHealthMini from '../components/SystemHealthMini.vue'
@@ -40,6 +37,6 @@ async function load() {
 
 onMounted(() => {
   load()
-  setInterval(load, 1000) // refresh every second
+  setInterval(load, 1000)
 })
 </script>
