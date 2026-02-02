@@ -32,7 +32,7 @@ class GlobalIntelBus:
     def __init__(self):
         # Registry of all global nodes
         self.nodes = {
-            "obs-real-01": GlobalNode("obs-real-01", 35.2828, -90.1936, is_real=True),
+            "obs-real-01": GlobalNode("obs-real-01", 35.2828, -90.1936),
             "obs-sim-01": GlobalNode("obs-sim-01", 35.2828, -90.1936),
             "obs-sim-02": GlobalNode("obs-sim-02", 35.2828, -90.1936),
             "obs-sim-03": GlobalNode("obs-sim-03", 35.2828, -90.1936),
