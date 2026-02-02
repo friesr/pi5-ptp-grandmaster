@@ -19,7 +19,7 @@ and use to initialize all global APIs cleanly.
 """
 from backend.analysis.global_nodes import GlobalNode, GlobalNodeRegistry
 #from backend.analysis.node_model import NodeModel
-from backend.analysis.global_federation_engine import GlobalFederationEngine
+from backend.analysis.federation_engine import FederationEngine
 from backend.analysis.global_intel_engine import GlobalIntelEngine
 from backend.analysis.global_correlation_engine import GlobalCorrelationEngine
 from backend.analysis.global_risk_engine import GlobalRiskEngine
@@ -35,10 +35,10 @@ class GlobalIntelBus:
         # Node Registry
         # ------------------------------------------------------------
         self.nodes = {
-            "obs-real-01": NodeModel("obs-real-01", is_real=True),
-            "obs-sim-01": NodeModel("obs-sim-01"),
-            "obs-sim-02": NodeModel("obs-sim-02"),
-            "obs-sim-03": NodeModel("obs-sim-03"),
+            "obs-real-01": GlobalNode("obs-real-01"),
+            "obs-sim-01": GlobalNode("obs-sim-01"),
+            "obs-sim-02": GlobalNode("obs-sim-02"),
+            "obs-sim-03": GlobalNode("obs-sim-03"),
         }
 
         # ------------------------------------------------------------
