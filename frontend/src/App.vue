@@ -7,11 +7,4 @@
 // All pages and dashboards load through router.
 </script>
 
-<style>
-body {
-  margin: 0;
-  background: #111;
-  color: #fff;
-  font-family: system-ui, sans-serif;
-}
-</style>
+
