@@ -1,0 +1,12 @@
+[Unit]
+Description=PTP Observatory Frontend
+After=network.target
+
+[Service]
+WorkingDirectory=/var/www/ptp-observatory
+ExecStart=/usr/bin/nginx -g 'daemon off;'
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
