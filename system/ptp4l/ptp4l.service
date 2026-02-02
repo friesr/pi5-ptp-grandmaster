@@ -1,0 +1,10 @@
+[Unit]
+Description=PTP4L Grandmaster
+After=network.target
+
+[Service]
+ExecStart=/usr/sbin/ptp4l -f /etc/ptp4l.conf -i eth0 -m
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
