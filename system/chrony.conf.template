@@ -1,0 +1,10 @@
+pool pool.ntp.org iburst
+
+refclock SHM 0 offset 0.0 delay 0.2 refid NMEA
+
+# PPS (enable when M8T arrives)
+# refclock PPS /dev/pps0 lock NMEA refid PPS
+
+driftfile /var/lib/chrony/drift
+rtcsync
+makestep 1.0 3
