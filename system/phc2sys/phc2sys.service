@@ -1,0 +1,10 @@
+[Unit]
+Description=PHC2SYS Clock Sync
+After=ptp4l.service
+
+[Service]
+ExecStart=/usr/sbin/phc2sys -f /etc/phc2sys.conf -m
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
