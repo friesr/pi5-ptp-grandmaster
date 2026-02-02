@@ -1,0 +1,10 @@
+[global]
+gmCapable 1
+priority1 128
+priority2 128
+domainNumber 0
+time_stamping hardware
+twoStepFlag 1
+logging_level 6
+
+[eth0]
