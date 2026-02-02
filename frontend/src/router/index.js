@@ -1,46 +1,23 @@
-import { createRouter, createWebHistory } from "vue-router"
+import { createRouter, createWebHistory } from 'vue-router'
+
+// Pages
+import Home from '../pages/Home.vue'
+import GlobalMap from '../pages/GlobalMap.vue'
+import GlobalControlRoom from '../pages/GlobalControlRoom.vue'
+import GlobalReplay from '../pages/GlobalReplay.vue'
+import GlobalArchive from '../pages/GlobalArchive.vue'
+import GlobalStoryboards from '../pages/GlobalStoryboards.vue'
 
 const routes = [
-  {
-    path: "/",
-    name: "home",
-    component: () => import("../components/GlobalSystemGrid.vue")
-  },
-  {
-    path: "/map",
-    name: "map",
-    component: () => import("../pages/GlobalMap.vue")
-  },
-  {
-    path: "/replay",
-    name: "replay",
-    component: () => import("../pages/GlobalReplay.vue")
-  },
-  {
-    path: "/archive",
-    name: "archive",
-    component: () => import("../pages/GlobalArchive.vue")
-  },
-  {
-    path: "/storyboards",
-    name: "storyboards",
-    component: () => import("../pages/GlobalStoryboards.vue")
-  },
-  {
-    path: "/control-room",
-    name: "control-room",
-    component: () => import("../pages/GlobalControlRoom.vue")
-  },
-  {
-    path: "/:pathMatch(.*)*",
-    name: "not-found",
-    component: () => import("../components/GlobalSystemGrid.vue")
-  }
+  { path: '/', component: Home },
+  { path: '/map', component: GlobalMap },
+  { path: '/control', component: GlobalControlRoom },
+  { path: '/replay', component: GlobalReplay },
+  { path: '/archive', component: GlobalArchive },
+  { path: '/storyboards', component: GlobalStoryboards }
 ]
 
-const router = createRouter({
+export default createRouter({
   history: createWebHistory(),
   routes
 })
-
-export default router
