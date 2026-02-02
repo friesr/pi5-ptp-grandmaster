@@ -28,15 +28,19 @@ from backend.analysis.global_replay_engine import GlobalReplayEngine
 from backend.analysis.global_storyboard_engine import GlobalStoryboardEngine
 from backend.analysis.global_archive_engine import GlobalArchiveEngine
 
+
 class GlobalIntelBus:
     def __init__(self):
-        # Registry of all global nodes
+        # ------------------------------------------------------------
+        # Node Registry
+        # ------------------------------------------------------------
         self.nodes = {
-            "obs-real-01": GlobalNode("obs-real-01", 35.2828, -90.1936),
-            "obs-sim-01": GlobalNode("obs-sim-01", 35.2828, -90.1936),
-            "obs-sim-02": GlobalNode("obs-sim-02", 35.2828, -90.1936),
-            "obs-sim-03": GlobalNode("obs-sim-03", 35.2828, -90.1936),
+            "obs-real-01": GlobalNode("obs-real-01"),
+            "obs-sim-01": GlobalNode("obs-sim-01"),
+            "obs-sim-02": GlobalNode("obs-sim-02"),
+            "obs-sim-03": GlobalNode("obs-sim-03"),
         }
+
         # ------------------------------------------------------------
         # Engines
         # ------------------------------------------------------------

@@ -25,9 +25,9 @@ from dataclasses import dataclass, field
 @dataclass
 class GlobalNode:
     node_id: str
-    name: str
-    latitude: float
-    longitude: float
+    name: str = ""
+    latitude: float = 0.0
+    longitude: float = 0.0
 
     # Timing + health metrics
     drift_ns: float = 0.0
