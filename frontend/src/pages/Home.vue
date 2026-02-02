@@ -27,7 +27,7 @@ const health = ref({})
 
 async function load() {
   try {
-    intel.value = await api("intel/snapshot")
+    intel.value = await api("global/intel/snapshot")
     map.value = await api("map/nodes")
     health.value = await api("control_room/snapshot")
   } catch (err) {
