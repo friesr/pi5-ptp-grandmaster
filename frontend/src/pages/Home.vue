@@ -1,83 +1,45 @@
+
 <template>
   <div class="page">
-
-    <!-- Top Navigation -->
     <NavBar />
 
-    <!-- Time + Uncertainty -->
-    <GlobalSystemSummaryCard
-      :timeNow="data.time_now"
-      :uncertainty95="data.uncertainty_95_ns"
-      :reliability95="data.reliability_95"
-      :timeError="data.time_error_ns"
-      :clockStability="data.clock_stability"
+    <TimeCard
+      :time="intel.time_now"
+      :uncertainty="intel.uncertainty_95_ns"
+      :reliability="intel.reliability_95"
     />
 
-    <!-- Satellite Summary -->
-    <GlobalConstellationSummaryCard
-      :satellites="data.satellites"
-      :snrAvg="data.snr_avg"
-      :dops="data.dops"
-    />
+    <SatelliteSummary :satellites="map.satellites" />
 
-    <!-- Skyplot -->
-    <GlobalConstellationMap :satellites="data.satellites" />
-
-    <!-- System Health -->
-    <GlobalSystemHealth :health="data.health" />
-
-    <!-- Quick Links -->
-    <GlobalSystemGrid />
-
+    <SystemHealthMini :health="health" />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { api } from '../api/index.js'
 
 import NavBar from '../components/NavBar.vue'
-import GlobalSystemSummaryCard from '../components/GlobalSystemSummaryCard.vue'
-import GlobalConstellationSummaryCard from '../components/GlobalConstellationSummaryCard.vue'
-import GlobalConstellationMap from '../components/GlobalConstellationMap.vue'
-import GlobalSystemHealth from '../components/GlobalSystemHealth.vue'
-import GlobalSystemGrid from '../components/GlobalSystemGrid.vue'
+import TimeCard from '../components/TimeCard.vue'
+import SatelliteSummary from '../components/SatelliteSummary.vue'
+import SystemHealthMini from '../components/SystemHealthMini.vue'
 
-const data = ref({
-  time_now: null,
-  uncertainty_95_ns: null,
-  reliability_95: null,
-  time_error_ns: null,
-  clock_stability: null,
-  satellites: [],
-  snr_avg: null,
-  dops: {},
-  health: {}
-})
+const intel = ref({})
+const map = ref({ satellites: [] })
+const health = ref({})
 
-async function loadData() {
+async function load() {
   try {
-    const intel = await fetch('/api/global/intel/snapshot').then(r => r.json())
-    const map = await fetch('/api/global/map/nodes').then(r => r.json())
-    const health = await fetch('/api/global/control_room/snapshot').then(r => r.json())
-
-    data.value = {
-      ...intel,
-      satellites: map.satellites || [],
-      health: health || {}
-    }
+    intel.value = await api("intel/snapshot")
+    map.value = await api("map/nodes")
+    health.value = await api("control_room/snapshot")
   } catch (err) {
-    console.error('Error loading home page data', err)
+    console.error("Error loading home page data:", err)
   }
 }
 
 onMounted(() => {
-  loadData()
-  setInterval(loadData, 1000) // update time every second
+  load()
+  setInterval(load, 1000) // refresh every second
 })
 </script>
-
-<style scoped>
-.page {
-  padding: 2rem;
-}
-</style>
