@@ -7,6 +7,11 @@ from flask_cors import CORS
 from backend.analysis.global_intel_bus import GlobalIntelBus
 
 # ------------------------------------------------------------
+# Timing Engine
+# ------------------------------------------------------------
+from backend.analysis.timing_engine import TimingEngine
+
+# ------------------------------------------------------------
 # Global API Blueprints
 # ------------------------------------------------------------
 from backend.api.global_nodes_api import nodes_api
@@ -19,6 +24,7 @@ from backend.api.global_control_room_api import global_control_room_api
 from backend.api.global_replay_api import global_replay_api
 from backend.api.global_storyboard_api import global_storyboard_api
 from backend.api.global_archive_api import global_archive_api
+from backend.api.global_timing_api import global_timing_api
 
 
 # ------------------------------------------------------------
@@ -32,6 +38,11 @@ def create_app():
     # Initialize Global Intelligence Bus
     # ------------------------------------------------------------
     bus = GlobalIntelBus()
+
+    # ------------------------------------------------------------
+    # Initialize Timing Engine
+    # ------------------------------------------------------------
+    timing_engine = TimingEngine()
 
     # ------------------------------------------------------------
     # Inject engines into global APIs
@@ -90,6 +101,9 @@ def create_app():
     # Archive
     global_archive_api.GLOBAL_ARCHIVE_ENGINE = bus.archive
 
+    # Timing
+    global_timing_api.GLOBAL_TIMING_ENGINE = timing_engine
+
     # ------------------------------------------------------------
     # Register Blueprints
     # ------------------------------------------------------------
@@ -103,6 +117,7 @@ def create_app():
     app.register_blueprint(global_replay_api, url_prefix="/api/global/replay")
     app.register_blueprint(global_storyboard_api, url_prefix="/api/global/storyboard")
     app.register_blueprint(global_archive_api, url_prefix="/api/global/archive")
+    app.register_blueprint(global_timing_api, url_prefix="/api/global/timing")
 
     # ------------------------------------------------------------
     # Root Endpoint
