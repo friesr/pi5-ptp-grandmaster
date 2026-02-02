@@ -1,0 +1,4 @@
+[phc2sys]
+master eth0
+slave CLOCK_REALTIME
+step_threshold 1.0
