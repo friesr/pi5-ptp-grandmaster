@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, request
 from flask_cors import CORS
 
 # ------------------------------------------------------------
@@ -7,16 +7,11 @@ from flask_cors import CORS
 from backend.analysis.global_intel_bus import GlobalIntelBus
 
 # ------------------------------------------------------------
-# Timing Engine
-# ------------------------------------------------------------
-from backend.analysis.timing_engine import TimingEngine
-
-# ------------------------------------------------------------
 # Global API Blueprints
 # ------------------------------------------------------------
-from backend.api.global_nodes_api import nodes_api
+from backend.api.global_nodes_api import global_nodes_api as nodes_api
 from backend.api.global_intel_api import global_intel_api
-from backend.api.global_federation_api import federation_api
+from backend.api.global_federation_api import federation_api  # alias module
 from backend.api.global_map_api import global_map_api
 from backend.api.global_correlation_api import global_correlation_api
 from backend.api.global_risk_api import global_risk_api
@@ -24,7 +19,7 @@ from backend.api.global_control_room_api import global_control_room_api
 from backend.api.global_replay_api import global_replay_api
 from backend.api.global_storyboard_api import global_storyboard_api
 from backend.api.global_archive_api import global_archive_api
-from backend.api.global_timing_api import global_timing_api
+from backend.api.system_api import system_api
 
 
 # ------------------------------------------------------------
@@ -34,19 +29,26 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
 
-    # ------------------------------------------------------------
+    # --------------------------------------------------------
+    # Legacy Redirect Layer
+    # --------------------------------------------------------
+    @app.before_request
+    def legacy_api_redirect():
+        path = request.path
+
+        # Only rewrite /api/<something> that is missing /global/
+        if path.startswith("/api/") and not path.startswith("/api/global/"):
+            new_path = "/api/global" + path[len("/api"):]
+            return redirect(new_path, code=302)
+
+    # --------------------------------------------------------
     # Initialize Global Intelligence Bus
-    # ------------------------------------------------------------
+    # --------------------------------------------------------
     bus = GlobalIntelBus()
 
-    # ------------------------------------------------------------
-    # Initialize Timing Engine
-    # ------------------------------------------------------------
-    timing_engine = TimingEngine()
-
-    # ------------------------------------------------------------
+    # --------------------------------------------------------
     # Inject engines into global APIs
-    # ------------------------------------------------------------
+    # --------------------------------------------------------
 
     # Nodes
     nodes_api.GLOBAL_NODE_REGISTRY = bus.nodes
@@ -58,6 +60,10 @@ def create_app():
     # Federation
     federation_api.GLOBAL_NODE_REGISTRY = bus.nodes
     federation_api.GLOBAL_FEDERATION_ENGINE = bus.federation
+    federation_api.GLOBAL_INTEL_ENGINE = bus.intel
+    federation_api.GLOBAL_CORRELATION_ENGINE = bus.correlation
+    federation_api.GLOBAL_RISK_ENGINE = bus.risk
+    federation_api.GLOBAL_REPLAY_ENGINE = bus.replay
 
     # Map
     global_map_api.GLOBAL_NODE_REGISTRY = bus.nodes
@@ -81,7 +87,7 @@ def create_app():
     global_control_room_api.GLOBAL_INTEL_ENGINE = bus.intel
     global_control_room_api.GLOBAL_CORRELATION_ENGINE = bus.correlation
     global_control_room_api.GLOBAL_RISK_ENGINE = bus.risk
-    global_control_room_api.GLOBAL_CONTROL_ROOM_ENGINE = bus.control_room
+    global_control_room_api.GLOBAL_REPLAY_ENGINE = bus.replay
 
     # Replay
     global_replay_api.GLOBAL_NODE_REGISTRY = bus.nodes
@@ -101,12 +107,9 @@ def create_app():
     # Archive
     global_archive_api.GLOBAL_ARCHIVE_ENGINE = bus.archive
 
-    # Timing
-    global_timing_api.GLOBAL_TIMING_ENGINE = timing_engine
-
-    # ------------------------------------------------------------
+    # --------------------------------------------------------
     # Register Blueprints
-    # ------------------------------------------------------------
+    # --------------------------------------------------------
     app.register_blueprint(nodes_api, url_prefix="/api/global/nodes")
     app.register_blueprint(global_intel_api, url_prefix="/api/global/intel")
     app.register_blueprint(federation_api, url_prefix="/api/global/federation")
@@ -117,16 +120,16 @@ def create_app():
     app.register_blueprint(global_replay_api, url_prefix="/api/global/replay")
     app.register_blueprint(global_storyboard_api, url_prefix="/api/global/storyboard")
     app.register_blueprint(global_archive_api, url_prefix="/api/global/archive")
-    app.register_blueprint(global_timing_api, url_prefix="/api/global/timing")
+    app.register_blueprint(system_api)
 
-    # ------------------------------------------------------------
+    # --------------------------------------------------------
     # Root Endpoint
-    # ------------------------------------------------------------
+    # --------------------------------------------------------
     @app.route("/")
     def root():
         return {
             "status": "global-intelligence-online",
-            "summary": bus.summary()
+            "summary": bus.snapshot(),
         }
 
     return app
@@ -137,4 +140,4 @@ def create_app():
 # ------------------------------------------------------------
 if __name__ == "__main__":
     app = create_app()
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
