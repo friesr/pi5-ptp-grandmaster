@@ -13,30 +13,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { api } from '../api/index.js'
+import { ref, onMounted } from "vue"
+import { api } from "@/api"
 
-import DefaultLayout from '../layouts/DefaultLayout.vue'
-import TimeCard from '../components/TimeCard.vue'
-import SatelliteSummary from '../components/SatelliteSummary.vue'
-import SystemHealthMini from '../components/SystemHealthMini.vue'
+const system = ref(null)
 
-const intel = ref({})
-const map = ref({ satellites: [] })
-const health = ref({})
-
-async function load() {
+async function loadSystem() {
   try {
-    intel.value = await api("global/intel/snapshot")
-    map.value = await api("map/nodes")
-    health.value = await api("control_room/snapshot")
+    system.value = await api("system/health")
   } catch (err) {
-    console.error("Error loading home page data:", err)
+    console.error("System health load failed:", err)
   }
 }
 
 onMounted(() => {
-  load()
-  setInterval(load, 1000)
+  loadSystem()
+  setInterval(loadSystem, 1000)
 })
 </script>
