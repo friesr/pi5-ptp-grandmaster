@@ -135,6 +135,10 @@ def create_app():
             "summary": bus.snapshot(),
         }
 
+    @app.route("/api/test")
+    def test():
+        return {"status": "backend alive"}
+
     return app
 
 
