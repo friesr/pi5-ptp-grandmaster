@@ -23,6 +23,7 @@ from backend.api.system_api import system_api
 from api.system import system_bp
 from api.nodes import nodes_bp
 from api.system import system_global_bp
+from api.global_system import global_system_bp
 
 
 # ------------------------------------------------------------
@@ -128,6 +129,7 @@ def create_app():
     app.register_blueprint(system_bp, url_prefix="/api/system")
     app.register_blueprint(nodes_bp, url_prefix="/api/nodes")
     app.register_blueprint(system_global_bp, url_prefix="/api/global/system")
+    app.register_blueprint(global_system_bp, url_prefix="/api/global/system")
 
     # --------------------------------------------------------
     # Root Endpoint
