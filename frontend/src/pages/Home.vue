@@ -1,15 +1,16 @@
 <template>
-  <DefaultLayout>
-    <TimeCard
-      :time="intel.time_now"
-      :uncertainty="intel.uncertainty_95_ns"
-      :reliability="intel.reliability_95"
-    />
+  <div class="page">
+    <h1>Control Room</h1>
 
-    <SatelliteSummary :satellites="map.satellites" />
+    <div class="time-card" v-if="system">
+      <div class="time">{{ system.time_now }}</div>
+      <div class="uncertainty">± {{ system.uncertainty_95_ns }} ns</div>
+    </div>
 
-    <SystemHealthMini :health="health" />
-  </DefaultLayout>
+    <div v-else class="loading">
+      Loading time…
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -31,3 +32,34 @@ onMounted(() => {
   setInterval(loadSystem, 1000)
 })
 </script>
+
+<style scoped>
+.page {
+  padding: 2rem;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+}
+
+.time-card {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #222;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.time {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.uncertainty {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.loading {
+  margin-top: 2rem;
+  opacity: 0.6;
+}
+</style>
