@@ -121,7 +121,7 @@ def create_app():
     app.register_blueprint(global_replay_api, url_prefix="/api/global/replay")
     app.register_blueprint(global_storyboard_api, url_prefix="/api/global/storyboard")
     app.register_blueprint(global_archive_api, url_prefix="/api/global/archive")
-    app.register_blueprint(system_api)
+    app.register_blueprint(system_api, url_prefix="/api/global/system")
 
 
 
